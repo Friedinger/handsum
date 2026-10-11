@@ -2,7 +2,7 @@ import type { Card, Move, PlayerId, StartedGame } from "@/engine";
 
 export const STARTING_VIEW_REVEAL_MS = 8000;
 export const VIEW_REVEAL_MS = 5000;
-export const FAILED_SWAP_REVEAL_MS = 4000;
+const FAILED_SWAP_REVEAL_MS = 4000;
 
 export type RevealReason = "startingView" | "viewed" | "failedSwap";
 

@@ -12,9 +12,10 @@ import { useCardFlights } from "@/ui/composables/useCardFlights";
 import { useReveals } from "@/ui/composables/useReveals";
 import { leaveRoom } from "@/ui/composables/useRoomCode";
 import { anchorKey } from "@/ui/cardFlights";
-import { playerName } from "@/ui/describe";
+import { playerName } from "@/ui/playerName";
 import { isRevealed } from "@/ui/reveals";
 import type { SlotView } from "@/ui/slotView";
+import { hintFor } from "@/ui/tableHints";
 import {
   canToggleSeveral,
   handleClick,
@@ -22,7 +23,6 @@ import {
   isSlotMarked,
   isSwappingSeveral,
   noIntent,
-  selectedOwnSlots,
   situationOf,
   toggleSeveral,
   type ClickTarget,
@@ -63,7 +63,17 @@ watch(intentContext, () => {
   intent.value = noIntent;
 });
 
-const sides = computed(() => arrangeOpponents(props.state.seats, selfId.value));
+const opponentAreas = computed(() => {
+  const { left, top, right } = arrangeOpponents(
+    props.state.seats,
+    selfId.value,
+  );
+  return [
+    { area: "area-top", seats: top },
+    { area: "area-left", seats: left },
+    { area: "area-right", seats: right },
+  ];
+});
 const ownSeat = computed(() =>
   props.state.seats.find((seat) => seat.player.id === selfId.value),
 );
@@ -154,38 +164,7 @@ function selectOwnSlot(slotIndex: number): void {
   click({ kind: "slot", slot: { playerId: selfId.value, slotIndex } });
 }
 
-const hint = computed(() => {
-  const { hints } = strings;
-  const current = situation.value;
-  if (isSwappingSeveral(intent.value)) {
-    return selectedOwnSlots(intent.value).length > 0
-      ? hints.severalCardsSelected
-      : hints.severalCards;
-  }
-  switch (current.kind) {
-    case "startingView":
-      return hints.startingView;
-    case "choosing":
-      return intent.value.kind === "takingDiscard"
-        ? hints.takingDiscard
-        : hints.choosing;
-    case "holding":
-      if (intent.value.kind === "action") {
-        return hints[intent.value.action];
-      }
-      return current.card.action ? hints.holdingAction : hints.holding;
-    case "waiting":
-      if (isFinished.value) {
-        return hints.finished;
-      }
-      if (props.state.phase.kind === "startingView") {
-        return hints.waitingForStartingView;
-      }
-      return hints.othersTurn(
-        playerName(props.state, currentPlayerId.value ?? ""),
-      );
-  }
-});
+const hint = computed(() => hintFor(props.state, selfId.value, intent.value));
 
 // One line for errors, reminders and hints, so the hand below never moves when the text changes.
 const message = computed(() => {
@@ -222,22 +201,14 @@ const results = computed(() =>
     <button type="button" class="button-quiet table-leave" @click="leaveRoom">
       {{ strings.table.leave }}
     </button>
-    <div class="table-area area-top">
+    <div
+      v-for="{ area, seats } in opponentAreas"
+      :key="area"
+      class="table-area"
+      :class="area"
+    >
       <PlayerSeat
-        v-for="seat in sides.top"
-        :key="seat.player.id"
-        :name="seat.player.name"
-        :badges="badges(seat)"
-        :slots="slotViews(seat)"
-        :active="seat.player.id === currentPlayerId"
-        size="small"
-        :compact="!targetsOpponents && !isFinished"
-        @select="(slotIndex) => selectSlot(seat, slotIndex)"
-      />
-    </div>
-    <div class="table-area area-left">
-      <PlayerSeat
-        v-for="seat in sides.left"
+        v-for="seat in seats"
         :key="seat.player.id"
         :name="seat.player.name"
         :badges="badges(seat)"
@@ -284,20 +255,6 @@ const results = computed(() =>
         @draw="click({ kind: 'drawPile' })"
         @discard="click({ kind: 'discardPile' })"
         @held="click({ kind: 'heldCard' })"
-      />
-    </div>
-
-    <div class="table-area area-right">
-      <PlayerSeat
-        v-for="seat in sides.right"
-        :key="seat.player.id"
-        :name="seat.player.name"
-        :badges="badges(seat)"
-        :slots="slotViews(seat)"
-        :active="seat.player.id === currentPlayerId"
-        size="small"
-        :compact="!targetsOpponents && !isFinished"
-        @select="(slotIndex) => selectSlot(seat, slotIndex)"
       />
     </div>
 

@@ -8,12 +8,7 @@ import {
 import type { SyncRejection } from "@/net/moveLog";
 import type { HelloMessage } from "@/net/protocol";
 import { connectTrystero } from "@/net/trysteroTransport";
-
-const UINT32_COUNT = 1;
-
-function randomSeed(): number {
-  return crypto.getRandomValues(new Uint32Array(UINT32_COUNT))[0] ?? 0;
-}
+import { randomSeed } from "@/ui/randomSeed";
 
 export function useGameSession(roomCode: string, self: HelloMessage) {
   const snapshot = shallowRef<SessionSnapshot>(initialSnapshot(roomCode, self));
