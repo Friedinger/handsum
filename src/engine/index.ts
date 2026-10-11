@@ -8,6 +8,7 @@ export {
 } from "./applyMove";
 export { standardDeck } from "./deck";
 export { legalMoves } from "./legalMoves";
+export { parseMove } from "./parseMove";
 export type * from "./moves";
 export type { MoveRejection, Result } from "./outcome";
 export * from "./rules";
