@@ -13,11 +13,15 @@ import { describeActivity, describeEvent, playerName } from "../describe";
 import { isRevealed } from "../reveals";
 import type { SlotView } from "../slotView";
 import {
+  canToggleSeveral,
   handleClick,
   isClickable,
   isSlotMarked,
+  isSwappingSeveral,
   noIntent,
+  selectedOwnSlots,
   situationOf,
+  toggleSeveral,
   type ClickTarget,
   type Intent,
 } from "../tableInteraction";
@@ -128,22 +132,19 @@ function selectOwnSlot(slotIndex: number): void {
 const hint = computed(() => {
   const { hints } = strings;
   const current = situation.value;
+  if (isSwappingSeveral(intent.value)) {
+    return selectedOwnSlots(intent.value).length > 0
+      ? hints.severalCardsSelected
+      : hints.severalCards;
+  }
   switch (current.kind) {
     case "startingView":
       return hints.startingView;
     case "choosing":
-      if (intent.value.kind !== "takingDiscard") {
-        return hints.choosing;
-      }
-      return intent.value.slotIndices.length > 0
-        ? hints.takingDiscardWithSelection
-        : hints.takingDiscard;
+      return intent.value.kind === "takingDiscard" ? hints.takingDiscard : hints.choosing;
     case "holding":
       if (intent.value.kind === "action") {
         return hints[intent.value.action];
-      }
-      if (intent.value.kind === "pickOwn") {
-        return hints.holdingWithSelection;
       }
       return current.card.action ? hints.holdingAction : hints.holding;
     case "waiting":
@@ -156,6 +157,8 @@ const hint = computed(() => {
       return hints.othersTurn(playerName(props.state, currentPlayerId.value ?? ""));
   }
 });
+
+const showSeveralToggle = computed(() => canToggleSeveral(situation.value, intent.value));
 
 const showRememberNotice = computed(() =>
   reveals.value.some((reveal) => reveal.reason === "startingView"),
@@ -272,6 +275,15 @@ const results = computed(() =>
         @select="selectOwnSlot"
       />
       <div class="hand-actions">
+        <button
+          v-if="showSeveralToggle"
+          type="button"
+          class="button-toggle"
+          :aria-pressed="isSwappingSeveral(intent)"
+          @click="intent = toggleSeveral(intent)"
+        >
+          {{ strings.table.swapSeveral }}
+        </button>
         <button
           v-if="canCallEnd"
           type="button"

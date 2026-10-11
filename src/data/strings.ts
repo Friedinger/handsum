@@ -106,15 +106,14 @@ export const strings = {
     waitingForStartingView: "Waiting for the others to look at their cards…",
     choosing: "Click the draw pile to draw a card, or the discard pile to take its top card.",
     takingDiscard:
-      "Select one of your cards, or several with the same value, then click the taken card to swap. Click the discard pile to put it back.",
-    takingDiscardWithSelection:
-      "Click the taken card to swap it with the selected cards. Several cards must share one value.",
+      "Click one of your cards to swap it with the taken card, or click the discard pile to put it back.",
     holding:
-      "Click the discard pile to throw the drawn card away, or select cards of yours and then click the drawn card to swap.",
+      "Click one of your cards to swap it with the drawn card, or click the discard pile to throw it away.",
     holdingAction:
-      "Click the drawn card to use its action, click the discard pile to throw it away, or select cards of yours and then click the drawn card to swap.",
-    holdingWithSelection:
-      "Click the drawn card to swap it with the selected cards. Several cards must share one value.",
+      "Click one of your cards to swap it, click the discard pile to throw it away, or click the drawn card to use its action.",
+    severalCards: "Select your cards with the same value, then click the card you hold to swap.",
+    severalCardsSelected:
+      "Click the card you hold to swap it with the selected cards. They must all share one value.",
     viewOwn: "Click one of your cards to look at it. Click the drawn card to cancel.",
     viewOther: "Click a card of another player to look at it. Click the drawn card to cancel.",
     exchangeBlind:
@@ -125,6 +124,7 @@ export const strings = {
   },
   table: {
     callEnd: "Call the end",
+    swapSeveral: "Swap several cards",
     drawPileCount: (count: number) => `${String(count)} left`,
     holdingCard: (player: string) => `${player}'s card`,
     yourCard: "Your card",
