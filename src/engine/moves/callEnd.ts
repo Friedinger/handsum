@@ -3,7 +3,10 @@ import { accept, reject, type Result } from "../outcome";
 import type { GameState, StartedGame } from "../types";
 import { endTurn, requireAwaitingChoice } from "./turn";
 
-export function applyCallEnd(state: GameState, move: CallEndMove): Result<StartedGame> {
+export function applyCallEnd(
+  state: GameState,
+  move: CallEndMove,
+): Result<StartedGame> {
   const turn = requireAwaitingChoice(state, move.playerId);
   if (!turn.ok) {
     return turn;
@@ -11,5 +14,7 @@ export function applyCallEnd(state: GameState, move: CallEndMove): Result<Starte
   if (turn.value.state.endCallerId !== null) {
     return reject("endAlreadyCalled");
   }
-  return accept(endTurn({ ...turn.value.state, endCallerId: move.playerId }, move.playerId));
+  return accept(
+    endTurn({ ...turn.value.state, endCallerId: move.playerId }, move.playerId),
+  );
 }

@@ -30,7 +30,11 @@ function parsePlayers(value: unknown): Player[] | null {
   return value.map(({ id, name }) => ({ id, name }));
 }
 
-function parseFields(type: MoveType, playerId: string, fields: Fields): Move | null {
+function parseFields(
+  type: MoveType,
+  playerId: string,
+  fields: Fields,
+): Move | null {
   switch (type) {
     case "startGame": {
       const players = parsePlayers(fields.players);
@@ -49,10 +53,17 @@ function parseFields(type: MoveType, playerId: string, fields: Fields): Move | n
         ? { type, playerId, slotIndices: fields.slotIndices }
         : null;
     case "viewOwnCard":
-      return isNumber(fields.slotIndex) ? { type, playerId, slotIndex: fields.slotIndex } : null;
+      return isNumber(fields.slotIndex)
+        ? { type, playerId, slotIndex: fields.slotIndex }
+        : null;
     case "viewOtherCard":
       return isString(fields.targetPlayerId) && isNumber(fields.slotIndex)
-        ? { type, playerId, targetPlayerId: fields.targetPlayerId, slotIndex: fields.slotIndex }
+        ? {
+            type,
+            playerId,
+            targetPlayerId: fields.targetPlayerId,
+            slotIndex: fields.slotIndex,
+          }
         : null;
     case "exchangeBlind":
       return isNumber(fields.ownSlotIndex) &&
@@ -87,7 +98,11 @@ function isMoveType(value: unknown): value is MoveType {
 }
 
 export function parseMove(value: unknown): Move | null {
-  if (!isRecord(value) || !isMoveType(value.type) || !isString(value.playerId)) {
+  if (
+    !isRecord(value) ||
+    !isMoveType(value.type) ||
+    !isString(value.playerId)
+  ) {
     return null;
   }
   return parseFields(value.type, value.playerId, value);

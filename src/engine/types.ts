@@ -21,7 +21,8 @@ export interface Seat {
   readonly layout: readonly Slot[];
 }
 
-export type TurnStep = { readonly kind: "awaitingChoice" } | HoldingDrawnCardStep;
+export type TurnStep =
+  { readonly kind: "awaitingChoice" } | HoldingDrawnCardStep;
 
 export interface HoldingDrawnCardStep {
   readonly kind: "holdingDrawnCard";

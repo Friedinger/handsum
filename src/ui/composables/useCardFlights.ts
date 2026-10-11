@@ -1,4 +1,12 @@
-import { nextTick, onMounted, onUnmounted, ref, shallowRef, watch, type Ref } from "vue";
+import {
+  nextTick,
+  onMounted,
+  onUnmounted,
+  ref,
+  shallowRef,
+  watch,
+  type Ref,
+} from "vue";
 import type { Card, PlayerId } from "../../engine";
 import type { SyncedLog } from "../../net/moveLog";
 import {
@@ -49,18 +57,28 @@ export function useCardFlights(
 
   const boxOf = (anchor: Anchor): Box | null => {
     const container = table.value;
-    const element = container?.querySelector(`[data-anchor="${anchorKey(anchor)}"]`);
+    const element = container?.querySelector(
+      `[data-anchor="${anchorKey(anchor)}"]`,
+    );
     if (!container || !element) {
       return null;
     }
     const origin = container.getBoundingClientRect();
     const rect = element.getBoundingClientRect();
-    return { left: rect.left - origin.left, top: rect.top - origin.top, width: rect.width };
+    return {
+      left: rect.left - origin.left,
+      top: rect.top - origin.top,
+      width: rect.width,
+    };
   };
 
   const refreshHidden = () => {
-    hiddenAnchors.value = new Set(flights.value.map((active) => anchorKey(active.flight.to)));
-    if (!flights.value.some((active) => active.flight.to.kind === "discardPile")) {
+    hiddenAnchors.value = new Set(
+      flights.value.map((active) => anchorKey(active.flight.to)),
+    );
+    if (
+      !flights.value.some((active) => active.flight.to.kind === "discardPile")
+    ) {
       discardTopWhileFlying.value = undefined;
     }
   };
@@ -75,7 +93,9 @@ export function useCardFlights(
 
   const launch = async (planned: readonly Flight[], staggerMs: number) => {
     const origins = planned.map((flight) => boxOf(flight.from));
-    hiddenAnchors.value = new Set(planned.map((flight) => anchorKey(flight.to)));
+    hiddenAnchors.value = new Set(
+      planned.map((flight) => anchorKey(flight.to)),
+    );
     // Targets are measured after the new state is rendered, origins before it.
     await nextTick();
     flights.value = planned.flatMap((flight, index) => {
@@ -85,7 +105,15 @@ export function useCardFlights(
         return [];
       }
       nextFlightId += 1;
-      return [{ id: nextFlightId, flight, from, to, delayMs: flight.order * staggerMs }];
+      return [
+        {
+          id: nextFlightId,
+          flight,
+          from,
+          to,
+          delayMs: flight.order * staggerMs,
+        },
+      ];
     });
     refreshHidden();
   };

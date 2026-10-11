@@ -1,6 +1,10 @@
 import { onUnmounted, ref, shallowRef, watch } from "vue";
 import type { Move } from "../../engine";
-import { createGameSession, initialSnapshot, type SessionSnapshot } from "../../net/gameSession";
+import {
+  createGameSession,
+  initialSnapshot,
+  type SessionSnapshot,
+} from "../../net/gameSession";
 import type { SyncRejection } from "../../net/moveLog";
 import type { HelloMessage } from "../../net/protocol";
 import { connectTrystero } from "../../net/trysteroTransport";

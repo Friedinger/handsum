@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { Move, StartGameMove } from "../engine";
-import { chooseLog, emptyLog, receiveMove, replayLog, type SyncedLog } from "./moveLog";
+import {
+  chooseLog,
+  emptyLog,
+  receiveMove,
+  replayLog,
+  type SyncedLog,
+} from "./moveLog";
 import type { HelloMessage, MoveMessage } from "./protocol";
 
 const alice: HelloMessage = { playerId: "alice", name: "Alice" };
@@ -10,10 +16,28 @@ const players = [
   { id: "alice", name: "Alice" },
   { id: "bob", name: "Bob" },
 ];
-const aliceStart: StartGameMove = { type: "startGame", playerId: "alice", players, seed: 42 };
-const bobStart: StartGameMove = { type: "startGame", playerId: "bob", players, seed: 99 };
-const aliceViews: Move = { type: "viewStartingCards", playerId: "alice", slotIndices: [0, 1] };
-const bobViews: Move = { type: "viewStartingCards", playerId: "bob", slotIndices: [2, 3] };
+const aliceStart: StartGameMove = {
+  type: "startGame",
+  playerId: "alice",
+  players,
+  seed: 42,
+};
+const bobStart: StartGameMove = {
+  type: "startGame",
+  playerId: "bob",
+  players,
+  seed: 99,
+};
+const aliceViews: Move = {
+  type: "viewStartingCards",
+  playerId: "alice",
+  slotIndices: [0, 1],
+};
+const bobViews: Move = {
+  type: "viewStartingCards",
+  playerId: "bob",
+  slotIndices: [2, 3],
+};
 
 function logOf(moves: Move[]): SyncedLog {
   const log = replayLog(moves);
@@ -23,22 +47,32 @@ function logOf(moves: Move[]): SyncedLog {
   return log;
 }
 
-function message(sequence: number, move: Move, startSeed = aliceStart.seed): MoveMessage {
+function message(
+  sequence: number,
+  move: Move,
+  startSeed = aliceStart.seed,
+): MoveMessage {
   return { startSeed, sequence, move };
 }
 
 describe("receiveMove", () => {
   it("accepts a legal move with the expected sequence number", () => {
-    expect(receiveMove(emptyLog, message(1, aliceStart), alice).kind).toBe("accepted");
+    expect(receiveMove(emptyLog, message(1, aliceStart), alice).kind).toBe(
+      "accepted",
+    );
   });
 
   it("ignores a move it already has", () => {
     const log = logOf([aliceStart]);
-    expect(receiveMove(log, message(1, aliceStart), alice)).toEqual({ kind: "duplicate" });
+    expect(receiveMove(log, message(1, aliceStart), alice)).toEqual({
+      kind: "duplicate",
+    });
   });
 
   it("reports being behind when a sequence number is skipped", () => {
-    expect(receiveMove(emptyLog, message(2, aliceViews), alice)).toEqual({ kind: "behind" });
+    expect(receiveMove(emptyLog, message(2, aliceViews), alice)).toEqual({
+      kind: "behind",
+    });
   });
 
   it("rejects moves sent on behalf of another player", () => {
@@ -71,13 +105,27 @@ describe("receiveMove", () => {
     if (outcome.kind !== "accepted") {
       throw new Error("Expected the starting view to be accepted");
     }
-    expect(outcome.log.state).toEqual(logOf([aliceStart, bobViews, aliceViews]).state);
+    expect(outcome.log.state).toEqual(
+      logOf([aliceStart, bobViews, aliceViews]).state,
+    );
   });
 
   it("settles crossing starts in favour of the lower player ID", () => {
-    const outcome = receiveMove(logOf([bobStart]), message(1, aliceStart), alice);
-    expect(outcome.kind === "accepted" && outcome.log.moves).toEqual([aliceStart]);
-    expect(receiveMove(logOf([aliceStart]), message(1, bobStart, bobStart.seed), bob)).toEqual({
+    const outcome = receiveMove(
+      logOf([bobStart]),
+      message(1, aliceStart),
+      alice,
+    );
+    expect(outcome.kind === "accepted" && outcome.log.moves).toEqual([
+      aliceStart,
+    ]);
+    expect(
+      receiveMove(
+        logOf([aliceStart]),
+        message(1, bobStart, bobStart.seed),
+        bob,
+      ),
+    ).toEqual({
       kind: "rejected",
       reason: "gameAlreadyStarted",
     });
@@ -95,10 +143,9 @@ describe("receiveMove", () => {
 
 describe("chooseLog", () => {
   it("adopts a longer valid log of the same game", () => {
-    expect(chooseLog(logOf([aliceStart]), [aliceStart, aliceViews])?.moves).toEqual([
-      aliceStart,
-      aliceViews,
-    ]);
+    expect(
+      chooseLog(logOf([aliceStart]), [aliceStart, aliceViews])?.moves,
+    ).toEqual([aliceStart, aliceViews]);
   });
 
   it("keeps the own log when the incoming one is not longer or invalid", () => {
@@ -138,31 +185,52 @@ describe("rematches", () => {
 
   it("accepts a new start after the game has finished", () => {
     const log = finishedLog();
-    expect(log.state.status === "started" && log.state.phase.kind).toBe("finished");
-    const outcome = receiveMove(log, message(log.moves.length + 1, bobRematch), bob);
+    expect(log.state.status === "started" && log.state.phase.kind).toBe(
+      "finished",
+    );
+    const outcome = receiveMove(
+      log,
+      message(log.moves.length + 1, bobRematch),
+      bob,
+    );
     expect(outcome.kind).toBe("accepted");
   });
 
   it("checks later moves against the seed of the latest start", () => {
     const log = finishedLog();
     const rematch = logOf([...log.moves, aliceRematch]);
-    const views: Move = { type: "viewStartingCards", playerId: "bob", slotIndices: [0, 1] };
+    const views: Move = {
+      type: "viewStartingCards",
+      playerId: "bob",
+      slotIndices: [0, 1],
+    };
     const sequence = rematch.moves.length + 1;
-    expect(receiveMove(rematch, message(sequence, views, aliceStart.seed), bob)).toEqual({
+    expect(
+      receiveMove(rematch, message(sequence, views, aliceStart.seed), bob),
+    ).toEqual({
       kind: "rejected",
       reason: "otherGame",
     });
-    expect(receiveMove(rematch, message(sequence, views, aliceRematch.seed), bob).kind).toBe(
-      "accepted",
-    );
+    expect(
+      receiveMove(rematch, message(sequence, views, aliceRematch.seed), bob)
+        .kind,
+    ).toBe("accepted");
   });
 
   it("settles crossing rematches in favour of the lower player ID", () => {
     const log = finishedLog();
     const sequence = log.moves.length + 1;
     const bobFirst = logOf([...log.moves, bobRematch]);
-    const outcome = receiveMove(bobFirst, message(sequence, aliceRematch), alice);
-    expect(outcome.kind === "accepted" && outcome.log.moves.at(-1)).toEqual(aliceRematch);
-    expect(chooseLog(bobFirst, [...log.moves, aliceRematch])?.moves.at(-1)).toEqual(aliceRematch);
+    const outcome = receiveMove(
+      bobFirst,
+      message(sequence, aliceRematch),
+      alice,
+    );
+    expect(outcome.kind === "accepted" && outcome.log.moves.at(-1)).toEqual(
+      aliceRematch,
+    );
+    expect(
+      chooseLog(bobFirst, [...log.moves, aliceRematch])?.moves.at(-1),
+    ).toEqual(aliceRematch);
   });
 });

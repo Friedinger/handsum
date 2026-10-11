@@ -12,7 +12,12 @@ import {
 } from "./testFixtures";
 import type { Card, StartedGame } from "./types";
 
-const ownLayout = [makeCard(1, null, 1), makeCard(2, null, 2), makeCard(3, null, 3), null];
+const ownLayout = [
+  makeCard(1, null, 1),
+  makeCard(2, null, 2),
+  makeCard(3, null, 3),
+  null,
+];
 const otherLayout = [
   makeCard(10, "viewOther", 11),
   makeCard(11, "exchangeBlind", 12),
@@ -32,7 +37,11 @@ function apply(state: StartedGame, move: Move): StartedGame {
 }
 
 describe("viewOwnCard", () => {
-  const move: Move = { type: "viewOwnCard", playerId: "player-1", slotIndex: 1 };
+  const move: Move = {
+    type: "viewOwnCard",
+    playerId: "player-1",
+    slotIndex: 1,
+  };
 
   it("reveals one own card to the player, discards the action card and ends the turn", () => {
     const state = stateHolding(viewOwnCard);
@@ -52,13 +61,21 @@ describe("viewOwnCard", () => {
   });
 
   it("needs a matching action card that was just drawn", () => {
-    expect(validateMove(stateHolding(viewOtherCard), move)).toBe("wrongCardAction");
-    expect(validateMove(stateHolding(makeCard(4)), move)).toBe("wrongCardAction");
-    expect(validateMove(withLayouts(playingGame(3), [ownLayout]), move)).toBe("wrongTurnStep");
+    expect(validateMove(stateHolding(viewOtherCard), move)).toBe(
+      "wrongCardAction",
+    );
+    expect(validateMove(stateHolding(makeCard(4)), move)).toBe(
+      "wrongCardAction",
+    );
+    expect(validateMove(withLayouts(playingGame(3), [ownLayout]), move)).toBe(
+      "wrongTurnStep",
+    );
   });
 
   it("cannot look at an empty slot", () => {
-    expect(validateMove(stateHolding(viewOwnCard), { ...move, slotIndex: 3 })).toBe("emptySlot");
+    expect(
+      validateMove(stateHolding(viewOwnCard), { ...move, slotIndex: 3 }),
+    ).toBe("emptySlot");
   });
 });
 
@@ -86,8 +103,12 @@ describe("viewOtherCard", () => {
 
   it("rejects the own seat, unknown players and empty slots", () => {
     const state = stateHolding(viewOtherCard);
-    expect(validateMove(state, { ...move, targetPlayerId: "player-1" })).toBe("invalidTarget");
-    expect(validateMove(state, { ...move, targetPlayerId: "stranger" })).toBe("invalidTarget");
+    expect(validateMove(state, { ...move, targetPlayerId: "player-1" })).toBe(
+      "invalidTarget",
+    );
+    expect(validateMove(state, { ...move, targetPlayerId: "stranger" })).toBe(
+      "invalidTarget",
+    );
     expect(validateMove(state, { ...move, slotIndex: 2 })).toBe("emptySlot");
   });
 });
@@ -103,7 +124,12 @@ describe("exchangeBlind", () => {
 
   it("exchanges one own card with one card of another player without revealing them", () => {
     const afterExchange = apply(stateHolding(exchangeCard), move);
-    expect(layoutOf(afterExchange, 0)).toEqual([otherLayout[1], ownLayout[1], ownLayout[2], null]);
+    expect(layoutOf(afterExchange, 0)).toEqual([
+      otherLayout[1],
+      ownLayout[1],
+      ownLayout[2],
+      null,
+    ]);
     expect(layoutOf(afterExchange, 1)).toEqual([
       otherLayout[0],
       ownLayout[0],
@@ -117,6 +143,8 @@ describe("exchangeBlind", () => {
   it("rejects empty slots on either side", () => {
     const state = stateHolding(exchangeCard);
     expect(validateMove(state, { ...move, ownSlotIndex: 3 })).toBe("emptySlot");
-    expect(validateMove(state, { ...move, targetSlotIndex: 2 })).toBe("emptySlot");
+    expect(validateMove(state, { ...move, targetSlotIndex: 2 })).toBe(
+      "emptySlot",
+    );
   });
 });

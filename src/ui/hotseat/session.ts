@@ -1,4 +1,9 @@
-import { replayMoves, type GameState, type Move, type PlayerId } from "../../engine";
+import {
+  replayMoves,
+  type GameState,
+  type Move,
+  type PlayerId,
+} from "../../engine";
 
 export interface HotseatSession {
   readonly moves: readonly Move[];
@@ -38,7 +43,9 @@ export function activePlayerId(state: GameState): PlayerId | null {
   switch (state.phase.kind) {
     case "startingView": {
       const { viewedPlayerIds } = state.phase;
-      const waiting = state.seats.find((seat) => !viewedPlayerIds.includes(seat.player.id));
+      const waiting = state.seats.find(
+        (seat) => !viewedPlayerIds.includes(seat.player.id),
+      );
       return waiting?.player.id ?? null;
     }
     case "playing":

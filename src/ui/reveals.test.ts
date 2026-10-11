@@ -8,7 +8,12 @@ import {
   startedGame,
   withLayouts,
 } from "../engine/testFixtures";
-import { isRevealed, revealsAfterMove, STARTING_VIEW_REVEAL_MS, VIEW_REVEAL_MS } from "./reveals";
+import {
+  isRevealed,
+  revealsAfterMove,
+  STARTING_VIEW_REVEAL_MS,
+  VIEW_REVEAL_MS,
+} from "./reveals";
 
 function afterMove(state: StartedGame, move: Move): StartedGame {
   return expectStarted(applyMove(state, move));
@@ -16,10 +21,16 @@ function afterMove(state: StartedGame, move: Move): StartedGame {
 
 describe("revealsAfterMove", () => {
   it("shows the own starting cards to the viewing player only", () => {
-    const move: Move = { type: "viewStartingCards", playerId: "player-1", slotIndices: [1, 3] };
+    const move: Move = {
+      type: "viewStartingCards",
+      playerId: "player-1",
+      slotIndices: [1, 3],
+    };
     const state = afterMove(startedGame(2), move);
     const reveals = revealsAfterMove(state, move, "player-1");
-    expect(reveals.map((reveal) => [reveal.slotIndex, reveal.durationMs])).toEqual([
+    expect(
+      reveals.map((reveal) => [reveal.slotIndex, reveal.durationMs]),
+    ).toEqual([
       [1, STARTING_VIEW_REVEAL_MS],
       [3, STARTING_VIEW_REVEAL_MS],
     ]);
@@ -33,9 +44,16 @@ describe("revealsAfterMove", () => {
       targetPlayerId: "player-2",
       slotIndex: 0,
     };
-    const state = afterMove(holding(playingGame(3), makeCard(9, "viewOther")), move);
+    const state = afterMove(
+      holding(playingGame(3), makeCard(9, "viewOther")),
+      move,
+    );
     const [reveal] = revealsAfterMove(state, move, "player-1");
-    expect(reveal).toMatchObject({ ownerId: "player-2", slotIndex: 0, durationMs: VIEW_REVEAL_MS });
+    expect(reveal).toMatchObject({
+      ownerId: "player-2",
+      slotIndex: 0,
+      durationMs: VIEW_REVEAL_MS,
+    });
     expect(revealsAfterMove(state, move, "player-3")).toEqual([]);
     expect(revealsAfterMove(state, move, "player-2")).toEqual([]);
   });
@@ -47,7 +65,11 @@ describe("revealsAfterMove", () => {
       makeCard(1, null, 3),
       makeCard(2, null, 4),
     ];
-    const move: Move = { type: "swapDiscardCard", playerId: "player-1", slotIndices: [0, 1] };
+    const move: Move = {
+      type: "swapDiscardCard",
+      playerId: "player-1",
+      slotIndices: [0, 1],
+    };
     const state = afterMove(withLayouts(playingGame(2), [layout]), move);
     const reveals = revealsAfterMove(state, move, "player-2");
     expect(reveals.map((reveal) => reveal.slotIndex)).toEqual([0, 1]);
@@ -58,7 +80,11 @@ describe("revealsAfterMove", () => {
 
 describe("isRevealed", () => {
   it("ends once the revealed card has left its slot", () => {
-    const move: Move = { type: "viewStartingCards", playerId: "player-1", slotIndices: [0, 1] };
+    const move: Move = {
+      type: "viewStartingCards",
+      playerId: "player-1",
+      slotIndices: [0, 1],
+    };
     const state = afterMove(startedGame(2), move);
     const reveals = revealsAfterMove(state, move, "player-1");
     const swapped = withLayouts(state, [[makeCard(13), null, null, null]]);

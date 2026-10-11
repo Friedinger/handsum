@@ -29,7 +29,10 @@ describe("callEnd", () => {
 
   it("gives every other player exactly one more turn, then finishes", () => {
     const afterSecondTurn = playQuietTurn(playingGame(3));
-    const afterCall = apply(afterSecondTurn, { type: "callEnd", playerId: "player-2" });
+    const afterCall = apply(afterSecondTurn, {
+      type: "callEnd",
+      playerId: "player-2",
+    });
     const afterThird = playQuietTurn(afterCall);
     expect(currentPlayerId(afterThird)).toBe("player-1");
     const finished = playQuietTurn(afterThird);
@@ -37,19 +40,28 @@ describe("callEnd", () => {
   });
 
   it("finishes after one turn in a two-player game", () => {
-    const afterCall = apply(playingGame(2), { type: "callEnd", playerId: "player-1" });
+    const afterCall = apply(playingGame(2), {
+      type: "callEnd",
+      playerId: "player-1",
+    });
     expect(playQuietTurn(afterCall).phase.kind).toBe("finished");
   });
 
   it("can only be called once and only at the start of a turn", () => {
-    const afterCall = apply(playingGame(3), { type: "callEnd", playerId: "player-1" });
-    expect(validateMove(afterCall, { type: "callEnd", playerId: "player-2" })).toBe(
-      "endAlreadyCalled",
-    );
-    const afterDraw = apply(playingGame(3), { type: "drawFromDeck", playerId: "player-1" });
-    expect(validateMove(afterDraw, { type: "callEnd", playerId: "player-1" })).toBe(
-      "wrongTurnStep",
-    );
+    const afterCall = apply(playingGame(3), {
+      type: "callEnd",
+      playerId: "player-1",
+    });
+    expect(
+      validateMove(afterCall, { type: "callEnd", playerId: "player-2" }),
+    ).toBe("endAlreadyCalled");
+    const afterDraw = apply(playingGame(3), {
+      type: "drawFromDeck",
+      playerId: "player-1",
+    });
+    expect(
+      validateMove(afterDraw, { type: "callEnd", playerId: "player-1" }),
+    ).toBe("wrongTurnStep");
   });
 
   it("allows no further moves once the game is finished", () => {

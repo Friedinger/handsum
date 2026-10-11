@@ -1,7 +1,18 @@
-import type { ExchangeBlindMove, ViewOtherCardMove, ViewOwnCardMove } from "../moves";
+import type {
+  ExchangeBlindMove,
+  ViewOtherCardMove,
+  ViewOwnCardMove,
+} from "../moves";
 import { accept, reject, type Result } from "../outcome";
 import { isSlotIndex, replaceAt, seatIndexOf, withLayout } from "../state";
-import type { Card, CardAction, GameState, PlayerId, Slot, StartedGame } from "../types";
+import type {
+  Card,
+  CardAction,
+  GameState,
+  PlayerId,
+  Slot,
+  StartedGame,
+} from "../types";
 import { endTurn, requireHeldCard, withEvent, type HeldCardTurn } from "./turn";
 
 interface TargetSeat {
@@ -19,10 +30,15 @@ function requireAction(
   if (!turn.ok) {
     return turn;
   }
-  return turn.value.heldCard.action === action ? turn : reject("wrongCardAction");
+  return turn.value.heldCard.action === action
+    ? turn
+    : reject("wrongCardAction");
 }
 
-function requireOtherSeat(turn: HeldCardTurn, targetPlayerId: PlayerId): Result<TargetSeat> {
+function requireOtherSeat(
+  turn: HeldCardTurn,
+  targetPlayerId: PlayerId,
+): Result<TargetSeat> {
   const seatIndex = seatIndexOf(turn.state, targetPlayerId);
   const seat = turn.state.seats[seatIndex];
   if (!seat || targetPlayerId === turn.playerId) {
@@ -31,7 +47,10 @@ function requireOtherSeat(turn: HeldCardTurn, targetPlayerId: PlayerId): Result<
   return accept({ playerId: targetPlayerId, seatIndex, layout: seat.layout });
 }
 
-function requireCardAt(layout: readonly Slot[], slotIndex: number): Result<Card> {
+function requireCardAt(
+  layout: readonly Slot[],
+  slotIndex: number,
+): Result<Card> {
   if (!isSlotIndex(layout, slotIndex)) {
     return reject("invalidSlot");
   }
@@ -40,10 +59,16 @@ function requireCardAt(layout: readonly Slot[], slotIndex: number): Result<Card>
 }
 
 function completeAction(turn: HeldCardTurn, state: StartedGame): StartedGame {
-  return endTurn({ ...state, discardPile: [turn.heldCard, ...state.discardPile] }, turn.playerId);
+  return endTurn(
+    { ...state, discardPile: [turn.heldCard, ...state.discardPile] },
+    turn.playerId,
+  );
 }
 
-export function applyViewOwnCard(state: GameState, move: ViewOwnCardMove): Result<StartedGame> {
+export function applyViewOwnCard(
+  state: GameState,
+  move: ViewOwnCardMove,
+): Result<StartedGame> {
   const turn = requireAction(state, move.playerId, "viewOwn");
   if (!turn.ok) {
     return turn;
@@ -62,7 +87,10 @@ export function applyViewOwnCard(state: GameState, move: ViewOwnCardMove): Resul
   return accept(completeAction(turn.value, viewed));
 }
 
-export function applyViewOtherCard(state: GameState, move: ViewOtherCardMove): Result<StartedGame> {
+export function applyViewOtherCard(
+  state: GameState,
+  move: ViewOtherCardMove,
+): Result<StartedGame> {
   const turn = requireAction(state, move.playerId, "viewOther");
   if (!turn.ok) {
     return turn;
@@ -85,7 +113,10 @@ export function applyViewOtherCard(state: GameState, move: ViewOtherCardMove): R
   return accept(completeAction(turn.value, viewed));
 }
 
-export function applyExchangeBlind(state: GameState, move: ExchangeBlindMove): Result<StartedGame> {
+export function applyExchangeBlind(
+  state: GameState,
+  move: ExchangeBlindMove,
+): Result<StartedGame> {
   const turn = requireAction(state, move.playerId, "exchangeBlind");
   if (!turn.ok) {
     return turn;
@@ -102,8 +133,16 @@ export function applyExchangeBlind(state: GameState, move: ExchangeBlindMove): R
   if (!targetCard.ok) {
     return targetCard;
   }
-  const ownLayout = replaceAt(turn.value.layout, move.ownSlotIndex, targetCard.value);
-  const targetLayout = replaceAt(target.value.layout, move.targetSlotIndex, ownCard.value);
+  const ownLayout = replaceAt(
+    turn.value.layout,
+    move.ownSlotIndex,
+    targetCard.value,
+  );
+  const targetLayout = replaceAt(
+    target.value.layout,
+    move.targetSlotIndex,
+    ownCard.value,
+  );
   const seats = withLayout(
     withLayout(turn.value.state.seats, turn.value.seatIndex, ownLayout),
     target.value.seatIndex,

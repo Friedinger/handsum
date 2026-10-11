@@ -6,7 +6,11 @@ function namesAround(playerCount: number, selfId: string) {
   const sides = arrangeOpponents(startedGame(playerCount).seats, selfId);
   const ids = (seats: typeof sides.left) =>
     seats.map((seat) => seat.player.id.replace("player-", ""));
-  return { left: ids(sides.left), top: ids(sides.top), right: ids(sides.right) };
+  return {
+    left: ids(sides.left),
+    top: ids(sides.top),
+    right: ids(sides.right),
+  };
 }
 
 describe("opponentsInTurnOrder", () => {
@@ -20,15 +24,27 @@ describe("opponentsInTurnOrder", () => {
 
 describe("arrangeOpponents", () => {
   it("puts a single opponent at the top", () => {
-    expect(namesAround(2, "player-1")).toEqual({ left: [], top: ["2"], right: [] });
+    expect(namesAround(2, "player-1")).toEqual({
+      left: [],
+      top: ["2"],
+      right: [],
+    });
   });
 
   it("puts two opponents on the sides", () => {
-    expect(namesAround(3, "player-1")).toEqual({ left: ["2"], top: [], right: ["3"] });
+    expect(namesAround(3, "player-1")).toEqual({
+      left: ["2"],
+      top: [],
+      right: ["3"],
+    });
   });
 
   it("fills left, top and right clockwise for larger tables", () => {
-    expect(namesAround(4, "player-1")).toEqual({ left: ["2"], top: ["3"], right: ["4"] });
+    expect(namesAround(4, "player-1")).toEqual({
+      left: ["2"],
+      top: ["3"],
+      right: ["4"],
+    });
     expect(namesAround(8, "player-1")).toEqual({
       left: ["3", "2"],
       top: ["4", "5", "6"],

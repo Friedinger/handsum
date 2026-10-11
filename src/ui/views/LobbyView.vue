@@ -7,7 +7,10 @@ import type { SyncRejection } from "../../net/moveLog";
 import { roomLink } from "../../net/roomCode";
 import { leaveRoom } from "../composables/useRoomCode";
 
-const props = defineProps<{ snapshot: SessionSnapshot; rejection: SyncRejection | null }>();
+const props = defineProps<{
+  snapshot: SessionSnapshot;
+  rejection: SyncRejection | null;
+}>();
 const emit = defineEmits<{ start: [] }>();
 
 const COPIED_NOTICE_MS = 2000;
@@ -15,7 +18,8 @@ const COPIED_NOTICE_MS = 2000;
 const link = computed(() => roomLink(location, props.snapshot.roomCode));
 const players = computed(() => lobbyPlayers(props.snapshot));
 const canStart = computed(
-  () => players.value.length >= MIN_PLAYERS && players.value.length <= MAX_PLAYERS,
+  () =>
+    players.value.length >= MIN_PLAYERS && players.value.length <= MAX_PLAYERS,
 );
 const copied = ref(false);
 
@@ -45,18 +49,29 @@ async function copyLink(): Promise<void> {
       <ul class="player-list">
         <li v-for="player in players" :key="player.id">
           {{ player.name }}
-          <span v-if="player.id === snapshot.self.playerId">({{ strings.table.you }})</span>
+          <span v-if="player.id === snapshot.self.playerId"
+            >({{ strings.table.you }})</span
+          >
         </li>
       </ul>
     </div>
     <p class="muted">
       {{
-        canStart ? strings.lobby.startHint : strings.lobby.playerLimits(MIN_PLAYERS, MAX_PLAYERS)
+        canStart
+          ? strings.lobby.startHint
+          : strings.lobby.playerLimits(MIN_PLAYERS, MAX_PLAYERS)
       }}
     </p>
-    <p v-if="rejection" class="error">{{ strings.syncRejectionMessages[rejection] }}</p>
+    <p v-if="rejection" class="error">
+      {{ strings.syncRejectionMessages[rejection] }}
+    </p>
     <div class="inline-form">
-      <button type="button" class="button-primary" :disabled="!canStart" @click="emit('start')">
+      <button
+        type="button"
+        class="button-primary"
+        :disabled="!canStart"
+        @click="emit('start')"
+      >
         {{ strings.lobby.start }}
       </button>
       <button type="button" class="button-secondary" @click="leaveRoom">

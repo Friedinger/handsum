@@ -12,8 +12,13 @@ import {
 
 const MULTI_SWAP_MIN_CARDS = 2;
 
-function cardsAt(layout: readonly Slot[], slotIndices: readonly number[]): Card[] {
-  return slotIndices.map((slotIndex) => layout[slotIndex]).filter((slot) => slot != null);
+function cardsAt(
+  layout: readonly Slot[],
+  slotIndices: readonly number[],
+): Card[] {
+  return slotIndices
+    .map((slotIndex) => layout[slotIndex])
+    .filter((slot) => slot != null);
 }
 
 function haveSameValue(cards: readonly Card[]): boolean {
@@ -72,7 +77,10 @@ function swapIntoLayout(
   return accept(endTurn(afterSwap, playerId));
 }
 
-export function applySwapDrawnCard(state: GameState, move: SwapDrawnCardMove): Result<StartedGame> {
+export function applySwapDrawnCard(
+  state: GameState,
+  move: SwapDrawnCardMove,
+): Result<StartedGame> {
   const turn = requireHeldCard(state, move.playerId);
   if (!turn.ok) {
     return turn;
@@ -97,5 +105,10 @@ export function applySwapDiscardCard(
   if (!takenCard) {
     return reject("discardPileEmpty");
   }
-  return swapIntoLayout(turn.value, takenCard, move.slotIndices, discardPileBelow);
+  return swapIntoLayout(
+    turn.value,
+    takenCard,
+    move.slotIndices,
+    discardPileBelow,
+  );
 }

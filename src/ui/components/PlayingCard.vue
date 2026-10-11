@@ -14,7 +14,13 @@ const props = withDefaults(
     inFlight?: boolean;
     peeked?: boolean;
   }>(),
-  { size: "medium", clickable: false, marked: false, inFlight: false, peeked: false },
+  {
+    size: "medium",
+    clickable: false,
+    marked: false,
+    inFlight: false,
+    peeked: false,
+  },
 );
 const emit = defineEmits<{ click: [] }>();
 

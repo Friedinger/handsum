@@ -42,8 +42,16 @@ describe("multi-swap with matching values", () => {
   it("discards all selected cards and places the new card on the lowest selected slot", () => {
     const state = holding(withLayouts(playingGame(), [mixedLayout]), drawnCard);
     const afterSwap = apply(state, swapDrawn([2, 0]));
-    expect(layoutOf(afterSwap, 0)).toEqual([drawnCard, mixedLayout[1], null, mixedLayout[3]]);
-    expect(afterSwap.discardPile.slice(0, 2)).toEqual([mixedLayout[2], mixedLayout[0]]);
+    expect(layoutOf(afterSwap, 0)).toEqual([
+      drawnCard,
+      mixedLayout[1],
+      null,
+      mixedLayout[3],
+    ]);
+    expect(afterSwap.discardPile.slice(0, 2)).toEqual([
+      mixedLayout[2],
+      mixedLayout[0],
+    ]);
     expect(afterSwap.lastMoveEvents).toEqual([
       {
         type: "cardsRevealed",
@@ -66,8 +74,17 @@ describe("multi-swap with matching values", () => {
     const state = withLayouts(playingGame(), [fives]);
     const takenCard = state.discardPile[0];
     const afterSwap = apply(state, swapDiscard([1, 3]));
-    expect(layoutOf(afterSwap, 0)).toEqual([fives[0], takenCard, fives[2], null]);
-    expect(afterSwap.discardPile).toEqual([fives[1], fives[3], ...state.discardPile.slice(1)]);
+    expect(layoutOf(afterSwap, 0)).toEqual([
+      fives[0],
+      takenCard,
+      fives[2],
+      null,
+    ]);
+    expect(afterSwap.discardPile).toEqual([
+      fives[1],
+      fives[3],
+      ...state.discardPile.slice(1),
+    ]);
   });
 });
 
@@ -104,8 +121,16 @@ describe("swap selection", () => {
   });
 
   it("rejects empty, duplicate and empty-slot selections", () => {
-    const layoutWithGap = [makeCard(5, null, 1), null, makeCard(5, null, 3), makeCard(5, null, 4)];
-    const state = holding(withLayouts(playingGame(), [layoutWithGap]), drawnCard);
+    const layoutWithGap = [
+      makeCard(5, null, 1),
+      null,
+      makeCard(5, null, 3),
+      makeCard(5, null, 4),
+    ];
+    const state = holding(
+      withLayouts(playingGame(), [layoutWithGap]),
+      drawnCard,
+    );
     expect(validateMove(state, swapDrawn([]))).toBe("noSlotSelected");
     expect(validateMove(state, swapDrawn([0, 0]))).toBe("duplicateSlot");
     expect(validateMove(state, swapDrawn([1]))).toBe("emptySlot");

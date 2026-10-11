@@ -13,7 +13,8 @@ export interface SyncedLog {
   readonly state: GameState;
 }
 
-export type SyncRejection = MoveRejection | "wrongSender" | "otherGame" | "staleSequence";
+export type SyncRejection =
+  MoveRejection | "wrongSender" | "otherGame" | "staleSequence";
 
 export type ReceiveOutcome =
   | { readonly kind: "accepted"; readonly log: SyncedLog }
@@ -46,7 +47,10 @@ export function appendMove(log: SyncedLog, move: Move): ReceiveOutcome {
   if (!outcome.ok) {
     return { kind: "rejected", reason: outcome.reason };
   }
-  return { kind: "accepted", log: { moves: [...log.moves, move], state: outcome.value } };
+  return {
+    kind: "accepted",
+    log: { moves: [...log.moves, move], state: outcome.value },
+  };
 }
 
 export function replayLog(moves: readonly Move[]): SyncedLog | null {
@@ -78,7 +82,11 @@ function receiveCompetingStart(
 
 // Viewing the starting cards is the only move players make at the same time. It commutes in
 // the engine, so one that lost the race for its sequence number is still appended.
-function receiveStaleMove(log: SyncedLog, move: Move, sequence: number): ReceiveOutcome {
+function receiveStaleMove(
+  log: SyncedLog,
+  move: Move,
+  sequence: number,
+): ReceiveOutcome {
   if (move.type === "startGame") {
     return receiveCompetingStart(log, move, sequence);
   }
@@ -93,7 +101,11 @@ function receiveStaleMove(log: SyncedLog, move: Move, sequence: number): Receive
 
 function belongsToOtherGame(log: SyncedLog, message: MoveMessage): boolean {
   const startSeed = startSeedOf(log.moves);
-  return message.move.type !== "startGame" && startSeed !== null && startSeed !== message.startSeed;
+  return (
+    message.move.type !== "startGame" &&
+    startSeed !== null &&
+    startSeed !== message.startSeed
+  );
 }
 
 export function receiveMove(
@@ -120,12 +132,20 @@ export function receiveMove(
   return appendMove(log, message.move);
 }
 
-function firstDifference(own: readonly Move[], incoming: readonly Move[]): number {
-  const index = own.findIndex((move, position) => !isSameMove(incoming[position], move));
+function firstDifference(
+  own: readonly Move[],
+  incoming: readonly Move[],
+): number {
+  const index = own.findIndex(
+    (move, position) => !isSameMove(incoming[position], move),
+  );
   return index === -1 ? own.length : index;
 }
 
-function prefersIncoming(own: readonly Move[], incoming: readonly Move[]): boolean {
+function prefersIncoming(
+  own: readonly Move[],
+  incoming: readonly Move[],
+): boolean {
   const divergence = firstDifference(own, incoming);
   if (divergence >= incoming.length) {
     return false;
@@ -141,6 +161,9 @@ function prefersIncoming(own: readonly Move[], incoming: readonly Move[]): boole
   return incoming.length > own.length;
 }
 
-export function chooseLog(own: SyncedLog, incoming: readonly Move[]): SyncedLog | null {
+export function chooseLog(
+  own: SyncedLog,
+  incoming: readonly Move[],
+): SyncedLog | null {
   return prefersIncoming(own.moves, incoming) ? replayLog(incoming) : null;
 }

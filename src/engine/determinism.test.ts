@@ -15,7 +15,11 @@ import type { StartedGame } from "./types";
 
 const MOVES_BEFORE_CALLING_END = 120;
 
-function chooseMove(options: readonly Move[], random: () => number, moveNumber: number): Move {
+function chooseMove(
+  options: readonly Move[],
+  random: () => number,
+  moveNumber: number,
+): Move {
   const callEnd = options.find((move) => move.type === "callEnd");
   if (callEnd && moveNumber >= MOVES_BEFORE_CALLING_END) {
     return callEnd;
@@ -54,18 +58,25 @@ describe("determinism", () => {
     [2, 1],
     [4, 77],
     [8, 2024],
-  ])("plays %i players with seed %i to the end and replays identically", (playerCount, seed) => {
-    const moves = randomPlayout(playerCount, seed);
-    const finalState = replayStarted(moves);
-    expect(finalState.phase.kind).toBe("finished");
-    expect(finalState).toEqual(replayStarted(moves));
-  });
+  ])(
+    "plays %i players with seed %i to the end and replays identically",
+    (playerCount, seed) => {
+      const moves = randomPlayout(playerCount, seed);
+      const finalState = replayStarted(moves);
+      expect(finalState.phase.kind).toBe("finished");
+      expect(finalState).toEqual(replayStarted(moves));
+    },
+  );
 
   it("keeps all 52 cards in play after every move", () => {
     const moves = randomPlayout(5, 9);
     for (let length = 1; length <= moves.length; length++) {
-      const ids = allCards(replayStarted(moves.slice(0, length))).map((card) => card.id);
-      expect(ids.sort((a, b) => a - b)).toEqual(standardDeck.map((card) => card.id));
+      const ids = allCards(replayStarted(moves.slice(0, length))).map(
+        (card) => card.id,
+      );
+      expect(ids.sort((a, b) => a - b)).toEqual(
+        standardDeck.map((card) => card.id),
+      );
     }
   });
 

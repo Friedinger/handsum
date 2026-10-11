@@ -1,6 +1,10 @@
 import type { Move } from "./moves";
 import { applyCallEnd } from "./moves/callEnd";
-import { applyExchangeBlind, applyViewOtherCard, applyViewOwnCard } from "./moves/cardActions";
+import {
+  applyExchangeBlind,
+  applyViewOtherCard,
+  applyViewOwnCard,
+} from "./moves/cardActions";
 import { applyDiscardDrawnCard, applyDrawFromDeck } from "./moves/draw";
 import { applyStartGame } from "./moves/startGame";
 import { applyViewStartingCards } from "./moves/startingView";
@@ -51,7 +55,10 @@ function withoutPreviousEvents(state: GameState): GameState {
   return state.status === "started" ? { ...state, lastMoveEvents: [] } : state;
 }
 
-export function tryApplyMove(state: GameState, move: Move): Result<StartedGame> {
+export function tryApplyMove(
+  state: GameState,
+  move: Move,
+): Result<StartedGame> {
   const outcome = dispatchMove(withoutPreviousEvents(state), move);
   if (!outcome.ok) {
     return outcome;
@@ -60,7 +67,10 @@ export function tryApplyMove(state: GameState, move: Move): Result<StartedGame> 
   return accept({ ...outcome.value, moveCount: previousMoveCount + 1 });
 }
 
-export function validateMove(state: GameState, move: Move): MoveRejection | null {
+export function validateMove(
+  state: GameState,
+  move: Move,
+): MoveRejection | null {
   const outcome = tryApplyMove(state, move);
   return outcome.ok ? null : outcome.reason;
 }

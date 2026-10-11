@@ -1,7 +1,9 @@
 const ROOM_CODE_LENGTH = 6;
 // Without 0/O and 1/I/L so codes can be read out loud and typed without confusion.
 const ROOM_CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
-const ROOM_CODE_PATTERN = new RegExp(`^[${ROOM_CODE_ALPHABET}]{${String(ROOM_CODE_LENGTH)}}$`);
+const ROOM_CODE_PATTERN = new RegExp(
+  `^[${ROOM_CODE_ALPHABET}]{${String(ROOM_CODE_LENGTH)}}$`,
+);
 
 export function createRoomCode(randomValues: Uint32Array): string {
   return Array.from(
@@ -11,7 +13,9 @@ export function createRoomCode(randomValues: Uint32Array): string {
 }
 
 export function randomRoomCode(): string {
-  return createRoomCode(crypto.getRandomValues(new Uint32Array(ROOM_CODE_LENGTH)));
+  return createRoomCode(
+    crypto.getRandomValues(new Uint32Array(ROOM_CODE_LENGTH)),
+  );
 }
 
 export function normalizeRoomCode(input: string): string | null {

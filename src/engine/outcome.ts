@@ -23,7 +23,8 @@ export type MoveRejection =
   | "endAlreadyCalled";
 
 export type Result<T> =
-  { readonly ok: true; readonly value: T } | { readonly ok: false; readonly reason: MoveRejection };
+  | { readonly ok: true; readonly value: T }
+  | { readonly ok: false; readonly reason: MoveRejection };
 
 export function accept<T>(value: T): Result<T> {
   return { ok: true, value };

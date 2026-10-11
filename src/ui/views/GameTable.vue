@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { strings } from "../../data/strings";
-import { legalMoves, type Move, type Seat, type StartedGame } from "../../engine";
+import {
+  legalMoves,
+  type Move,
+  type Seat,
+  type StartedGame,
+} from "../../engine";
 import { onlinePlayerIds, type SessionSnapshot } from "../../net/gameSession";
 import type { SyncRejection } from "../../net/moveLog";
 import FlightLayer from "../components/FlightLayer.vue";
@@ -40,7 +45,10 @@ const emit = defineEmits<{ move: [move: Move]; playAgain: [] }>();
 
 const selfId = computed(() => props.snapshot.self.playerId);
 const online = computed(() => onlinePlayerIds(props.snapshot));
-const reveals = useReveals(() => props.snapshot.log, props.snapshot.self.playerId);
+const reveals = useReveals(
+  () => props.snapshot.log,
+  props.snapshot.self.playerId,
+);
 const tableElement = ref<HTMLElement | null>(null);
 const cardFlights = useCardFlights(
   tableElement,
@@ -61,10 +69,14 @@ watch(intentContext, () => {
 });
 
 const sides = computed(() => arrangeOpponents(props.state.seats, selfId.value));
-const ownSeat = computed(() => props.state.seats.find((seat) => seat.player.id === selfId.value));
+const ownSeat = computed(() =>
+  props.state.seats.find((seat) => seat.player.id === selfId.value),
+);
 const isFinished = computed(() => props.state.phase.kind === "finished");
 const currentPlayerId = computed(() =>
-  props.state.phase.kind === "playing" ? props.state.phase.currentPlayerId : null,
+  props.state.phase.kind === "playing"
+    ? props.state.phase.currentPlayerId
+    : null,
 );
 const isTakingDiscard = computed(() => intent.value.kind === "takingDiscard");
 // While the discard card is taken it is shown like a drawn card, with the next one below it.
@@ -120,7 +132,8 @@ function slotViews(seat: Seat): SlotView[] {
         slotIndex,
         card,
         faceUp:
-          isFinished.value || isRevealed(reveals.value, props.state, seat.player.id, slotIndex),
+          isFinished.value ||
+          isRevealed(reveals.value, props.state, seat.player.id, slotIndex),
         clickable: clickable({ kind: "slot", slot }),
         marked: isSlotMarked(intent.value, slot, selfId.value),
         anchor,
@@ -158,7 +171,9 @@ const hint = computed(() => {
     case "startingView":
       return hints.startingView;
     case "choosing":
-      return intent.value.kind === "takingDiscard" ? hints.takingDiscard : hints.choosing;
+      return intent.value.kind === "takingDiscard"
+        ? hints.takingDiscard
+        : hints.choosing;
     case "holding":
       if (intent.value.kind === "action") {
         return hints[intent.value.action];
@@ -171,7 +186,9 @@ const hint = computed(() => {
       if (props.state.phase.kind === "startingView") {
         return hints.waitingForStartingView;
       }
-      return hints.othersTurn(playerName(props.state, currentPlayerId.value ?? ""));
+      return hints.othersTurn(
+        playerName(props.state, currentPlayerId.value ?? ""),
+      );
   }
 });
 
@@ -183,7 +200,9 @@ const message = computed(() => {
   return showRememberNotice.value ? strings.hints.rememberCards : hint.value;
 });
 
-const showSeveralToggle = computed(() => canToggleSeveral(situation.value, intent.value));
+const showSeveralToggle = computed(() =>
+  canToggleSeveral(situation.value, intent.value),
+);
 
 const showRememberNotice = computed(() =>
   reveals.value.some((reveal) => reveal.reason === "startingView"),
@@ -193,7 +212,9 @@ const canCallEnd = computed(
   () =>
     situation.value.kind === "choosing" &&
     intent.value.kind === "none" &&
-    legalMoves(props.state, selfId.value).some((move) => move.type === "callEnd"),
+    legalMoves(props.state, selfId.value).some(
+      (move) => move.type === "callEnd",
+    ),
 );
 
 const results = computed(() =>
@@ -234,8 +255,15 @@ const results = computed(() =>
     </div>
 
     <div class="table-area area-center">
-      <p class="banner" :class="{ 'banner-hidden': !state.endCallerId || isFinished }">
-        {{ state.endCallerId ? strings.hints.lastRound(playerName(state, state.endCallerId)) : "" }}
+      <p
+        class="banner"
+        :class="{ 'banner-hidden': !state.endCallerId || isFinished }"
+      >
+        {{
+          state.endCallerId
+            ? strings.hints.lastRound(playerName(state, state.endCallerId))
+            : ""
+        }}
       </p>
       <ResultsPanel
         v-if="isFinished"
@@ -281,7 +309,10 @@ const results = computed(() =>
     <div class="table-area area-hand">
       <p
         class="hint"
-        :class="{ 'hint-active': situation.kind !== 'waiting', 'hint-error': rejection }"
+        :class="{
+          'hint-active': situation.kind !== 'waiting',
+          'hint-error': rejection,
+        }"
       >
         {{ message }}
       </p>
@@ -314,6 +345,9 @@ const results = computed(() =>
         </button>
       </div>
     </div>
-    <FlightLayer :flights="cardFlights.flights.value" @land="cardFlights.land" />
+    <FlightLayer
+      :flights="cardFlights.flights.value"
+      @land="cardFlights.land"
+    />
   </div>
 </template>

@@ -65,7 +65,12 @@ export const strings = {
   events: {
     drawPileReshuffled: (cardCount: number) =>
       `The discard pile was reshuffled into the draw pile (${String(cardCount)} cards).`,
-    cardsRevealed: (player: string, cards: string, slots: string, matched: boolean) =>
+    cardsRevealed: (
+      player: string,
+      cards: string,
+      slots: string,
+      matched: boolean,
+    ) =>
       `${player} revealed ${cards} from ${slots}: ${matched ? "match" : "no match, turn lost"}.`,
     cardViewed: (viewer: string, owner: string, slot: string, value: number) =>
       `${viewer} viewed ${owner}'s ${slot}: ${String(value)}.`,
@@ -81,7 +86,8 @@ export const strings = {
     roomCode: "Room code",
     joinRoom: "Join",
     invalidRoomCode: "Room codes have six letters or digits.",
-    disclaimer: "Unofficial fan project, not affiliated with the original publisher.",
+    disclaimer:
+      "Unofficial fan project, not affiliated with the original publisher.",
   },
   nameForm: {
     label: "Your name",
@@ -101,25 +107,32 @@ export const strings = {
     leave: "Leave room",
   },
   hints: {
-    startingView: "Click two of your cards to look at them. Remember them well!",
-    rememberCards: "Remember your cards! They will be hidden again in a moment.",
+    startingView:
+      "Click two of your cards to look at them. Remember them well!",
+    rememberCards:
+      "Remember your cards! They will be hidden again in a moment.",
     waitingForStartingView: "Waiting for the others to look at their cards…",
-    choosing: "Click the draw pile to draw a card, or the discard pile to take its top card.",
+    choosing:
+      "Click the draw pile to draw a card, or the discard pile to take its top card.",
     takingDiscard:
       "Click one of your cards to swap it with the taken card, or click the discard pile to put it back.",
     holding:
       "Click one of your cards to swap it with the drawn card, or click the discard pile to throw it away.",
     holdingAction:
       "Click one of your cards to swap it, click the discard pile to throw it away, or click the drawn card to use its action.",
-    severalCards: "Select your cards with the same value, then click the card you hold to swap.",
+    severalCards:
+      "Select your cards with the same value, then click the card you hold to swap.",
     severalCardsSelected:
       "Click the card you hold to swap it with the selected cards. They must all share one value.",
-    viewOwn: "Click one of your cards to look at it. Click the drawn card to cancel.",
-    viewOther: "Click a card of another player to look at it. Click the drawn card to cancel.",
+    viewOwn:
+      "Click one of your cards to look at it. Click the drawn card to cancel.",
+    viewOther:
+      "Click a card of another player to look at it. Click the drawn card to cancel.",
     exchangeBlind:
       "Click one of your cards and one card of another player to exchange them. Click the drawn card to cancel.",
     othersTurn: (player: string) => `${player} is playing…`,
-    lastRound: (caller: string) => `${caller} called the end. Everyone else has one last turn.`,
+    lastRound: (caller: string) =>
+      `${caller} called the end. Everyone else has one last turn.`,
     finished: "The game is over.",
   },
   table: {

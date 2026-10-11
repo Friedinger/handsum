@@ -37,9 +37,15 @@ onMounted(() => {
     fill: "backwards",
   };
   const start = `translate(${String(from.left - to.left)}px, ${String(from.top - to.top)}px) scale(${String(from.width / to.width)})`;
-  const movement = wrapper.value?.animate([{ transform: start }, { transform: "none" }], timing);
+  const movement = wrapper.value?.animate(
+    [{ transform: start }, { transform: "none" }],
+    timing,
+  );
   flipper.value?.animate(
-    [{ transform: turnFor(flight.faceUpAtStart) }, { transform: turnFor(flight.faceUpAtEnd) }],
+    [
+      { transform: turnFor(flight.faceUpAtStart) },
+      { transform: turnFor(flight.faceUpAtEnd) },
+    ],
     timing,
   );
   void movement?.finished.then(land);
@@ -62,7 +68,11 @@ onUnmounted(() => {
       '--card-width': `${String(active.to.width)}px`,
     }"
   >
-    <div ref="flipper" class="flipper" :style="{ transform: turnFor(active.flight.faceUpAtEnd) }">
+    <div
+      ref="flipper"
+      class="flipper"
+      :style="{ transform: turnFor(active.flight.faceUpAtEnd) }"
+    >
       <PlayingCard
         v-if="active.flight.card"
         class="flipper-front"

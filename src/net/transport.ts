@@ -19,4 +19,7 @@ export interface Transport {
   readonly leave: () => void;
 }
 
-export type ConnectTransport = (roomCode: string, handlers: TransportHandlers) => Transport;
+export type ConnectTransport = (
+  roomCode: string,
+  handlers: TransportHandlers,
+) => Transport;

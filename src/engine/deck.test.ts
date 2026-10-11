@@ -10,7 +10,9 @@ function countByValue(value: number): number {
 describe("standardDeck", () => {
   it("has 52 cards with unique ids", () => {
     expect(standardDeck).toHaveLength(STANDARD_DECK_SIZE);
-    expect(new Set(standardDeck.map((card) => card.id)).size).toBe(STANDARD_DECK_SIZE);
+    expect(new Set(standardDeck.map((card) => card.id)).size).toBe(
+      STANDARD_DECK_SIZE,
+    );
   });
 
   it("has two each of 0 and 13 and four each of 1 to 12", () => {
@@ -22,7 +24,8 @@ describe("standardDeck", () => {
   });
 
   it("assigns actions to 7 to 12 only", () => {
-    const actionOf = (value: number) => standardDeck.find((card) => card.value === value)?.action;
+    const actionOf = (value: number) =>
+      standardDeck.find((card) => card.value === value)?.action;
     expect(actionOf(7)).toBe("viewOwn");
     expect(actionOf(8)).toBe("viewOwn");
     expect(actionOf(9)).toBe("viewOther");
@@ -48,8 +51,12 @@ describe("parseCardTypes", () => {
 
   it("rejects malformed data", () => {
     expect(() => parseCardTypes({})).toThrow();
-    expect(() => parseCardTypes({ cardTypes: [{ value: -1, count: 1, action: null }] })).toThrow();
-    expect(() => parseCardTypes({ cardTypes: [{ value: 1, count: 1, action: "fly" }] })).toThrow();
+    expect(() =>
+      parseCardTypes({ cardTypes: [{ value: -1, count: 1, action: null }] }),
+    ).toThrow();
+    expect(() =>
+      parseCardTypes({ cardTypes: [{ value: 1, count: 1, action: "fly" }] }),
+    ).toThrow();
   });
 });
 

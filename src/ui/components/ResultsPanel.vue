@@ -17,11 +17,15 @@ const headline = computed(() => {
     return strings.table.youWin;
   }
   return strings.table.playerWins(
-    winners.map((winner) => playerName(props.state, winner.playerId)).join(" & "),
+    winners
+      .map((winner) => playerName(props.state, winner.playerId))
+      .join(" & "),
   );
 });
 
-const ranked = computed(() => [...props.results].sort((a, b) => a.score - b.score));
+const ranked = computed(() =>
+  [...props.results].sort((a, b) => a.score - b.score),
+);
 </script>
 
 <template>

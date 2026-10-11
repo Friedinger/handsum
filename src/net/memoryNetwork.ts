@@ -17,7 +17,10 @@ export function createMemoryNetwork(): MemoryNetwork {
     const members = rooms.get(roomCode) ?? new Map<PeerId, TransportHandlers>();
     rooms.set(roomCode, members);
 
-    const deliver = (target: PeerId, receive: (handlers: TransportHandlers) => void) => {
+    const deliver = (
+      target: PeerId,
+      receive: (handlers: TransportHandlers) => void,
+    ) => {
       pending.push(() => {
         const targetHandlers = members.get(target);
         if (targetHandlers) {
@@ -25,7 +28,8 @@ export function createMemoryNetwork(): MemoryNetwork {
         }
       });
     };
-    const others = () => [...members.keys()].filter((memberId) => memberId !== peerId);
+    const others = () =>
+      [...members.keys()].filter((memberId) => memberId !== peerId);
 
     for (const otherId of others()) {
       deliver(otherId, (other) => {

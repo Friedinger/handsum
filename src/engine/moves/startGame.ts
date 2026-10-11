@@ -5,7 +5,9 @@ import { isValidSeed, shuffle } from "../random";
 import { LAYOUT_SIZE, MAX_PLAYERS, MIN_PLAYERS } from "../rules";
 import type { GameState, Player, Seat, StartedGame } from "../types";
 
-function findPlayerListProblem(players: readonly Player[]): MoveRejection | null {
+function findPlayerListProblem(
+  players: readonly Player[],
+): MoveRejection | null {
   if (players.length < MIN_PLAYERS || players.length > MAX_PLAYERS) {
     return "invalidPlayerCount";
   }
@@ -49,7 +51,10 @@ function isRunning(state: GameState): boolean {
   return state.status === "started" && state.phase.kind !== "finished";
 }
 
-export function applyStartGame(state: GameState, move: StartGameMove): Result<StartedGame> {
+export function applyStartGame(
+  state: GameState,
+  move: StartGameMove,
+): Result<StartedGame> {
   if (isRunning(state)) {
     return reject("gameAlreadyStarted");
   }

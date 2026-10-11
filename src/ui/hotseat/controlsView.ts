@@ -1,5 +1,10 @@
 import { strings } from "../../data/strings";
-import { legalMoves, type Move, type PlayerId, type StartedGame } from "../../engine";
+import {
+  legalMoves,
+  type Move,
+  type PlayerId,
+  type StartedGame,
+} from "../../engine";
 import { describeMove, playerName } from "../describe";
 import { button, checkbox, element } from "./dom";
 import type { HotseatActions, HotseatSession } from "./session";
@@ -10,7 +15,9 @@ function renderStatus(state: StartedGame): HTMLElement {
     [strings.hotseat.phase, strings.phaseNames[phase.kind]],
     [
       strings.hotseat.currentPlayer,
-      phase.kind === "playing" ? playerName(state, phase.currentPlayerId) : strings.hotseat.nobody,
+      phase.kind === "playing"
+        ? playerName(state, phase.currentPlayerId)
+        : strings.hotseat.nobody,
     ],
     [
       strings.hotseat.endCaller,
@@ -21,7 +28,10 @@ function renderStatus(state: StartedGame): HTMLElement {
   return element(
     "dl",
     {},
-    rows.flatMap(([term, value]) => [element("dt", {}, [term]), element("dd", {}, [value])]),
+    rows.flatMap(([term, value]) => [
+      element("dt", {}, [term]),
+      element("dd", {}, [value]),
+    ]),
   );
 }
 
@@ -118,11 +128,20 @@ export function renderControls(
       " ",
       button(strings.hotseat.reset, actions.reset),
       " ",
-      checkbox(strings.hotseat.revealAll, session.revealAll, actions.setRevealAll),
+      checkbox(
+        strings.hotseat.revealAll,
+        session.revealAll,
+        actions.setRevealAll,
+      ),
       " ",
-      checkbox(strings.hotseat.followTurn, session.followTurn, actions.setFollowTurn),
+      checkbox(
+        strings.hotseat.followTurn,
+        session.followTurn,
+        actions.setFollowTurn,
+      ),
     ]),
-    session.message && element("p", { className: "message" }, [session.message]),
+    session.message &&
+      element("p", { className: "message" }, [session.message]),
     element("h2", {}, [strings.hotseat.legalMoves]),
     renderPlayerPicker(state, session.selectedPlayerId, actions),
     renderLegalMoves(state, session.selectedPlayerId, actions),

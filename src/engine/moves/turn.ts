@@ -1,7 +1,15 @@
 import { accept, reject, type Result } from "../outcome";
 import { scoreGame } from "../scoring";
 import { nextPlayerId, seatIndexOf } from "../state";
-import type { Card, GameEvent, GameState, PlayerId, Slot, StartedGame, TurnStep } from "../types";
+import type {
+  Card,
+  GameEvent,
+  GameState,
+  PlayerId,
+  Slot,
+  StartedGame,
+  TurnStep,
+} from "../types";
 
 export interface ActiveTurn {
   readonly state: StartedGame;
@@ -15,7 +23,10 @@ export interface HeldCardTurn extends ActiveTurn {
   readonly heldCard: Card;
 }
 
-export function requireActiveTurn(state: GameState, playerId: PlayerId): Result<ActiveTurn> {
+export function requireActiveTurn(
+  state: GameState,
+  playerId: PlayerId,
+): Result<ActiveTurn> {
   if (state.status !== "started") {
     return reject("gameNotStarted");
   }
@@ -30,18 +41,32 @@ export function requireActiveTurn(state: GameState, playerId: PlayerId): Result<
   if (state.phase.currentPlayerId !== playerId) {
     return reject("notYourTurn");
   }
-  return accept({ state, playerId, seatIndex, layout: seat.layout, step: state.phase.step });
+  return accept({
+    state,
+    playerId,
+    seatIndex,
+    layout: seat.layout,
+    step: state.phase.step,
+  });
 }
 
-export function requireAwaitingChoice(state: GameState, playerId: PlayerId): Result<ActiveTurn> {
+export function requireAwaitingChoice(
+  state: GameState,
+  playerId: PlayerId,
+): Result<ActiveTurn> {
   const turn = requireActiveTurn(state, playerId);
   if (!turn.ok) {
     return turn;
   }
-  return turn.value.step.kind === "awaitingChoice" ? turn : reject("wrongTurnStep");
+  return turn.value.step.kind === "awaitingChoice"
+    ? turn
+    : reject("wrongTurnStep");
 }
 
-export function requireHeldCard(state: GameState, playerId: PlayerId): Result<HeldCardTurn> {
+export function requireHeldCard(
+  state: GameState,
+  playerId: PlayerId,
+): Result<HeldCardTurn> {
   const turn = requireActiveTurn(state, playerId);
   if (!turn.ok) {
     return turn;
@@ -61,10 +86,17 @@ export function withEvent(state: StartedGame, event: GameEvent): StartedGame {
 export function endTurn(state: StartedGame, playerId: PlayerId): StartedGame {
   const nextId = nextPlayerId(state, playerId);
   if (nextId === state.endCallerId) {
-    return { ...state, phase: { kind: "finished", results: scoreGame(state.seats, nextId) } };
+    return {
+      ...state,
+      phase: { kind: "finished", results: scoreGame(state.seats, nextId) },
+    };
   }
   return {
     ...state,
-    phase: { kind: "playing", currentPlayerId: nextId, step: { kind: "awaitingChoice" } },
+    phase: {
+      kind: "playing",
+      currentPlayerId: nextId,
+      step: { kind: "awaitingChoice" },
+    },
   };
 }

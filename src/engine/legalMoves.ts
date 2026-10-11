@@ -3,16 +3,25 @@ import type { Move } from "./moves";
 import { LAYOUT_SIZE, STARTING_VIEW_CARD_COUNT } from "./rules";
 import type { GameState, PlayerId } from "./types";
 
-const SLOT_INDICES = Array.from({ length: LAYOUT_SIZE }, (_, slotIndex) => slotIndex);
+const SLOT_INDICES = Array.from(
+  { length: LAYOUT_SIZE },
+  (_, slotIndex) => slotIndex,
+);
 
 function nonEmptySubsets(items: readonly number[]): number[][] {
   return items.reduce<number[][]>(
-    (subsets, item) => [...subsets, [item], ...subsets.map((subset) => [...subset, item])],
+    (subsets, item) => [
+      ...subsets,
+      [item],
+      ...subsets.map((subset) => [...subset, item]),
+    ],
     [],
   );
 }
 
-const SLOT_SELECTIONS = nonEmptySubsets(SLOT_INDICES).sort((a, b) => a.length - b.length);
+const SLOT_SELECTIONS = nonEmptySubsets(SLOT_INDICES).sort(
+  (a, b) => a.length - b.length,
+);
 const STARTING_VIEW_SELECTIONS = SLOT_SELECTIONS.filter(
   (selection) => selection.length === STARTING_VIEW_CARD_COUNT,
 );
@@ -21,13 +30,19 @@ function otherPlayerIds(state: GameState, playerId: PlayerId): PlayerId[] {
   if (state.status !== "started") {
     return [];
   }
-  return state.seats.map((seat) => seat.player.id).filter((id) => id !== playerId);
+  return state.seats
+    .map((seat) => seat.player.id)
+    .filter((id) => id !== playerId);
 }
 
 function cardActionCandidates(state: GameState, playerId: PlayerId): Move[] {
   const targets = otherPlayerIds(state, playerId);
   return [
-    ...SLOT_INDICES.map((slotIndex): Move => ({ type: "viewOwnCard", playerId, slotIndex })),
+    ...SLOT_INDICES.map((slotIndex): Move => ({
+      type: "viewOwnCard",
+      playerId,
+      slotIndex,
+    })),
     ...targets.flatMap((targetPlayerId) =>
       SLOT_INDICES.map((slotIndex): Move => ({
         type: "viewOtherCard",
@@ -76,5 +91,7 @@ function candidateMoves(state: GameState, playerId: PlayerId): Move[] {
 }
 
 export function legalMoves(state: GameState, playerId: PlayerId): Move[] {
-  return candidateMoves(state, playerId).filter((move) => tryApplyMove(state, move).ok);
+  return candidateMoves(state, playerId).filter(
+    (move) => tryApplyMove(state, move).ok,
+  );
 }

@@ -17,8 +17,13 @@ function firstPlayerId(state: StartedGame): PlayerId {
   return firstSeat.player.id;
 }
 
-function phaseAfterViewing(state: StartedGame, viewedPlayerIds: ReadonlySet<PlayerId>): Phase {
-  const everyoneViewed = state.seats.every((seat) => viewedPlayerIds.has(seat.player.id));
+function phaseAfterViewing(
+  state: StartedGame,
+  viewedPlayerIds: ReadonlySet<PlayerId>,
+): Phase {
+  const everyoneViewed = state.seats.every((seat) =>
+    viewedPlayerIds.has(seat.player.id),
+  );
   if (everyoneViewed) {
     return {
       kind: "playing",
@@ -52,13 +57,19 @@ export function applyViewStartingCards(
   if (state.phase.viewedPlayerIds.includes(move.playerId)) {
     return reject("alreadyViewed");
   }
-  const selectionProblem = findSlotSelectionProblem(seat.layout, move.slotIndices);
+  const selectionProblem = findSlotSelectionProblem(
+    seat.layout,
+    move.slotIndices,
+  );
   if (selectionProblem) {
     return reject(selectionProblem);
   }
   if (move.slotIndices.length !== STARTING_VIEW_CARD_COUNT) {
     return reject("wrongCardCount");
   }
-  const viewedPlayerIds = new Set([...state.phase.viewedPlayerIds, move.playerId]);
+  const viewedPlayerIds = new Set([
+    ...state.phase.viewedPlayerIds,
+    move.playerId,
+  ]);
   return accept({ ...state, phase: phaseAfterViewing(state, viewedPlayerIds) });
 }

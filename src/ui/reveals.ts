@@ -14,11 +14,16 @@ export interface Reveal {
   readonly durationMs: number;
 }
 
-function startingViewReveals(state: StartedGame, move: Move, selfId: PlayerId): Reveal[] {
+function startingViewReveals(
+  state: StartedGame,
+  move: Move,
+  selfId: PlayerId,
+): Reveal[] {
   if (move.type !== "viewStartingCards" || move.playerId !== selfId) {
     return [];
   }
-  const layout = state.seats.find((seat) => seat.player.id === selfId)?.layout ?? [];
+  const layout =
+    state.seats.find((seat) => seat.player.id === selfId)?.layout ?? [];
   return move.slotIndices.flatMap((slotIndex) => {
     const card = layout[slotIndex];
     return card
@@ -67,8 +72,15 @@ function eventReveals(state: StartedGame, selfId: PlayerId): Reveal[] {
   });
 }
 
-export function revealsAfterMove(state: StartedGame, move: Move, selfId: PlayerId): Reveal[] {
-  return [...startingViewReveals(state, move, selfId), ...eventReveals(state, selfId)];
+export function revealsAfterMove(
+  state: StartedGame,
+  move: Move,
+  selfId: PlayerId,
+): Reveal[] {
+  return [
+    ...startingViewReveals(state, move, selfId),
+    ...eventReveals(state, selfId),
+  ];
 }
 
 // Checking the card ID ends a reveal early when the card has left that slot in the meantime.
@@ -78,7 +90,8 @@ export function isRevealed(
   ownerId: PlayerId,
   slotIndex: number,
 ): boolean {
-  const currentCard = state.seats.find((seat) => seat.player.id === ownerId)?.layout[slotIndex];
+  const currentCard = state.seats.find((seat) => seat.player.id === ownerId)
+    ?.layout[slotIndex];
   return reveals.some(
     (reveal) =>
       reveal.ownerId === ownerId &&

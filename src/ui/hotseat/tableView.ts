@@ -3,7 +3,12 @@ import type { PlayerId, Seat, StartedGame } from "../../engine";
 import { renderFaceUpCard, renderSlot } from "./cardView";
 import { playerName } from "../describe";
 import { element } from "./dom";
-import { currentHeldCard, heldCardVisibleTo, isSlotVisibleTo, type HeldCard } from "../visibility";
+import {
+  currentHeldCard,
+  heldCardVisibleTo,
+  isSlotVisibleTo,
+  type HeldCard,
+} from "../visibility";
 
 interface TableView {
   readonly state: StartedGame;
@@ -11,23 +16,36 @@ interface TableView {
   readonly revealAll: boolean;
 }
 
-function isVisible(view: TableView, ownerId: PlayerId, slotIndex: number): boolean {
+function isVisible(
+  view: TableView,
+  ownerId: PlayerId,
+  slotIndex: number,
+): boolean {
   if (view.revealAll) {
     return true;
   }
-  return view.viewerId !== null && isSlotVisibleTo(view.state, view.viewerId, ownerId, slotIndex);
+  return (
+    view.viewerId !== null &&
+    isSlotVisibleTo(view.state, view.viewerId, ownerId, slotIndex)
+  );
 }
 
 function seatLabel(view: TableView, seat: Seat): string {
   const { phase, endCallerId } = view.state;
   const markers = [
-    phase.kind === "playing" && phase.currentPlayerId === seat.player.id ? "▶" : null,
-    phase.kind === "startingView" && phase.viewedPlayerIds.includes(seat.player.id)
+    phase.kind === "playing" && phase.currentPlayerId === seat.player.id
+      ? "▶"
+      : null,
+    phase.kind === "startingView" &&
+    phase.viewedPlayerIds.includes(seat.player.id)
       ? `(${strings.hotseat.viewed})`
       : null,
     endCallerId === seat.player.id ? `[${strings.moveNames.callEnd}]` : null,
   ];
-  return [seat.player.name, ...markers.filter((marker) => marker !== null)].join(" ");
+  return [
+    seat.player.name,
+    ...markers.filter((marker) => marker !== null),
+  ].join(" ");
 }
 
 function renderSeat(view: TableView, seat: Seat): HTMLElement {
@@ -47,10 +65,16 @@ function visibleHeldCard(view: TableView): HeldCard | null {
   if (view.revealAll) {
     return currentHeldCard(view.state);
   }
-  return view.viewerId === null ? null : heldCardVisibleTo(view.state, view.viewerId);
+  return view.viewerId === null
+    ? null
+    : heldCardVisibleTo(view.state, view.viewerId);
 }
 
-function renderPile(label: string, size: number, topCard: HTMLElement): HTMLElement {
+function renderPile(
+  label: string,
+  size: number,
+  topCard: HTMLElement,
+): HTMLElement {
   return element("div", {}, [`${label} (${String(size)})`, topCard]);
 }
 

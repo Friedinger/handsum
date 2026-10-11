@@ -66,7 +66,10 @@ function currentPlayer(client: Client): string {
   return phase.currentPlayerId;
 }
 
-function playUntilFinished(network: MemoryNetwork, clients: readonly Client[]): void {
+function playUntilFinished(
+  network: MemoryNetwork,
+  clients: readonly Client[],
+): void {
   const turnOf = (playerId: string) =>
     clients.find((client) => client.latest().self.playerId === playerId);
   const caller = currentPlayer(clients[0] ?? fail());
@@ -74,7 +77,10 @@ function playUntilFinished(network: MemoryNetwork, clients: readonly Client[]): 
   network.deliverAll();
   const last = currentPlayer(clients[0] ?? fail());
   turnOf(last)?.session.submitMove({ type: "drawFromDeck", playerId: last });
-  turnOf(last)?.session.submitMove({ type: "discardDrawnCard", playerId: last });
+  turnOf(last)?.session.submitMove({
+    type: "discardDrawnCard",
+    playerId: last,
+  });
   network.deliverAll();
 }
 
@@ -136,7 +142,9 @@ describe("game session", () => {
 
   it("rejects local moves the rules do not allow", () => {
     const { guest } = startedRoom();
-    expect(guest.session.submitMove({ type: "drawFromDeck", playerId: "bob" })).toBe("wrongPhase");
+    expect(
+      guest.session.submitMove({ type: "drawFromDeck", playerId: "bob" }),
+    ).toBe("wrongPhase");
   });
 
   it("restores the full game for a player who reloads", () => {
@@ -147,7 +155,9 @@ describe("game session", () => {
     const rejoined = join(network, bob);
     network.deliverAll();
     expect(rejoined.latest().log.moves).toEqual(host.latest().log.moves);
-    expect(rejoined.latest().peers.map((peer) => peer.hello.playerId)).toEqual(["alice"]);
+    expect(rejoined.latest().peers.map((peer) => peer.hello.playerId)).toEqual([
+      "alice",
+    ]);
   });
 
   it("catches up a client that missed moves while still connected", () => {
@@ -170,7 +180,10 @@ describe("game session", () => {
     network.deliverAll();
     const rematch = expectStartedState(host.latest().log.state);
     expect(rematch.phase.kind).toBe("startingView");
-    expect(rematch.seats.map((seat) => seat.player.id)).toEqual(["alice", "bob"]);
+    expect(rematch.seats.map((seat) => seat.player.id)).toEqual([
+      "alice",
+      "bob",
+    ]);
     expect(rematch).toEqual(guest.latest().log.state);
   });
 });

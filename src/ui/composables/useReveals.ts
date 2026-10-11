@@ -3,7 +3,10 @@ import type { PlayerId } from "../../engine";
 import type { SyncedLog } from "../../net/moveLog";
 import { revealsAfterMove, type Reveal } from "../reveals";
 
-export function useReveals(log: () => SyncedLog, selfId: PlayerId): ShallowRef<readonly Reveal[]> {
+export function useReveals(
+  log: () => SyncedLog,
+  selfId: PlayerId,
+): ShallowRef<readonly Reveal[]> {
   const reveals = shallowRef<readonly Reveal[]>([]);
   const timers = new Set<ReturnType<typeof setTimeout>>();
 

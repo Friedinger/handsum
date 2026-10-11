@@ -19,11 +19,16 @@ const emit = defineEmits<{ select: [slotIndex: number] }>();
 <template>
   <div
     class="player-seat"
-    :class="[`seat-${size}`, { 'seat-active': active, 'seat-compact': compact }]"
+    :class="[
+      `seat-${size}`,
+      { 'seat-active': active, 'seat-compact': compact },
+    ]"
   >
     <div class="seat-label">
       <span class="seat-name">{{ name }}</span>
-      <span v-for="badge in badges" :key="badge" class="seat-badge">{{ badge }}</span>
+      <span v-for="badge in badges" :key="badge" class="seat-badge">{{
+        badge
+      }}</span>
     </div>
     <div class="seat-cards">
       <PlayingCard

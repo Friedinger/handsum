@@ -12,7 +12,11 @@ function randomSeed(): number {
 function playerCountSelect(): HTMLSelectElement {
   const select = element("select");
   for (let count = MIN_PLAYERS; count <= MAX_PLAYERS; count++) {
-    select.append(element("option", { attributes: { value: String(count) } }, [String(count)]));
+    select.append(
+      element("option", { attributes: { value: String(count) } }, [
+        String(count),
+      ]),
+    );
   }
   select.value = String(DEFAULT_PLAYER_COUNT);
   return select;
@@ -20,7 +24,9 @@ function playerCountSelect(): HTMLSelectElement {
 
 export function renderSetup(actions: HotseatActions): HTMLElement {
   const countSelect = playerCountSelect();
-  const seedInput = element("input", { attributes: { type: "number", min: "0" } });
+  const seedInput = element("input", {
+    attributes: { type: "number", min: "0" },
+  });
   seedInput.value = String(randomSeed());
   const start = () => {
     actions.startGame(Number(countSelect.value), Number(seedInput.value));

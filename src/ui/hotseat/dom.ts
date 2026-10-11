@@ -21,12 +21,16 @@ export function element<Tag extends keyof HTMLElementTagNameMap>(
   if (options.onClick) {
     created.addEventListener("click", options.onClick);
   }
-  created.append(...children.filter((child) => child !== null && child !== false));
+  created.append(
+    ...children.filter((child) => child !== null && child !== false),
+  );
   return created;
 }
 
 export function button(label: string, onClick: () => void): HTMLButtonElement {
-  return element("button", { attributes: { type: "button" }, onClick }, [label]);
+  return element("button", { attributes: { type: "button" }, onClick }, [
+    label,
+  ]);
 }
 
 export function checkbox(

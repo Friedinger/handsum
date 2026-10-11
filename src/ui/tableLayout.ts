@@ -8,14 +8,23 @@ export interface TableSides {
 
 const SIDES_PER_TABLE = 3;
 
-export function opponentsInTurnOrder(seats: readonly Seat[], selfId: PlayerId): Seat[] {
+export function opponentsInTurnOrder(
+  seats: readonly Seat[],
+  selfId: PlayerId,
+): Seat[] {
   const selfIndex = seats.findIndex((seat) => seat.player.id === selfId);
-  return [...seats.slice(selfIndex + 1), ...seats.slice(0, Math.max(selfIndex, 0))];
+  return [
+    ...seats.slice(selfIndex + 1),
+    ...seats.slice(0, Math.max(selfIndex, 0)),
+  ];
 }
 
 // Turns pass clockwise: the next player sits on the left (listed bottom to top), then across
 // the top (left to right), then down the right side (top to bottom).
-export function arrangeOpponents(seats: readonly Seat[], selfId: PlayerId): TableSides {
+export function arrangeOpponents(
+  seats: readonly Seat[],
+  selfId: PlayerId,
+): TableSides {
   const opponents = opponentsInTurnOrder(seats, selfId);
   if (opponents.length === 1) {
     return { left: [], top: opponents, right: [] };

@@ -12,12 +12,17 @@ function renderEvents(state: StartedGame): HTMLElement {
     element(
       "ul",
       {},
-      state.lastMoveEvents.map((event) => element("li", {}, [describeEvent(state, event)])),
+      state.lastMoveEvents.map((event) =>
+        element("li", {}, [describeEvent(state, event)]),
+      ),
     ),
   ]);
 }
 
-function renderResultRow(state: StartedGame, result: PlayerResult): HTMLElement {
+function renderResultRow(
+  state: StartedGame,
+  result: PlayerResult,
+): HTMLElement {
   return element("tr", {}, [
     element("td", {}, [playerName(state, result.playerId)]),
     element("td", {}, [String(result.cardSum)]),
@@ -30,7 +35,12 @@ function renderResults(state: StartedGame): HTMLElement | null {
   if (state.phase.kind !== "finished") {
     return null;
   }
-  const headings = ["", strings.table.cardSum, strings.table.score, strings.table.winner];
+  const headings = [
+    "",
+    strings.table.cardSum,
+    strings.table.score,
+    strings.table.winner,
+  ];
   return element("section", {}, [
     element("h2", {}, [strings.table.results]),
     element("table", {}, [
@@ -51,7 +61,10 @@ function renderJson(title: string, value: unknown): HTMLElement {
   ]);
 }
 
-export function renderDebug(state: StartedGame, session: HotseatSession): HTMLElement {
+export function renderDebug(
+  state: StartedGame,
+  session: HotseatSession,
+): HTMLElement {
   return element("section", {}, [
     renderResults(state),
     renderEvents(state),

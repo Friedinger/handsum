@@ -33,9 +33,13 @@ function joinRoom(): void {
         :aria-label="strings.home.roomCode"
         autocomplete="off"
       />
-      <button type="submit" class="button-secondary">{{ strings.home.joinRoom }}</button>
+      <button type="submit" class="button-secondary">
+        {{ strings.home.joinRoom }}
+      </button>
     </form>
-    <p v-if="showInvalidCode" class="error">{{ strings.home.invalidRoomCode }}</p>
+    <p v-if="showInvalidCode" class="error">
+      {{ strings.home.invalidRoomCode }}
+    </p>
   </section>
   <p class="disclaimer">{{ strings.home.disclaimer }}</p>
 </template>

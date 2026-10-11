@@ -13,11 +13,15 @@ export function isSlotVisibleTo(
     switch (event.type) {
       case "cardViewed":
         return (
-          event.viewerId === viewerId && event.ownerId === ownerId && event.slotIndex === slotIndex
+          event.viewerId === viewerId &&
+          event.ownerId === ownerId &&
+          event.slotIndex === slotIndex
         );
       case "cardsRevealed":
         return (
-          !event.matched && event.playerId === ownerId && event.slotIndices.includes(slotIndex)
+          !event.matched &&
+          event.playerId === ownerId &&
+          event.slotIndices.includes(slotIndex)
         );
       case "drawPileReshuffled":
         return false;
@@ -38,7 +42,10 @@ export function currentHeldCard(state: StartedGame): HeldCard | null {
   return { holderId: phase.currentPlayerId, card: phase.step.card };
 }
 
-export function heldCardVisibleTo(state: StartedGame, viewerId: PlayerId): HeldCard | null {
+export function heldCardVisibleTo(
+  state: StartedGame,
+  viewerId: PlayerId,
+): HeldCard | null {
   const held = currentHeldCard(state);
   return held?.holderId === viewerId ? held : null;
 }

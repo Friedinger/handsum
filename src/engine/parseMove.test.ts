@@ -28,10 +28,12 @@ describe("parseMove", () => {
   });
 
   it("drops unknown extra fields", () => {
-    expect(parseMove({ type: "callEnd", playerId: "a", sneaky: true })).toEqual({
-      type: "callEnd",
-      playerId: "a",
-    });
+    expect(parseMove({ type: "callEnd", playerId: "a", sneaky: true })).toEqual(
+      {
+        type: "callEnd",
+        playerId: "a",
+      },
+    );
   });
 
   it.each([

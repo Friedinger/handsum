@@ -1,5 +1,10 @@
 import { strings } from "../../data/strings";
-import { validateMove, type GameState, type Move, type Player } from "../../engine";
+import {
+  validateMove,
+  type GameState,
+  type Move,
+  type Player,
+} from "../../engine";
 import { element } from "./dom";
 import { renderControls } from "./controlsView";
 import { renderDebug } from "./debugView";
@@ -35,13 +40,18 @@ function render(session: HotseatSession, actions: HotseatActions): HTMLElement {
     return element("main", {}, [
       element("h1", {}, [strings.hotseat.title]),
       renderSetup(actions),
-      session.message && element("p", { className: "message" }, [session.message]),
+      session.message &&
+        element("p", { className: "message" }, [session.message]),
     ]);
   }
   return element("main", {}, [
     element("h1", {}, [strings.hotseat.title]),
     renderControls(state, session, actions),
-    renderTable({ state, viewerId: session.selectedPlayerId, revealAll: session.revealAll }),
+    renderTable({
+      state,
+      viewerId: session.selectedPlayerId,
+      revealAll: session.revealAll,
+    }),
     renderDebug(state, session),
   ]);
 }
@@ -57,14 +67,23 @@ export function mountHotseat(root: HTMLElement): void {
   const withMoves = (moves: readonly Move[]): Partial<HotseatSession> => {
     const state = gameOf({ ...session, moves });
     const followed = session.followTurn ? activePlayerId(state) : null;
-    return { moves, message: null, selectedPlayerId: followed ?? session.selectedPlayerId };
+    return {
+      moves,
+      message: null,
+      selectedPlayerId: followed ?? session.selectedPlayerId,
+    };
   };
 
   const actions: HotseatActions = {
     startGame: (playerCount, seed) => {
       const players = hotseatPlayers(playerCount);
       const creatorId = players[0]?.id ?? "";
-      actions.submitMove({ type: "startGame", playerId: creatorId, players, seed });
+      actions.submitMove({
+        type: "startGame",
+        playerId: creatorId,
+        players,
+        seed,
+      });
     },
     submitMove: (move) => {
       const message = validationMessage(gameOf(session), move);

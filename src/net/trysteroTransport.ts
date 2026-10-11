@@ -49,9 +49,11 @@ export const connectTrystero: ConnectTransport = (roomCode, handlers) => {
   };
 
   return {
-    sendHello: (message, target) => void hello.send(JSON.stringify(message), { target }),
+    sendHello: (message, target) =>
+      void hello.send(JSON.stringify(message), { target }),
     broadcastMove: (message) => void move.send(JSON.stringify(message)),
-    sendLog: (message, target) => void log.send(JSON.stringify(message), { target }),
+    sendLog: (message, target) =>
+      void log.send(JSON.stringify(message), { target }),
     requestSync: (target) => void sync.send("", { target }),
     leave: () => void room.leave(),
   };

@@ -17,6 +17,8 @@ describe("room codes", () => {
 
   it("builds a shareable link with the code in the hash", () => {
     const location = { origin: "https://example.org", pathname: "/handsum/" };
-    expect(roomLink(location, "ABCDE9")).toBe("https://example.org/handsum/#ABCDE9");
+    expect(roomLink(location, "ABCDE9")).toBe(
+      "https://example.org/handsum/#ABCDE9",
+    );
   });
 });

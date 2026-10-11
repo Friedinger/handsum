@@ -1,4 +1,10 @@
-import { LAYOUT_SIZE, type Card, type Move, type PlayerId, type StartedGame } from "../engine";
+import {
+  LAYOUT_SIZE,
+  type Card,
+  type Move,
+  type PlayerId,
+  type StartedGame,
+} from "../engine";
 import type { SlotRef } from "./tableInteraction";
 
 export type Anchor =
@@ -48,8 +54,16 @@ function slotAnchor(playerId: PlayerId, slotIndex: number): Anchor {
   return { kind: "slot", slot: { playerId, slotIndex } };
 }
 
-function cardAt(state: StartedGame, playerId: PlayerId, slotIndex: number): Card | null {
-  return state.seats.find((seat) => seat.player.id === playerId)?.layout[slotIndex] ?? null;
+function cardAt(
+  state: StartedGame,
+  playerId: PlayerId,
+  slotIndex: number,
+): Card | null {
+  return (
+    state.seats.find((seat) => seat.player.id === playerId)?.layout[
+      slotIndex
+    ] ?? null
+  );
 }
 
 function heldCardOf(state: StartedGame): Card | null {
@@ -60,7 +74,9 @@ function heldCardOf(state: StartedGame): Card | null {
 }
 
 function swapFailed(next: StartedGame): boolean {
-  return next.lastMoveEvents.some((event) => event.type === "cardsRevealed" && !event.matched);
+  return next.lastMoveEvents.some(
+    (event) => event.type === "cardsRevealed" && !event.matched,
+  );
 }
 
 function outgoingFlights(
@@ -80,7 +96,10 @@ function outgoingFlights(
 }
 
 // Only the holder has seen the drawn card; everyone else watches it turn over.
-function discardHeldCard(previous: StartedGame, holderIsViewer: boolean): Flight {
+function discardHeldCard(
+  previous: StartedGame,
+  holderIsViewer: boolean,
+): Flight {
   return {
     from: held,
     to: discardPile,
@@ -111,13 +130,18 @@ function planSwap(
   const incoming: Flight = {
     from: fromDiscard ? discardPile : held,
     to: slotAnchor(move.playerId, Math.min(...move.slotIndices)),
-    card: fromDiscard ? (previous.discardPile[0] ?? null) : heldCardOf(previous),
+    card: fromDiscard
+      ? (previous.discardPile[0] ?? null)
+      : heldCardOf(previous),
     faceUpAtStart: fromDiscard || move.playerId === selfId,
     faceUpAtEnd: false,
     order: 0,
   };
   return {
-    flights: [incoming, ...outgoingFlights(previous, move.playerId, move.slotIndices, 1)],
+    flights: [
+      incoming,
+      ...outgoingFlights(previous, move.playerId, move.slotIndices, 1),
+    ],
     staggerMs: MOVE_STAGGER_MS,
     peekedSlot: null,
     discardTopWhileFlying: previous.discardPile[fromDiscard ? 1 : 0] ?? null,
@@ -144,7 +168,12 @@ function planExchange(
 ): MovePlan {
   const own = slotAnchor(move.playerId, move.ownSlotIndex);
   const target = slotAnchor(move.targetPlayerId, move.targetSlotIndex);
-  const hidden = { card: null, faceUpAtStart: false, faceUpAtEnd: false, order: 1 };
+  const hidden = {
+    card: null,
+    faceUpAtStart: false,
+    faceUpAtEnd: false,
+    order: 1,
+  };
   return {
     flights: [
       discardHeldCard(previous, holderIsViewer),
@@ -159,7 +188,10 @@ function planExchange(
 
 // Dealt round by round like at a real table, then the first discard is turned over.
 export function planDeal(dealt: StartedGame): MovePlan {
-  const rounds = Array.from({ length: LAYOUT_SIZE }, (_, slotIndex) => slotIndex);
+  const rounds = Array.from(
+    { length: LAYOUT_SIZE },
+    (_, slotIndex) => slotIndex,
+  );
   const dealing = rounds.flatMap((slotIndex) =>
     dealt.seats.map((seat, seatIndex) => ({
       from: drawPile,

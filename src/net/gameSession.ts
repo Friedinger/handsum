@@ -9,7 +9,12 @@ import {
   type SyncedLog,
 } from "./moveLog";
 import type { HelloMessage, MoveMessage } from "./protocol";
-import type { ConnectTransport, PeerId, Transport, TransportHandlers } from "./transport";
+import type {
+  ConnectTransport,
+  PeerId,
+  Transport,
+  TransportHandlers,
+} from "./transport";
 
 export interface ConnectedPeer {
   readonly peerId: PeerId;
@@ -36,14 +41,19 @@ interface SessionOptions {
   readonly onChange: (snapshot: SessionSnapshot) => void;
 }
 
-export function initialSnapshot(roomCode: string, self: HelloMessage): SessionSnapshot {
+export function initialSnapshot(
+  roomCode: string,
+  self: HelloMessage,
+): SessionSnapshot {
   return { roomCode, self, peers: [], log: emptyLog };
 }
 
 export function lobbyPlayers(snapshot: SessionSnapshot): Player[] {
   const everyone = [snapshot.self, ...snapshot.peers.map((peer) => peer.hello)];
   const unique = everyone.filter(
-    (hello, index) => everyone.findIndex((other) => other.playerId === hello.playerId) === index,
+    (hello, index) =>
+      everyone.findIndex((other) => other.playerId === hello.playerId) ===
+      index,
   );
   return unique.map(({ playerId, name }) => ({ id: playerId, name }));
 }
@@ -56,15 +66,24 @@ function playersForStart(snapshot: SessionSnapshot): Player[] {
     : lobbyPlayers(snapshot);
 }
 
-export function onlinePlayerIds(snapshot: SessionSnapshot): ReadonlySet<PlayerId> {
-  return new Set([snapshot.self.playerId, ...snapshot.peers.map((peer) => peer.hello.playerId)]);
+export function onlinePlayerIds(
+  snapshot: SessionSnapshot,
+): ReadonlySet<PlayerId> {
+  return new Set([
+    snapshot.self.playerId,
+    ...snapshot.peers.map((peer) => peer.hello.playerId),
+  ]);
 }
 
-function withPeer(peers: readonly ConnectedPeer[], peer: ConnectedPeer): ConnectedPeer[] {
+function withPeer(
+  peers: readonly ConnectedPeer[],
+  peer: ConnectedPeer,
+): ConnectedPeer[] {
   // A reloaded player reconnects with a new peer ID; the stale connection is replaced.
   const others = peers.filter(
     (existing) =>
-      existing.peerId !== peer.peerId && existing.hello.playerId !== peer.hello.playerId,
+      existing.peerId !== peer.peerId &&
+      existing.hello.playerId !== peer.hello.playerId,
   );
   return [...others, peer];
 }
@@ -77,7 +96,8 @@ export function createGameSession(options: SessionOptions): GameSession {
     options.onChange(snapshot);
   };
 
-  const senderOf = (peerId: PeerId) => snapshot.peers.find((peer) => peer.peerId === peerId)?.hello;
+  const senderOf = (peerId: PeerId) =>
+    snapshot.peers.find((peer) => peer.peerId === peerId)?.hello;
 
   let transport: Transport | null = null;
   const send = (action: (connected: Transport) => void) => {
@@ -96,7 +116,9 @@ export function createGameSession(options: SessionOptions): GameSession {
       });
     },
     onPeerLeave: (peerId) => {
-      update({ peers: snapshot.peers.filter((peer) => peer.peerId !== peerId) });
+      update({
+        peers: snapshot.peers.filter((peer) => peer.peerId !== peerId),
+      });
     },
     onHello: (hello, peerId) => {
       update({ peers: withPeer(snapshot.peers, { peerId, hello }) });
@@ -152,7 +174,12 @@ export function createGameSession(options: SessionOptions): GameSession {
     submitMove,
     startGame: (seed) => {
       const players = playersForStart(snapshot);
-      return submitMove({ type: "startGame", playerId: snapshot.self.playerId, players, seed });
+      return submitMove({
+        type: "startGame",
+        playerId: snapshot.self.playerId,
+        players,
+        seed,
+      });
     },
     leave: () => {
       send((connected) => {

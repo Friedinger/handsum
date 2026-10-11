@@ -43,8 +43,16 @@ if (hasJoinedRoom(props.roomCode) && nameInput.value.trim().length > 0) {
   <form v-else class="panel stack" @submit.prevent="submitName">
     <label for="player-name">{{ strings.nameForm.label }}</label>
     <div class="inline-form">
-      <input id="player-name" v-model="nameInput" maxlength="24" autocomplete="nickname" required />
-      <button type="submit" class="button-primary">{{ strings.nameForm.submit }}</button>
+      <input
+        id="player-name"
+        v-model="nameInput"
+        maxlength="24"
+        autocomplete="nickname"
+        required
+      />
+      <button type="submit" class="button-primary">
+        {{ strings.nameForm.submit }}
+      </button>
     </div>
   </form>
 </template>

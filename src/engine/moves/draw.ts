@@ -2,7 +2,12 @@ import type { DiscardDrawnCardMove, DrawFromDeckMove } from "../moves";
 import { accept, reject, type Result } from "../outcome";
 import { deriveSeed, shuffle } from "../random";
 import type { GameState, StartedGame } from "../types";
-import { endTurn, requireAwaitingChoice, requireHeldCard, withEvent } from "./turn";
+import {
+  endTurn,
+  requireAwaitingChoice,
+  requireHeldCard,
+  withEvent,
+} from "./turn";
 
 // The reshuffle seed depends on the move number so repeated reshuffles differ but stay replayable.
 function replenishDrawPile(state: StartedGame): StartedGame {
@@ -15,10 +20,16 @@ function replenishDrawPile(state: StartedGame): StartedGame {
     drawPile: shuffle(reusableCards, deriveSeed(state.seed, state.moveCount)),
     discardPile: [topDiscard],
   };
-  return withEvent(reshuffled, { type: "drawPileReshuffled", cardCount: reusableCards.length });
+  return withEvent(reshuffled, {
+    type: "drawPileReshuffled",
+    cardCount: reusableCards.length,
+  });
 }
 
-export function applyDrawFromDeck(state: GameState, move: DrawFromDeckMove): Result<StartedGame> {
+export function applyDrawFromDeck(
+  state: GameState,
+  move: DrawFromDeckMove,
+): Result<StartedGame> {
   const turn = requireAwaitingChoice(state, move.playerId);
   if (!turn.ok) {
     return turn;
@@ -49,6 +60,9 @@ export function applyDiscardDrawnCard(
   }
   const { state: current, heldCard } = turn.value;
   return accept(
-    endTurn({ ...current, discardPile: [heldCard, ...current.discardPile] }, move.playerId),
+    endTurn(
+      { ...current, discardPile: [heldCard, ...current.discardPile] },
+      move.playerId,
+    ),
   );
 }
