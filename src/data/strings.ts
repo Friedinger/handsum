@@ -1,4 +1,5 @@
 import type { CardAction, MoveRejection, MoveType } from "../engine";
+import type { SyncRejection } from "../net/moveLog";
 
 const cardActionNames = {
   viewOwn: "View own card",
@@ -43,11 +44,19 @@ const rejectionMessages = {
   endAlreadyCalled: "The end has already been called.",
 } as const satisfies Record<MoveRejection, string>;
 
+const syncRejectionMessages = {
+  ...rejectionMessages,
+  wrongSender: "This move belongs to another player.",
+  notHost: "Only the host can start the game.",
+  staleSequence: "This move arrived too late.",
+} as const satisfies Record<SyncRejection, string>;
+
 export const strings = {
   appTitle: "Handsum",
   cardActionNames,
   moveNames,
   rejectionMessages,
+  syncRejectionMessages,
   cardSymbol: "◆",
   hiddenCard: "?",
   emptySlot: "—",
@@ -65,6 +74,59 @@ export const strings = {
     playing: "Playing",
     finished: "Finished",
   },
+  table: {
+    status: "Status",
+    phase: "Phase",
+    currentPlayer: "Current player",
+    endCaller: "End called by",
+    moveCount: "Moves",
+    drawPile: "Draw pile",
+    discardPile: "Discard pile",
+    heldCard: "Drawn card",
+    lastEvents: "Last move events",
+    results: "Results",
+    cardSum: "Card sum",
+    score: "Score",
+    winner: "Winner",
+    ready: "ready",
+    nobody: "nobody",
+    you: "you",
+    online: "online",
+    offline: "offline",
+    yourTurn: "Your turn",
+    playersTurn: (name: string) => `${name}'s turn`,
+    yourMoves: "Your options",
+    waitingForOthers: "Waiting for the other players…",
+  },
+  home: {
+    tagline: "A card game for 2 to 8 players in the browser.",
+    createRoom: "Create a room",
+    roomCode: "Room code",
+    joinRoom: "Join",
+    invalidRoomCode: "Room codes have six letters or digits.",
+    disclaimer: "Unofficial fan project, not affiliated with the original publisher.",
+  },
+  nameForm: {
+    label: "Your name",
+    submit: "Join room",
+    connecting: "Connecting…",
+  },
+  lobby: {
+    title: (roomCode: string) => `Room ${roomCode}`,
+    shareHint: "Share this link with the other players:",
+    copyLink: "Copy link",
+    copied: "Copied!",
+    players: "Players",
+    host: "host",
+    start: "Start game",
+    playerLimits: (min: number, max: number) =>
+      `A game needs ${String(min)} to ${String(max)} players.`,
+    waitingForHost: "Waiting for the host to start the game…",
+    leave: "Leave room",
+  },
+  spectator: {
+    notice: "This game has already started. Only its players can rejoin.",
+  },
   hotseat: {
     title: "Handsum hot-seat (debug)",
     playerName: (seatNumber: number) => `Player ${String(seatNumber)}`,
@@ -81,22 +143,7 @@ export const strings = {
     manualMove: "Submit a move as JSON",
     submit: "Submit",
     invalidJson: "This is not valid JSON.",
-    status: "Status",
-    phase: "Phase",
-    currentPlayer: "Current player",
-    endCaller: "End called by",
-    moveCount: "Moves",
-    drawPile: "Draw pile",
-    discardPile: "Discard pile",
-    heldCard: "Drawn card",
-    lastEvents: "Last move events",
-    results: "Results",
-    cardSum: "Card sum",
-    score: "Score",
-    winner: "Winner",
     moveLog: "Move log",
     fullState: "Full state",
-    ready: "ready",
-    nobody: "nobody",
   },
 } as const;

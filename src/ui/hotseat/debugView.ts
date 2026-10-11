@@ -1,14 +1,14 @@
 import { strings } from "../../data/strings";
 import type { PlayerResult, StartedGame } from "../../engine";
 import { describeEvent, playerName } from "../describe";
-import { element } from "../dom";
+import { element } from "./dom";
 import type { HotseatSession } from "./session";
 
 const JSON_INDENT = 2;
 
 function renderEvents(state: StartedGame): HTMLElement {
   return element("section", {}, [
-    element("h2", {}, [strings.hotseat.lastEvents]),
+    element("h2", {}, [strings.table.lastEvents]),
     element(
       "ul",
       {},
@@ -30,9 +30,9 @@ function renderResults(state: StartedGame): HTMLElement | null {
   if (state.phase.kind !== "finished") {
     return null;
   }
-  const headings = ["", strings.hotseat.cardSum, strings.hotseat.score, strings.hotseat.winner];
+  const headings = ["", strings.table.cardSum, strings.table.score, strings.table.winner];
   return element("section", {}, [
-    element("h2", {}, [strings.hotseat.results]),
+    element("h2", {}, [strings.table.results]),
     element("table", {}, [
       element(
         "tr",

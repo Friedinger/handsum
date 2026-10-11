@@ -1,22 +1,19 @@
 import { strings } from "../../data/strings";
 import { legalMoves, type Move, type PlayerId, type StartedGame } from "../../engine";
 import { describeMove, playerName } from "../describe";
-import { button, checkbox, element } from "../dom";
+import { button, checkbox, element } from "./dom";
 import type { HotseatActions, HotseatSession } from "./session";
 
 function renderStatus(state: StartedGame): HTMLElement {
   const { phase, endCallerId } = state;
   const rows: [string, string][] = [
-    [strings.hotseat.phase, strings.phaseNames[phase.kind]],
+    [strings.table.phase, strings.phaseNames[phase.kind]],
     [
-      strings.hotseat.currentPlayer,
-      phase.kind === "playing" ? playerName(state, phase.currentPlayerId) : strings.hotseat.nobody,
+      strings.table.currentPlayer,
+      phase.kind === "playing" ? playerName(state, phase.currentPlayerId) : strings.table.nobody,
     ],
-    [
-      strings.hotseat.endCaller,
-      endCallerId ? playerName(state, endCallerId) : strings.hotseat.nobody,
-    ],
-    [strings.hotseat.moveCount, String(state.moveCount)],
+    [strings.table.endCaller, endCallerId ? playerName(state, endCallerId) : strings.table.nobody],
+    [strings.table.moveCount, String(state.moveCount)],
   ];
   return element(
     "dl",
@@ -111,7 +108,7 @@ export function renderControls(
   actions: HotseatActions,
 ): HTMLElement {
   return element("section", {}, [
-    element("h2", {}, [strings.hotseat.status]),
+    element("h2", {}, [strings.table.status]),
     renderStatus(state),
     element("div", {}, [
       button(strings.hotseat.undo, actions.undo),

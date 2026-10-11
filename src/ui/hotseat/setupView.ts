@@ -1,6 +1,6 @@
 import { strings } from "../../data/strings";
 import { MAX_PLAYERS, MIN_PLAYERS } from "../../engine";
-import { button, element } from "../dom";
+import { button, element } from "./dom";
 import type { HotseatActions } from "./session";
 
 const DEFAULT_PLAYER_COUNT = 3;

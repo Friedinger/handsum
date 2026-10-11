@@ -1,8 +1,8 @@
 import { strings } from "../../data/strings";
 import type { PlayerId, Seat, StartedGame } from "../../engine";
-import { renderFaceUpCard, renderSlot } from "../cardView";
+import { renderFaceUpCard, renderSlot } from "./cardView";
 import { playerName } from "../describe";
-import { element } from "../dom";
+import { element } from "./dom";
 import { currentHeldCard, heldCardVisibleTo, isSlotVisibleTo, type HeldCard } from "../visibility";
 
 interface TableView {
@@ -23,7 +23,7 @@ function seatLabel(view: TableView, seat: Seat): string {
   const markers = [
     phase.kind === "playing" && phase.currentPlayerId === seat.player.id ? "▶" : null,
     phase.kind === "initialPeek" && phase.readyPlayerIds.includes(seat.player.id)
-      ? `(${strings.hotseat.ready})`
+      ? `(${strings.table.ready})`
       : null,
     endCallerId === seat.player.id ? `[${strings.moveNames.callEnd}]` : null,
   ];
@@ -59,18 +59,18 @@ function renderPiles(view: TableView): HTMLElement {
   const heldCard = visibleHeldCard(view);
   return element("div", { className: "piles" }, [
     renderPile(
-      strings.hotseat.drawPile,
+      strings.table.drawPile,
       drawPile.length,
       renderSlot(drawPile[0] ?? null, view.revealAll),
     ),
     renderPile(
-      strings.hotseat.discardPile,
+      strings.table.discardPile,
       discardPile.length,
       renderSlot(discardPile[0] ?? null, true),
     ),
     heldCard &&
       element("div", {}, [
-        `${strings.hotseat.heldCard} (${playerName(view.state, heldCard.holderId)})`,
+        `${strings.table.heldCard} (${playerName(view.state, heldCard.holderId)})`,
         renderFaceUpCard(heldCard.card),
       ]),
   ]);
