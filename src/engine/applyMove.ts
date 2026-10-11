@@ -11,12 +11,14 @@ import type { GameState, StartedGame } from "./types";
 export const initialGameState: GameState = { status: "notStarted" };
 
 export class IllegalMoveError extends Error {
-  constructor(
-    readonly reason: MoveRejection,
-    readonly move: Move,
-  ) {
+  readonly reason: MoveRejection;
+  readonly move: Move;
+
+  constructor(reason: MoveRejection, move: Move) {
     super(`Illegal move "${move.type}": ${reason}`);
     this.name = "IllegalMoveError";
+    this.reason = reason;
+    this.move = move;
   }
 }
 
