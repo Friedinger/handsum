@@ -1,0 +1,56 @@
+<script setup lang="ts">
+import { computed } from "vue";
+import { strings } from "../../data/strings";
+import type { PlayerId, PlayerResult, StartedGame } from "../../engine";
+import { playerName } from "../describe";
+
+const props = defineProps<{
+  state: StartedGame;
+  results: readonly PlayerResult[];
+  selfId: PlayerId;
+}>();
+const emit = defineEmits<{ leave: [] }>();
+
+const headline = computed(() => {
+  const winners = props.results.filter((result) => result.isWinner);
+  if (winners.some((winner) => winner.playerId === props.selfId)) {
+    return strings.table.youWin;
+  }
+  return strings.table.playerWins(
+    winners.map((winner) => playerName(props.state, winner.playerId)).join(" & "),
+  );
+});
+
+const ranked = computed(() => [...props.results].sort((a, b) => a.score - b.score));
+</script>
+
+<template>
+  <div class="results-panel">
+    <div>
+      <h2>{{ headline }}</h2>
+      <table class="results">
+        <thead>
+          <tr>
+            <th></th>
+            <th>{{ strings.table.cardSum }}</th>
+            <th>{{ strings.table.score }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="result in ranked"
+            :key="result.playerId"
+            :class="{ 'result-winner': result.isWinner }"
+          >
+            <td>{{ playerName(state, result.playerId) }}</td>
+            <td>{{ result.cardSum }}</td>
+            <td>{{ result.score }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <button type="button" class="button-primary" @click="emit('leave')">
+        {{ strings.table.backToStart }}
+      </button>
+    </div>
+  </div>
+</template>

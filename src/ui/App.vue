@@ -9,7 +9,7 @@ const roomCode = useRoomCode();
 
 <template>
   <main class="app">
-    <h1>{{ strings.appTitle }}</h1>
+    <h1 class="app-title">{{ strings.appTitle }}</h1>
     <RoomView v-if="roomCode" :key="roomCode" :room-code="roomCode" />
     <HomeView v-else />
   </main>

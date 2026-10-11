@@ -7,13 +7,16 @@ import type { HotseatActions, HotseatSession } from "./session";
 function renderStatus(state: StartedGame): HTMLElement {
   const { phase, endCallerId } = state;
   const rows: [string, string][] = [
-    [strings.table.phase, strings.phaseNames[phase.kind]],
+    [strings.hotseat.phase, strings.phaseNames[phase.kind]],
     [
-      strings.table.currentPlayer,
-      phase.kind === "playing" ? playerName(state, phase.currentPlayerId) : strings.table.nobody,
+      strings.hotseat.currentPlayer,
+      phase.kind === "playing" ? playerName(state, phase.currentPlayerId) : strings.hotseat.nobody,
     ],
-    [strings.table.endCaller, endCallerId ? playerName(state, endCallerId) : strings.table.nobody],
-    [strings.table.moveCount, String(state.moveCount)],
+    [
+      strings.hotseat.endCaller,
+      endCallerId ? playerName(state, endCallerId) : strings.hotseat.nobody,
+    ],
+    [strings.hotseat.moveCount, String(state.moveCount)],
   ];
   return element(
     "dl",
@@ -108,7 +111,7 @@ export function renderControls(
   actions: HotseatActions,
 ): HTMLElement {
   return element("section", {}, [
-    element("h2", {}, [strings.table.status]),
+    element("h2", {}, [strings.hotseat.status]),
     renderStatus(state),
     element("div", {}, [
       button(strings.hotseat.undo, actions.undo),

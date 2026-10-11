@@ -3,7 +3,7 @@ import { computed } from "vue";
 import { strings } from "../../data/strings";
 import type { HelloMessage } from "../../net/protocol";
 import { useGameSession } from "../composables/useGameSession";
-import GameView from "./GameView.vue";
+import GameTable from "./GameTable.vue";
 import LobbyView from "./LobbyView.vue";
 
 const props = defineProps<{ roomCode: string; self: HelloMessage }>();
@@ -28,12 +28,12 @@ const isSeated = computed(
     :rejection="lastRejection"
     @start="startGame"
   />
-  <GameView
+  <GameTable
     v-else-if="isSeated"
     :snapshot="snapshot"
     :state="game"
     :rejection="lastRejection"
     @move="submitMove"
   />
-  <p v-else>{{ strings.spectator.notice }}</p>
+  <p v-else class="panel">{{ strings.spectator.notice }}</p>
 </template>

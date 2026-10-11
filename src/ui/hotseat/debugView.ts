@@ -8,7 +8,7 @@ const JSON_INDENT = 2;
 
 function renderEvents(state: StartedGame): HTMLElement {
   return element("section", {}, [
-    element("h2", {}, [strings.table.lastEvents]),
+    element("h2", {}, [strings.hotseat.lastEvents]),
     element(
       "ul",
       {},

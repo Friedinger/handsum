@@ -39,12 +39,12 @@ if (hasJoinedRoom(props.roomCode) && nameInput.value.trim().length > 0) {
 
 <template>
   <SessionView v-if="self" :room-code="roomCode" :self="self" />
-  <p v-else-if="connecting">{{ strings.nameForm.connecting }}</p>
-  <form v-else class="inline-form" @submit.prevent="submitName">
-    <label>
-      {{ strings.nameForm.label }}
-      <input v-model="nameInput" maxlength="24" autocomplete="nickname" required />
-    </label>
-    <button type="submit">{{ strings.nameForm.submit }}</button>
+  <p v-else-if="connecting" class="panel">{{ strings.nameForm.connecting }}</p>
+  <form v-else class="panel stack" @submit.prevent="submitName">
+    <label for="player-name">{{ strings.nameForm.label }}</label>
+    <div class="inline-form">
+      <input id="player-name" v-model="nameInput" maxlength="24" autocomplete="nickname" required />
+      <button type="submit" class="button-primary">{{ strings.nameForm.submit }}</button>
+    </div>
   </form>
 </template>

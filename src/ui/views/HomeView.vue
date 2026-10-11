@@ -21,17 +21,21 @@ function joinRoom(): void {
 </script>
 
 <template>
-  <section>
+  <section class="panel stack">
     <p>{{ strings.home.tagline }}</p>
-    <button type="button" @click="createRoom">{{ strings.home.createRoom }}</button>
+    <button type="button" class="button-primary" @click="createRoom">
+      {{ strings.home.createRoom }}
+    </button>
     <form class="inline-form" @submit.prevent="joinRoom">
-      <label>
-        {{ strings.home.roomCode }}
-        <input v-model="codeInput" autocomplete="off" />
-      </label>
-      <button type="submit">{{ strings.home.joinRoom }}</button>
+      <input
+        v-model="codeInput"
+        :placeholder="strings.home.roomCode"
+        :aria-label="strings.home.roomCode"
+        autocomplete="off"
+      />
+      <button type="submit" class="button-secondary">{{ strings.home.joinRoom }}</button>
     </form>
     <p v-if="showInvalidCode" class="error">{{ strings.home.invalidRoomCode }}</p>
-    <p class="disclaimer">{{ strings.home.disclaimer }}</p>
   </section>
+  <p class="disclaimer">{{ strings.home.disclaimer }}</p>
 </template>

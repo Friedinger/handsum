@@ -1,31 +1,45 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { strings } from "../../data/strings";
 import type { Card } from "../../engine";
+import { valueTier, type CardSize } from "../slotView";
 
-withDefaults(
-  defineProps<{ card: Card | null; faceUp: boolean; selectable?: boolean; selected?: boolean }>(),
-  { selectable: false, selected: false },
+const props = withDefaults(
+  defineProps<{
+    card: Card | null;
+    faceUp: boolean;
+    size?: CardSize;
+    clickable?: boolean;
+    marked?: boolean;
+  }>(),
+  { size: "medium", clickable: false, marked: false },
 );
-const emit = defineEmits<{ select: [] }>();
+const emit = defineEmits<{ click: [] }>();
+
+const visibleCard = computed(() => (props.faceUp ? props.card : null));
 </script>
 
 <template>
   <component
-    :is="selectable ? 'button' : 'div'"
-    :type="selectable ? 'button' : undefined"
+    :is="clickable ? 'button' : 'div'"
+    :type="clickable ? 'button' : undefined"
     class="card"
-    :class="{
-      'card-hidden': !faceUp,
-      'card-selectable': selectable,
-      'card-selected': selected,
-    }"
-    @click="selectable && emit('select')"
+    :class="[
+      `card-${size}`,
+      visibleCard ? `card-face tier-${valueTier(visibleCard)}` : 'card-back',
+      { 'card-clickable': clickable, 'card-marked': marked, 'card-placeholder': faceUp && !card },
+    ]"
+    @click="clickable && emit('click')"
   >
-    <template v-if="card && faceUp">
-      <span class="card-value">{{ card.value }}</span>
-      <span class="card-symbol">{{ strings.cardSymbol }}</span>
-      <span v-if="card.action" class="card-action">{{ strings.cardActionNames[card.action] }}</span>
+    <template v-if="visibleCard">
+      <span class="card-corner">{{ visibleCard.value }}</span>
+      <span class="card-center">
+        <span class="card-value">{{ visibleCard.value }}</span>
+        <span class="card-symbol">{{ strings.cardSymbol }}</span>
+      </span>
+      <span v-if="visibleCard.action" class="card-action">
+        {{ strings.cardActionNames[visibleCard.action] }}
+      </span>
     </template>
-    <template v-else>{{ strings.hiddenCard }}</template>
   </component>
 </template>

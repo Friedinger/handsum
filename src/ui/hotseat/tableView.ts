@@ -23,7 +23,7 @@ function seatLabel(view: TableView, seat: Seat): string {
   const markers = [
     phase.kind === "playing" && phase.currentPlayerId === seat.player.id ? "▶" : null,
     phase.kind === "startingView" && phase.viewedPlayerIds.includes(seat.player.id)
-      ? `(${strings.table.viewed})`
+      ? `(${strings.hotseat.viewed})`
       : null,
     endCallerId === seat.player.id ? `[${strings.moveNames.callEnd}]` : null,
   ];
@@ -59,18 +59,18 @@ function renderPiles(view: TableView): HTMLElement {
   const heldCard = visibleHeldCard(view);
   return element("div", { className: "piles" }, [
     renderPile(
-      strings.table.drawPile,
+      strings.hotseat.drawPile,
       drawPile.length,
       renderSlot(drawPile[0] ?? null, view.revealAll),
     ),
     renderPile(
-      strings.table.discardPile,
+      strings.hotseat.discardPile,
       discardPile.length,
       renderSlot(discardPile[0] ?? null, true),
     ),
     heldCard &&
       element("div", {}, [
-        `${strings.table.heldCard} (${playerName(view.state, heldCard.holderId)})`,
+        `${strings.hotseat.heldCard} (${playerName(view.state, heldCard.holderId)})`,
         renderFaceUpCard(heldCard.card),
       ]),
   ]);

@@ -4,7 +4,10 @@ export const STARTING_VIEW_REVEAL_MS = 8000;
 export const VIEW_REVEAL_MS = 5000;
 export const FAILED_SWAP_REVEAL_MS = 4000;
 
+export type RevealReason = "startingView" | "viewed" | "failedSwap";
+
 export interface Reveal {
+  readonly reason: RevealReason;
   readonly ownerId: PlayerId;
   readonly slotIndex: number;
   readonly card: Card;
@@ -18,7 +21,17 @@ function startingViewReveals(state: StartedGame, move: Move, selfId: PlayerId): 
   const layout = state.seats.find((seat) => seat.player.id === selfId)?.layout ?? [];
   return move.slotIndices.flatMap((slotIndex) => {
     const card = layout[slotIndex];
-    return card ? [{ ownerId: selfId, slotIndex, card, durationMs: STARTING_VIEW_REVEAL_MS }] : [];
+    return card
+      ? [
+          {
+            reason: "startingView",
+            ownerId: selfId,
+            slotIndex,
+            card,
+            durationMs: STARTING_VIEW_REVEAL_MS,
+          },
+        ]
+      : [];
   });
 }
 
@@ -29,6 +42,7 @@ function eventReveals(state: StartedGame, selfId: PlayerId): Reveal[] {
         return event.viewerId === selfId
           ? [
               {
+                reason: "viewed",
                 ownerId: event.ownerId,
                 slotIndex: event.slotIndex,
                 card: event.card,
@@ -41,6 +55,7 @@ function eventReveals(state: StartedGame, selfId: PlayerId): Reveal[] {
         return event.matched
           ? []
           : event.cards.map((card, index) => ({
+              reason: "failedSwap",
               ownerId: event.playerId,
               slotIndex: event.slotIndices[index] ?? -1,
               card,
