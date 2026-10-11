@@ -5,7 +5,8 @@ import {
   type PlayerId,
   type StartedGame,
 } from "@/engine";
-import { describeMove, playerName } from "@/ui/describe";
+import { describeMove } from "./describe";
+import { playerName } from "@/ui/playerName";
 import { button, checkbox, element } from "./dom";
 import type { HotseatActions, HotseatSession } from "./session";
 

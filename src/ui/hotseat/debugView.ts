@@ -1,6 +1,7 @@
 import { strings } from "@/data/strings";
 import type { PlayerResult, StartedGame } from "@/engine";
-import { describeEvent, playerName } from "@/ui/describe";
+import { describeEvent } from "./describe";
+import { playerName } from "@/ui/playerName";
 import { element } from "./dom";
 import type { HotseatSession } from "./session";
 

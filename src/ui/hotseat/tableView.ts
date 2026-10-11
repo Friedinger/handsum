@@ -1,7 +1,7 @@
 import { strings } from "@/data/strings";
 import type { PlayerId, Seat, StartedGame } from "@/engine";
 import { renderFaceUpCard, renderSlot } from "./cardView";
-import { playerName } from "@/ui/describe";
+import { playerName } from "@/ui/playerName";
 import { element } from "./dom";
 import {
   currentHeldCard,

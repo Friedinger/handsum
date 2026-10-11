@@ -2,12 +2,9 @@ import { strings } from "@/data/strings";
 import { MAX_PLAYERS, MIN_PLAYERS } from "@/engine";
 import { button, element } from "./dom";
 import type { HotseatActions } from "./session";
+import { randomSeed } from "@/ui/randomSeed";
 
 const DEFAULT_PLAYER_COUNT = 3;
-
-function randomSeed(): number {
-  return crypto.getRandomValues(new Uint32Array(1))[0] ?? 0;
-}
 
 function playerCountSelect(): HTMLSelectElement {
   const select = element("select");
