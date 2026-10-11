@@ -39,7 +39,36 @@ export interface PlayingPhase {
   readonly step: TurnStep;
 }
 
-export type Phase = InitialPeekPhase | PlayingPhase;
+export interface PlayerResult {
+  readonly playerId: PlayerId;
+  readonly cardSum: number;
+  readonly score: number;
+  readonly isWinner: boolean;
+}
+
+export interface FinishedPhase {
+  readonly kind: "finished";
+  readonly results: readonly PlayerResult[];
+}
+
+export type Phase = InitialPeekPhase | PlayingPhase | FinishedPhase;
+
+export type GameEvent =
+  | { readonly type: "drawPileReshuffled"; readonly cardCount: number }
+  | {
+      readonly type: "cardsRevealed";
+      readonly playerId: PlayerId;
+      readonly slotIndices: readonly number[];
+      readonly cards: readonly Card[];
+      readonly matched: boolean;
+    }
+  | {
+      readonly type: "cardViewed";
+      readonly viewerId: PlayerId;
+      readonly ownerId: PlayerId;
+      readonly slotIndex: number;
+      readonly card: Card;
+    };
 
 export interface NotStartedGame {
   readonly status: "notStarted";
@@ -53,6 +82,8 @@ export interface StartedGame {
   readonly drawPile: readonly Card[];
   readonly discardPile: readonly Card[];
   readonly phase: Phase;
+  readonly endCallerId: PlayerId | null;
+  readonly lastMoveEvents: readonly GameEvent[];
 }
 
 export type GameState = NotStartedGame | StartedGame;

@@ -1,0 +1,113 @@
+import type { ExchangeBlindMove, ViewOtherCardMove, ViewOwnCardMove } from "../moves";
+import { accept, reject, type Result } from "../outcome";
+import { isSlotIndex, replaceAt, seatIndexOf, withLayout } from "../state";
+import type { Card, CardAction, GameState, PlayerId, Slot, StartedGame } from "../types";
+import { endTurn, requireHeldCard, withEvent, type HeldCardTurn } from "./turn";
+
+interface TargetSeat {
+  readonly playerId: PlayerId;
+  readonly seatIndex: number;
+  readonly layout: readonly Slot[];
+}
+
+function requireAction(
+  state: GameState,
+  playerId: PlayerId,
+  action: CardAction,
+): Result<HeldCardTurn> {
+  const turn = requireHeldCard(state, playerId);
+  if (!turn.ok) {
+    return turn;
+  }
+  return turn.value.heldCard.action === action ? turn : reject("wrongCardAction");
+}
+
+function requireOtherSeat(turn: HeldCardTurn, targetPlayerId: PlayerId): Result<TargetSeat> {
+  const seatIndex = seatIndexOf(turn.state, targetPlayerId);
+  const seat = turn.state.seats[seatIndex];
+  if (!seat || targetPlayerId === turn.playerId) {
+    return reject("invalidTarget");
+  }
+  return accept({ playerId: targetPlayerId, seatIndex, layout: seat.layout });
+}
+
+function requireCardAt(layout: readonly Slot[], slotIndex: number): Result<Card> {
+  if (!isSlotIndex(layout, slotIndex)) {
+    return reject("invalidSlot");
+  }
+  const card = layout[slotIndex];
+  return card ? accept(card) : reject("emptySlot");
+}
+
+function completeAction(turn: HeldCardTurn, state: StartedGame): StartedGame {
+  return endTurn({ ...state, discardPile: [turn.heldCard, ...state.discardPile] }, turn.playerId);
+}
+
+export function applyViewOwnCard(state: GameState, move: ViewOwnCardMove): Result<StartedGame> {
+  const turn = requireAction(state, move.playerId, "viewOwn");
+  if (!turn.ok) {
+    return turn;
+  }
+  const card = requireCardAt(turn.value.layout, move.slotIndex);
+  if (!card.ok) {
+    return card;
+  }
+  const viewed = withEvent(turn.value.state, {
+    type: "cardViewed",
+    viewerId: move.playerId,
+    ownerId: move.playerId,
+    slotIndex: move.slotIndex,
+    card: card.value,
+  });
+  return accept(completeAction(turn.value, viewed));
+}
+
+export function applyViewOtherCard(state: GameState, move: ViewOtherCardMove): Result<StartedGame> {
+  const turn = requireAction(state, move.playerId, "viewOther");
+  if (!turn.ok) {
+    return turn;
+  }
+  const target = requireOtherSeat(turn.value, move.targetPlayerId);
+  if (!target.ok) {
+    return target;
+  }
+  const card = requireCardAt(target.value.layout, move.slotIndex);
+  if (!card.ok) {
+    return card;
+  }
+  const viewed = withEvent(turn.value.state, {
+    type: "cardViewed",
+    viewerId: move.playerId,
+    ownerId: move.targetPlayerId,
+    slotIndex: move.slotIndex,
+    card: card.value,
+  });
+  return accept(completeAction(turn.value, viewed));
+}
+
+export function applyExchangeBlind(state: GameState, move: ExchangeBlindMove): Result<StartedGame> {
+  const turn = requireAction(state, move.playerId, "exchangeBlind");
+  if (!turn.ok) {
+    return turn;
+  }
+  const target = requireOtherSeat(turn.value, move.targetPlayerId);
+  if (!target.ok) {
+    return target;
+  }
+  const ownCard = requireCardAt(turn.value.layout, move.ownSlotIndex);
+  if (!ownCard.ok) {
+    return ownCard;
+  }
+  const targetCard = requireCardAt(target.value.layout, move.targetSlotIndex);
+  if (!targetCard.ok) {
+    return targetCard;
+  }
+  const ownLayout = replaceAt(turn.value.layout, move.ownSlotIndex, targetCard.value);
+  const targetLayout = replaceAt(target.value.layout, move.targetSlotIndex, ownCard.value);
+  const seats = withLayout(
+    withLayout(turn.value.state.seats, turn.value.seatIndex, ownLayout),
+    target.value.seatIndex,
+    targetLayout,
+  );
+  return accept(completeAction(turn.value, { ...turn.value.state, seats }));
+}

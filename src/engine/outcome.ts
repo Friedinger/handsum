@@ -14,7 +14,12 @@ export type MoveRejection =
   | "drawPileEmpty"
   | "discardPileEmpty"
   | "invalidSlot"
-  | "emptySlot";
+  | "duplicateSlot"
+  | "noSlotSelected"
+  | "emptySlot"
+  | "wrongCardAction"
+  | "invalidTarget"
+  | "endAlreadyCalled";
 
 export type Result<T> =
   { readonly ok: true; readonly value: T } | { readonly ok: false; readonly reason: MoveRejection };

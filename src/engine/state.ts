@@ -12,14 +12,18 @@ export function nextPlayerId(state: StartedGame, playerId: PlayerId): PlayerId {
   return nextSeat.player.id;
 }
 
+export function isSlotIndex(layout: readonly Slot[], slotIndex: number): boolean {
+  return Number.isInteger(slotIndex) && slotIndex >= 0 && slotIndex < layout.length;
+}
+
 export function replaceAt<T>(items: readonly T[], index: number, item: T): T[] {
   return items.map((existing, existingIndex) => (existingIndex === index ? item : existing));
 }
 
 export function withLayout(
-  state: StartedGame,
+  seats: readonly Seat[],
   seatIndex: number,
   layout: readonly Slot[],
 ): readonly Seat[] {
-  return state.seats.map((seat, index) => (index === seatIndex ? { ...seat, layout } : seat));
+  return seats.map((seat, index) => (index === seatIndex ? { ...seat, layout } : seat));
 }

@@ -25,13 +25,39 @@ export interface DiscardDrawnCardMove {
 export interface SwapDrawnCardMove {
   readonly type: "swapDrawnCard";
   readonly playerId: PlayerId;
-  readonly slotIndex: number;
+  readonly slotIndices: readonly number[];
 }
 
 export interface SwapDiscardCardMove {
   readonly type: "swapDiscardCard";
   readonly playerId: PlayerId;
+  readonly slotIndices: readonly number[];
+}
+
+export interface ViewOwnCardMove {
+  readonly type: "viewOwnCard";
+  readonly playerId: PlayerId;
   readonly slotIndex: number;
+}
+
+export interface ViewOtherCardMove {
+  readonly type: "viewOtherCard";
+  readonly playerId: PlayerId;
+  readonly targetPlayerId: PlayerId;
+  readonly slotIndex: number;
+}
+
+export interface ExchangeBlindMove {
+  readonly type: "exchangeBlind";
+  readonly playerId: PlayerId;
+  readonly ownSlotIndex: number;
+  readonly targetPlayerId: PlayerId;
+  readonly targetSlotIndex: number;
+}
+
+export interface CallEndMove {
+  readonly type: "callEnd";
+  readonly playerId: PlayerId;
 }
 
 export type Move =
@@ -40,4 +66,10 @@ export type Move =
   | DrawFromDeckMove
   | DiscardDrawnCardMove
   | SwapDrawnCardMove
-  | SwapDiscardCardMove;
+  | SwapDiscardCardMove
+  | ViewOwnCardMove
+  | ViewOtherCardMove
+  | ExchangeBlindMove
+  | CallEndMove;
+
+export type MoveType = Move["type"];

@@ -39,6 +39,8 @@ function dealGame(players: readonly Player[], seed: number): StartedGame {
     drawPile,
     discardPile: [firstDiscard],
     phase: { kind: "initialPeek", readyPlayerIds: [] },
+    endCallerId: null,
+    lastMoveEvents: [],
   };
 }
 

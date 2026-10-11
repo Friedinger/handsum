@@ -11,4 +11,5 @@ export { legalMoves } from "./legalMoves";
 export type * from "./moves";
 export type { MoveRejection, Result } from "./outcome";
 export * from "./rules";
+export { scoreGame } from "./scoring";
 export type * from "./types";

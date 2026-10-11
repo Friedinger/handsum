@@ -1,6 +1,6 @@
 import { applyMove, initialGameState } from "./applyMove";
 import type { Move, StartGameMove } from "./moves";
-import type { Card, GameState, Player, StartedGame } from "./types";
+import type { Card, CardAction, GameState, Player, Slot, StartedGame } from "./types";
 
 export const TEST_SEED = 12345;
 
@@ -52,4 +52,35 @@ export function currentPlayerId(state: StartedGame): string {
     throw new Error("Expected the playing phase");
   }
   return state.phase.currentPlayerId;
+}
+
+const TEST_CARD_ID_OFFSET = 1000;
+
+export function makeCard(value: number, action: CardAction | null = null, id = value): Card {
+  return { id: TEST_CARD_ID_OFFSET + id, value, points: value, action };
+}
+
+export function withLayouts(
+  state: StartedGame,
+  layouts: readonly (readonly Slot[])[],
+): StartedGame {
+  return {
+    ...state,
+    seats: state.seats.map((seat, index) => ({ ...seat, layout: layouts[index] ?? seat.layout })),
+  };
+}
+
+export function holding(state: StartedGame, card: Card): StartedGame {
+  return {
+    ...state,
+    phase: {
+      kind: "playing",
+      currentPlayerId: currentPlayerId(state),
+      step: { kind: "holdingDrawnCard", card },
+    },
+  };
+}
+
+export function layoutOf(state: StartedGame, seatIndex: number): readonly Slot[] {
+  return state.seats[seatIndex]?.layout ?? [];
 }

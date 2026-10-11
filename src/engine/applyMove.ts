@@ -1,12 +1,10 @@
 import type { Move } from "./moves";
+import { applyCallEnd } from "./moves/callEnd";
+import { applyExchangeBlind, applyViewOtherCard, applyViewOwnCard } from "./moves/cardActions";
+import { applyDiscardDrawnCard, applyDrawFromDeck } from "./moves/draw";
 import { applyReady } from "./moves/ready";
 import { applyStartGame } from "./moves/startGame";
-import {
-  applyDiscardDrawnCard,
-  applyDrawFromDeck,
-  applySwapDiscardCard,
-  applySwapDrawnCard,
-} from "./moves/turn";
+import { applySwapDiscardCard, applySwapDrawnCard } from "./moves/swap";
 import { accept, type MoveRejection, type Result } from "./outcome";
 import type { GameState, StartedGame } from "./types";
 
@@ -36,11 +34,23 @@ function dispatchMove(state: GameState, move: Move): Result<StartedGame> {
       return applySwapDrawnCard(state, move);
     case "swapDiscardCard":
       return applySwapDiscardCard(state, move);
+    case "viewOwnCard":
+      return applyViewOwnCard(state, move);
+    case "viewOtherCard":
+      return applyViewOtherCard(state, move);
+    case "exchangeBlind":
+      return applyExchangeBlind(state, move);
+    case "callEnd":
+      return applyCallEnd(state, move);
   }
 }
 
+function withoutPreviousEvents(state: GameState): GameState {
+  return state.status === "started" ? { ...state, lastMoveEvents: [] } : state;
+}
+
 export function tryApplyMove(state: GameState, move: Move): Result<StartedGame> {
-  const outcome = dispatchMove(state, move);
+  const outcome = dispatchMove(withoutPreviousEvents(state), move);
   if (!outcome.ok) {
     return outcome;
   }

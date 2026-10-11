@@ -1,5 +1,6 @@
 const UINT32_RANGE = 2 ** 32;
 const MULBERRY32_INCREMENT = 0x6d2b79f5;
+const GOLDEN_RATIO_32 = 0x9e3779b9;
 
 export type RandomSource = () => number;
 
@@ -27,4 +28,9 @@ export function shuffle<T>(items: readonly T[], seed: number): T[] {
     shuffled.push(...remaining.splice(pickIndex, 1));
   }
   return shuffled;
+}
+
+export function deriveSeed(baseSeed: number, salt: number): number {
+  const mixedSeed = (baseSeed ^ Math.imul(salt, GOLDEN_RATIO_32)) >>> 0;
+  return Math.floor(createMulberry32(mixedSeed)() * UINT32_RANGE);
 }

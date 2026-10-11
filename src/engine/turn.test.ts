@@ -2,15 +2,21 @@ import { describe, expect, it } from "vitest";
 import { applyMove, validateMove } from "./applyMove";
 import { legalMoves } from "./legalMoves";
 import type { Move } from "./moves";
-import { currentPlayerId, expectStarted, playingGame, startedGame } from "./testFixtures";
+import { currentPlayerId, expectStarted, layoutOf, playingGame, startedGame } from "./testFixtures";
 import type { StartedGame } from "./types";
 
 function apply(state: StartedGame, move: Move): StartedGame {
   return expectStarted(applyMove(state, move));
 }
 
-function layoutOf(state: StartedGame, seatIndex: number) {
-  return state.seats[seatIndex]?.layout ?? [];
+const ALL_SLOT_SELECTIONS = 15;
+
+function countByType(moves: readonly Move[]): Partial<Record<Move["type"], number>> {
+  const counts: Partial<Record<Move["type"], number>> = {};
+  for (const move of moves) {
+    counts[move.type] = (counts[move.type] ?? 0) + 1;
+  }
+  return counts;
 }
 
 describe("drawFromDeck", () => {
@@ -58,7 +64,11 @@ describe("swapDrawnCard", () => {
     const state = apply(playingGame(), { type: "drawFromDeck", playerId: "player-1" });
     const drawnCard = playingGame().drawPile[0];
     const replacedCard = layoutOf(state, 0)[2];
-    const afterSwap = apply(state, { type: "swapDrawnCard", playerId: "player-1", slotIndex: 2 });
+    const afterSwap = apply(state, {
+      type: "swapDrawnCard",
+      playerId: "player-1",
+      slotIndices: [2],
+    });
     expect(layoutOf(afterSwap, 0)[2]).toEqual(drawnCard);
     expect(afterSwap.discardPile[0]).toEqual(replacedCard);
     expect(currentPlayerId(afterSwap)).toBe("player-2");
@@ -67,9 +77,13 @@ describe("swapDrawnCard", () => {
   it("rejects slots outside the layout", () => {
     const state = apply(playingGame(), { type: "drawFromDeck", playerId: "player-1" });
     for (const slotIndex of [-1, 4, 1.5]) {
-      expect(validateMove(state, { type: "swapDrawnCard", playerId: "player-1", slotIndex })).toBe(
-        "invalidSlot",
-      );
+      expect(
+        validateMove(state, {
+          type: "swapDrawnCard",
+          playerId: "player-1",
+          slotIndices: [slotIndex],
+        }),
+      ).toBe("invalidSlot");
     }
   });
 });
@@ -79,7 +93,11 @@ describe("swapDiscardCard", () => {
     const state = playingGame();
     const takenCard = state.discardPile[0];
     const replacedCard = layoutOf(state, 0)[1];
-    const afterSwap = apply(state, { type: "swapDiscardCard", playerId: "player-1", slotIndex: 1 });
+    const afterSwap = apply(state, {
+      type: "swapDiscardCard",
+      playerId: "player-1",
+      slotIndices: [1],
+    });
     expect(layoutOf(afterSwap, 0)[1]).toEqual(takenCard);
     expect(afterSwap.discardPile).toEqual([replacedCard]);
     expect(afterSwap.drawPile).toEqual(state.drawPile);
@@ -88,7 +106,7 @@ describe("swapDiscardCard", () => {
   it("is not allowed after drawing", () => {
     const state = apply(playingGame(), { type: "drawFromDeck", playerId: "player-1" });
     expect(
-      validateMove(state, { type: "swapDiscardCard", playerId: "player-1", slotIndex: 0 }),
+      validateMove(state, { type: "swapDiscardCard", playerId: "player-1", slotIndices: [0] }),
     ).toBe("wrongTurnStep");
   });
 });
@@ -100,7 +118,7 @@ describe("turn order", () => {
     for (let turn = 0; turn < 4; turn++) {
       const playerId = currentPlayerId(state);
       order.push(playerId);
-      state = apply(state, { type: "swapDiscardCard", playerId, slotIndex: 0 });
+      state = apply(state, { type: "swapDiscardCard", playerId, slotIndices: [0] });
     }
     expect(order).toEqual(["player-1", "player-2", "player-3", "player-1"]);
   });
@@ -114,26 +132,20 @@ describe("legalMoves", () => {
     expect(legalMoves(afterReady, "player-1")).toEqual([]);
   });
 
-  it("lists drawing and discard swaps at the start of a turn and nothing for others", () => {
+  it("lists drawing, calling the end and every discard swap selection at the start of a turn", () => {
     const state = playingGame();
-    expect(legalMoves(state, "player-1").map((move) => move.type)).toEqual([
-      "drawFromDeck",
-      "swapDiscardCard",
-      "swapDiscardCard",
-      "swapDiscardCard",
-      "swapDiscardCard",
-    ]);
+    expect(countByType(legalMoves(state, "player-1"))).toEqual({
+      drawFromDeck: 1,
+      callEnd: 1,
+      swapDiscardCard: ALL_SLOT_SELECTIONS,
+    });
     expect(legalMoves(state, "player-2")).toEqual([]);
   });
 
-  it("lists discarding and swapping while holding a drawn card", () => {
+  it("lists discarding and every swap selection while holding a drawn card", () => {
     const state = apply(playingGame(), { type: "drawFromDeck", playerId: "player-1" });
-    expect(legalMoves(state, "player-1").map((move) => move.type)).toEqual([
-      "discardDrawnCard",
-      "swapDrawnCard",
-      "swapDrawnCard",
-      "swapDrawnCard",
-      "swapDrawnCard",
-    ]);
+    const counts = countByType(legalMoves(state, "player-1"));
+    expect(counts.discardDrawnCard).toBe(1);
+    expect(counts.swapDrawnCard).toBe(ALL_SLOT_SELECTIONS);
   });
 });

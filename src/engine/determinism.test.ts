@@ -5,33 +5,42 @@ import { legalMoves } from "./legalMoves";
 import type { Move } from "./moves";
 import { createMulberry32 } from "./random";
 import { allCards, expectStarted, readyMoves, startedGame, startGameMove } from "./testFixtures";
-import type { GameState } from "./types";
+import type { StartedGame } from "./types";
 
-const PLAYOUT_MOVES = 30;
+const MOVES_BEFORE_CALLING_END = 120;
 
-function activePlayerId(state: GameState): string {
-  const started = expectStarted(state);
-  if (started.phase.kind !== "playing") {
-    throw new Error("Expected the playing phase");
+function chooseMove(options: readonly Move[], random: () => number, moveNumber: number): Move {
+  const callEnd = options.find((move) => move.type === "callEnd");
+  if (callEnd && moveNumber >= MOVES_BEFORE_CALLING_END) {
+    return callEnd;
   }
-  return started.phase.currentPlayerId;
+  const regularOptions = options.filter((move) => move.type !== "callEnd");
+  const pool = regularOptions.length > 0 ? regularOptions : options;
+  const chosen = pool[Math.floor(random() * pool.length)];
+  if (!chosen) {
+    throw new Error("No legal move available");
+  }
+  return chosen;
 }
 
 function randomPlayout(playerCount: number, seed: number): Move[] {
-  const start = startGameMove(playerCount, seed);
-  const moves: Move[] = [start, ...readyMoves(startedGame(playerCount, seed))];
-  const chooser = createMulberry32(seed);
-  let state = replayMoves(moves);
-  for (let step = 0; step < PLAYOUT_MOVES; step++) {
-    const options = legalMoves(state, activePlayerId(state));
-    const chosen = options[Math.floor(chooser() * options.length)];
-    if (!chosen) {
-      break;
-    }
+  const moves: Move[] = [
+    startGameMove(playerCount, seed),
+    ...readyMoves(startedGame(playerCount, seed)),
+  ];
+  const random = createMulberry32(seed);
+  let state = expectStarted(replayMoves(moves));
+  while (state.phase.kind === "playing") {
+    const options = legalMoves(state, state.phase.currentPlayerId);
+    const chosen = chooseMove(options, random, moves.length);
     moves.push(chosen);
-    state = applyMove(state, chosen);
+    state = expectStarted(applyMove(state, chosen));
   }
   return moves;
+}
+
+function replayStarted(moves: readonly Move[]): StartedGame {
+  return expectStarted(replayMoves(moves));
 }
 
 describe("determinism", () => {
@@ -39,36 +48,36 @@ describe("determinism", () => {
     [2, 1],
     [4, 77],
     [8, 2024],
-  ])("replays %i players with seed %i to the identical state", (playerCount, seed) => {
+  ])("plays %i players with seed %i to the end and replays identically", (playerCount, seed) => {
     const moves = randomPlayout(playerCount, seed);
-    expect(moves.length).toBeGreaterThan(PLAYOUT_MOVES);
-    expect(replayMoves(moves)).toEqual(replayMoves(moves));
+    const finalState = replayStarted(moves);
+    expect(finalState.phase.kind).toBe("finished");
+    expect(finalState).toEqual(replayStarted(moves));
   });
 
   it("keeps all 52 cards in play after every move", () => {
     const moves = randomPlayout(5, 9);
     for (let length = 1; length <= moves.length; length++) {
-      const ids = allCards(expectStarted(replayMoves(moves.slice(0, length)))).map(
-        (card) => card.id,
-      );
+      const ids = allCards(replayStarted(moves.slice(0, length))).map((card) => card.id);
       expect(ids.sort((a, b) => a - b)).toEqual(standardDeck.map((card) => card.id));
     }
   });
 
   it("never mutates a previous state", () => {
     const moves = randomPlayout(3, 5);
-    const before = replayMoves(moves.slice(0, -1));
-    const snapshot = structuredClone(before);
-    const lastMove = moves.at(-1);
-    if (!lastMove) {
-      throw new Error("Expected moves");
+    for (let length = 1; length < moves.length; length++) {
+      const before = replayStarted(moves.slice(0, length));
+      const snapshot = structuredClone(before);
+      const nextMove = moves[length];
+      if (nextMove) {
+        applyMove(before, nextMove);
+      }
+      expect(before).toEqual(snapshot);
     }
-    applyMove(before, lastMove);
-    expect(before).toEqual(snapshot);
   });
 
   it("counts every applied move", () => {
     const moves = randomPlayout(3, 5);
-    expect(expectStarted(replayMoves(moves)).moveCount).toBe(moves.length);
+    expect(replayStarted(moves).moveCount).toBe(moves.length);
   });
 });
