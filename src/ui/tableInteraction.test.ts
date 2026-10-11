@@ -58,19 +58,26 @@ describe("start of a turn", () => {
     expect(clickAll(playingGame(), [drawPile])).toEqual({ type: "drawFromDeck", playerId: self });
   });
 
-  it("swaps the selected cards with the discard when the discard pile is clicked", () => {
-    expect(clickAll(playingGame(), [own(1), own(2), discardPile])).toEqual({
+  it("takes the discard first and swaps it once own cards are picked", () => {
+    expect(clickAll(playingGame(), [discardPile, own(1), own(2), heldCard])).toEqual({
       type: "swapDiscardCard",
       playerId: self,
       slotIndices: [1, 2],
     });
   });
 
-  it("needs a selection before the discard pile can be clicked", () => {
+  it("puts the taken discard back when the discard pile is clicked again", () => {
+    expect(clickAll(playingGame(), [discardPile, own(1), discardPile])).toEqual(noIntent);
+  });
+
+  it("needs a pile to be chosen before own cards can be picked", () => {
     const state = playingGame();
-    expect(isClickable(state, self, noIntent, discardPile)).toBe(false);
+    expect(isClickable(state, self, noIntent, own(0))).toBe(false);
     expect(isClickable(state, self, noIntent, heldCard)).toBe(false);
     expect(isClickable(state, self, noIntent, other(0))).toBe(false);
+    const taking: Intent = { kind: "takingDiscard", slotIndices: [] };
+    expect(isClickable(state, self, taking, own(0))).toBe(true);
+    expect(isClickable(state, self, taking, heldCard)).toBe(false);
   });
 
   it("ignores every click while it is someone else's turn", () => {

@@ -55,7 +55,26 @@ const isFinished = computed(() => props.state.phase.kind === "finished");
 const currentPlayerId = computed(() =>
   props.state.phase.kind === "playing" ? props.state.phase.currentPlayerId : null,
 );
-const held = computed(() => currentHeldCard(props.state));
+const isTakingDiscard = computed(() => intent.value.kind === "takingDiscard");
+// While the discard card is taken it is shown like a drawn card, with the next one below it.
+const held = computed(() => {
+  const topDiscard = props.state.discardPile[0];
+  return isTakingDiscard.value && topDiscard
+    ? { holderId: selfId.value, card: topDiscard }
+    : currentHeldCard(props.state);
+});
+const discardTop = computed(() => props.state.discardPile[isTakingDiscard.value ? 1 : 0] ?? null);
+const heldLabel = computed(() => {
+  if (!held.value) {
+    return null;
+  }
+  if (isTakingDiscard.value) {
+    return strings.table.takenCard;
+  }
+  return held.value.holderId === selfId.value
+    ? strings.table.yourCard
+    : strings.table.holdingCard(playerName(props.state, held.value.holderId));
+});
 const targetsOpponents = computed(
   () => intent.value.kind === "action" && intent.value.action !== "viewOwn",
 );
@@ -113,7 +132,12 @@ const hint = computed(() => {
     case "startingView":
       return hints.startingView;
     case "choosing":
-      return intent.value.kind === "pickOwn" ? hints.choosingWithSelection : hints.choosing;
+      if (intent.value.kind !== "takingDiscard") {
+        return hints.choosing;
+      }
+      return intent.value.slotIndices.length > 0
+        ? hints.takingDiscardWithSelection
+        : hints.takingDiscard;
     case "holding":
       if (intent.value.kind === "action") {
         return hints[intent.value.action];
@@ -202,15 +226,9 @@ const results = computed(() =>
       <TableCenter
         v-else
         :draw-pile-count="state.drawPile.length"
-        :discard-top="state.discardPile[0] ?? null"
+        :discard-top="discardTop"
         :held-card="held?.card ?? null"
-        :held-label="
-          held
-            ? held.holderId === selfId
-              ? strings.table.yourCard
-              : strings.table.holdingCard(playerName(state, held.holderId))
-            : null
-        "
+        :held-label="heldLabel"
         :held-face-up="held?.holderId === selfId"
         :draw-clickable="clickable({ kind: 'drawPile' })"
         :discard-clickable="clickable({ kind: 'discardPile' })"

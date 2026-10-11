@@ -21,6 +21,7 @@ export type ClickTarget =
 export type Intent =
   | { readonly kind: "none" }
   | { readonly kind: "pickOwn"; readonly slotIndices: readonly number[] }
+  | { readonly kind: "takingDiscard"; readonly slotIndices: readonly number[] }
   | {
       readonly kind: "action";
       readonly action: CardAction;
@@ -55,7 +56,7 @@ export function situationOf(state: StartedGame, selfId: PlayerId): Situation {
 }
 
 export function selectedOwnSlots(intent: Intent): readonly number[] {
-  return intent.kind === "pickOwn" ? intent.slotIndices : [];
+  return intent.kind === "pickOwn" || intent.kind === "takingDiscard" ? intent.slotIndices : [];
 }
 
 function toggle(slotIndices: readonly number[], slotIndex: number): number[] {
@@ -87,19 +88,38 @@ function clickDuringStartingView(intent: Intent, target: ClickTarget, selfId: Pl
     : unchanged({ kind: "pickOwn", slotIndices });
 }
 
-function clickWhileChoosing(intent: Intent, target: ClickTarget, selfId: PlayerId) {
-  const selected = selectedOwnSlots(intent);
+function clickWhileTakingDiscard(
+  intent: Intent & { kind: "takingDiscard" },
+  target: ClickTarget,
+  selfId: PlayerId,
+): ClickOutcome {
   switch (target.kind) {
     case "slot":
       return target.slot.playerId === selfId
-        ? toggleOwn(intent, target.slot.slotIndex)
+        ? unchanged({ ...intent, slotIndices: toggle(intent.slotIndices, target.slot.slotIndex) })
         : unchanged(intent);
+    case "heldCard":
+      return intent.slotIndices.length > 0
+        ? play({ type: "swapDiscardCard", playerId: selfId, slotIndices: intent.slotIndices })
+        : unchanged(intent);
+    case "discardPile":
+      return unchanged(noIntent);
+    case "drawPile":
+      return unchanged(intent);
+  }
+}
+
+// A turn starts by picking a pile; the discard card is only taken for real once it is swapped.
+function clickWhileChoosing(intent: Intent, target: ClickTarget, selfId: PlayerId) {
+  if (intent.kind === "takingDiscard") {
+    return clickWhileTakingDiscard(intent, target, selfId);
+  }
+  switch (target.kind) {
     case "drawPile":
       return play({ type: "drawFromDeck", playerId: selfId });
     case "discardPile":
-      return selected.length > 0
-        ? play({ type: "swapDiscardCard", playerId: selfId, slotIndices: selected })
-        : unchanged(intent);
+      return unchanged({ kind: "takingDiscard", slotIndices: [] });
+    case "slot":
     case "heldCard":
       return unchanged(intent);
   }
@@ -212,7 +232,7 @@ export function isClickable(
 }
 
 export function isSlotMarked(intent: Intent, slot: SlotRef, selfId: PlayerId): boolean {
-  if (intent.kind === "pickOwn") {
+  if (intent.kind === "pickOwn" || intent.kind === "takingDiscard") {
     return slot.playerId === selfId && intent.slotIndices.includes(slot.slotIndex);
   }
   if (intent.kind === "action") {

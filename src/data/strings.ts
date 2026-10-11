@@ -104,10 +104,11 @@ export const strings = {
     startingView: "Click two of your cards to look at them. Remember them well!",
     rememberCards: "Remember your cards! They will be hidden again in a moment.",
     waitingForStartingView: "Waiting for the others to look at their cards…",
-    choosing:
-      "Click the draw pile to draw, or select cards of yours and click the discard pile to swap.",
-    choosingWithSelection:
-      "Click the discard pile to swap it with the selected cards. Several cards must share one value.",
+    choosing: "Click the draw pile to draw a card, or the discard pile to take its top card.",
+    takingDiscard:
+      "Select one of your cards, or several with the same value, then click the taken card to swap. Click the discard pile to put it back.",
+    takingDiscardWithSelection:
+      "Click the taken card to swap it with the selected cards. Several cards must share one value.",
     holding:
       "Click the discard pile to throw the drawn card away, or select cards of yours and then click the drawn card to swap.",
     holdingAction:
@@ -127,6 +128,7 @@ export const strings = {
     drawPileCount: (count: number) => `${String(count)} left`,
     holdingCard: (player: string) => `${player}'s card`,
     yourCard: "Your card",
+    takenCard: "Taken from the discard pile",
     calledEnd: "called the end",
     offline: "offline",
     you: "you",
