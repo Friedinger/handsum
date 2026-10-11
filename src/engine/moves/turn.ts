@@ -1,6 +1,6 @@
-import { accept, reject, type Result } from "../outcome";
-import { scoreGame } from "../scoring";
-import { nextPlayerId, seatIndexOf } from "../state";
+import { accept, reject, type Result } from "@/engine/outcome";
+import { scoreGame } from "@/engine/scoring";
+import { nextPlayerId, seatIndexOf } from "@/engine/state";
 import type {
   Card,
   GameEvent,
@@ -9,7 +9,7 @@ import type {
   Slot,
   StartedGame,
   TurnStep,
-} from "../types";
+} from "@/engine/types";
 
 export interface ActiveTurn {
   readonly state: StartedGame;

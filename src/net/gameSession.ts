@@ -1,4 +1,4 @@
-import type { Move, Player, PlayerId } from "../engine";
+import type { Move, Player, PlayerId } from "@/engine";
 import {
   appendMove,
   chooseLog,

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ActiveFlight } from "../composables/useCardFlights";
+import type { ActiveFlight } from "@/ui/composables/useCardFlights";
 import FlyingCard from "./FlyingCard.vue";
 
 defineProps<{ flights: readonly ActiveFlight[] }>();

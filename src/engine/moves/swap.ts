@@ -1,7 +1,7 @@
-import type { SwapDiscardCardMove, SwapDrawnCardMove } from "../moves";
-import { accept, reject, type Result } from "../outcome";
-import { findSlotSelectionProblem, withLayout } from "../state";
-import type { Card, GameState, Slot, StartedGame } from "../types";
+import type { SwapDiscardCardMove, SwapDrawnCardMove } from "@/engine/moves";
+import { accept, reject, type Result } from "@/engine/outcome";
+import { findSlotSelectionProblem, withLayout } from "@/engine/state";
+import type { Card, GameState, Slot, StartedGame } from "@/engine/types";
 import {
   endTurn,
   requireAwaitingChoice,

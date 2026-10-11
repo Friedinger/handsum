@@ -1,4 +1,4 @@
-import type { PlayerId } from "../engine";
+import type { PlayerId } from "@/engine";
 
 const PLAYER_ID_KEY = "handsum.playerId";
 const PLAYER_NAME_KEY = "handsum.playerName";

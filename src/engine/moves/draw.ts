@@ -1,7 +1,7 @@
-import type { DiscardDrawnCardMove, DrawFromDeckMove } from "../moves";
-import { accept, reject, type Result } from "../outcome";
-import { deriveSeed, shuffle } from "../random";
-import type { GameState, StartedGame } from "../types";
+import type { DiscardDrawnCardMove, DrawFromDeckMove } from "@/engine/moves";
+import { accept, reject, type Result } from "@/engine/outcome";
+import { deriveSeed, shuffle } from "@/engine/random";
+import type { GameState, StartedGame } from "@/engine/types";
 import {
   endTurn,
   requireAwaitingChoice,

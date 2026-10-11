@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { startedGame } from "../engine/testFixtures";
+import { startedGame } from "@/engine/testFixtures";
 import { arrangeOpponents, opponentsInTurnOrder } from "./tableLayout";
 
 function namesAround(playerCount: number, selfId: string) {

@@ -1,4 +1,4 @@
-import type { Card, PlayerId, StartedGame } from "../engine";
+import type { Card, PlayerId, StartedGame } from "@/engine";
 
 export function isSlotVisibleTo(
   state: StartedGame,

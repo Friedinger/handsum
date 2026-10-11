@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { strings } from "../../data/strings";
-import { MAX_PLAYERS, MIN_PLAYERS } from "../../engine";
-import { lobbyPlayers, type SessionSnapshot } from "../../net/gameSession";
-import type { SyncRejection } from "../../net/moveLog";
-import { roomLink } from "../../net/roomCode";
-import { leaveRoom } from "../composables/useRoomCode";
+import { strings } from "@/data/strings";
+import { MAX_PLAYERS, MIN_PLAYERS } from "@/engine";
+import { lobbyPlayers, type SessionSnapshot } from "@/net/gameSession";
+import type { SyncRejection } from "@/net/moveLog";
+import { roomLink } from "@/net/roomCode";
+import { leaveRoom } from "@/ui/composables/useRoomCode";
 
 const props = defineProps<{
   snapshot: SessionSnapshot;

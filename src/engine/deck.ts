@@ -1,4 +1,4 @@
-import cardData from "../data/cards.json";
+import cardData from "@/data/cards.json";
 import type { Card, CardAction } from "./types";
 
 export interface CardType {

@@ -1,5 +1,5 @@
 import { onUnmounted, ref, type Ref } from "vue";
-import { normalizeRoomCode } from "../../net/roomCode";
+import { normalizeRoomCode } from "@/net/roomCode";
 
 export function useRoomCode(): Ref<string | null> {
   const roomCode = ref(normalizeRoomCode(location.hash));

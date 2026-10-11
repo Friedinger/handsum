@@ -1,11 +1,11 @@
-import { strings } from "../../data/strings";
+import { strings } from "@/data/strings";
 import {
   legalMoves,
   type Move,
   type PlayerId,
   type StartedGame,
-} from "../../engine";
-import { describeMove, playerName } from "../describe";
+} from "@/engine";
+import { describeMove, playerName } from "@/ui/describe";
 import { button, checkbox, element } from "./dom";
 import type { HotseatActions, HotseatSession } from "./session";
 

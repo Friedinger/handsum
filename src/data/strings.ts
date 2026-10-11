@@ -1,5 +1,5 @@
-import type { CardAction, MoveRejection, MoveType } from "../engine";
-import type { SyncRejection } from "../net/moveLog";
+import type { CardAction, MoveRejection, MoveType } from "@/engine";
+import type { SyncRejection } from "@/net/moveLog";
 
 const cardActionNames = {
   viewOwn: "View own card",

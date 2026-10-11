@@ -1,5 +1,5 @@
-import { strings } from "../data/strings";
-import type { Card, GameEvent, Move, PlayerId, StartedGame } from "../engine";
+import { strings } from "@/data/strings";
+import type { Card, GameEvent, Move, PlayerId, StartedGame } from "@/engine";
 
 export function playerName(state: StartedGame, playerId: PlayerId): string {
   return (

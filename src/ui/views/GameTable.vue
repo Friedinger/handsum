@@ -1,25 +1,20 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import { strings } from "../../data/strings";
-import {
-  legalMoves,
-  type Move,
-  type Seat,
-  type StartedGame,
-} from "../../engine";
-import { onlinePlayerIds, type SessionSnapshot } from "../../net/gameSession";
-import type { SyncRejection } from "../../net/moveLog";
-import FlightLayer from "../components/FlightLayer.vue";
-import PlayerSeat from "../components/PlayerSeat.vue";
-import ResultsPanel from "../components/ResultsPanel.vue";
-import TableCenter from "../components/TableCenter.vue";
-import { useCardFlights } from "../composables/useCardFlights";
-import { useReveals } from "../composables/useReveals";
-import { leaveRoom } from "../composables/useRoomCode";
-import { anchorKey } from "../cardFlights";
-import { playerName } from "../describe";
-import { isRevealed } from "../reveals";
-import type { SlotView } from "../slotView";
+import { strings } from "@/data/strings";
+import { legalMoves, type Move, type Seat, type StartedGame } from "@/engine";
+import { onlinePlayerIds, type SessionSnapshot } from "@/net/gameSession";
+import type { SyncRejection } from "@/net/moveLog";
+import FlightLayer from "@/ui/components/FlightLayer.vue";
+import PlayerSeat from "@/ui/components/PlayerSeat.vue";
+import ResultsPanel from "@/ui/components/ResultsPanel.vue";
+import TableCenter from "@/ui/components/TableCenter.vue";
+import { useCardFlights } from "@/ui/composables/useCardFlights";
+import { useReveals } from "@/ui/composables/useReveals";
+import { leaveRoom } from "@/ui/composables/useRoomCode";
+import { anchorKey } from "@/ui/cardFlights";
+import { playerName } from "@/ui/describe";
+import { isRevealed } from "@/ui/reveals";
+import type { SlotView } from "@/ui/slotView";
 import {
   canToggleSeveral,
   handleClick,
@@ -32,9 +27,9 @@ import {
   toggleSeveral,
   type ClickTarget,
   type Intent,
-} from "../tableInteraction";
-import { arrangeOpponents } from "../tableLayout";
-import { currentHeldCard } from "../visibility";
+} from "@/ui/tableInteraction";
+import { arrangeOpponents } from "@/ui/tableLayout";
+import { currentHeldCard } from "@/ui/visibility";
 
 const props = defineProps<{
   snapshot: SessionSnapshot;

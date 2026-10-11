@@ -1,4 +1,4 @@
-import type { PlayerId, Seat } from "../engine";
+import type { PlayerId, Seat } from "@/engine";
 
 export interface TableSides {
   readonly left: readonly Seat[];

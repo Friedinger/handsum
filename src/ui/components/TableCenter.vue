@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { strings } from "../../data/strings";
-import type { Card } from "../../engine";
+import { strings } from "@/data/strings";
+import type { Card } from "@/engine";
 import PlayingCard from "./PlayingCard.vue";
 
 defineProps<{

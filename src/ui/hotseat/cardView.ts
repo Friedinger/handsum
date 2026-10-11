@@ -1,5 +1,5 @@
-import { strings } from "../../data/strings";
-import type { Card, Slot } from "../../engine";
+import { strings } from "@/data/strings";
+import type { Card, Slot } from "@/engine";
 import { element } from "./dom";
 
 export function renderFaceUpCard(card: Card): HTMLElement {

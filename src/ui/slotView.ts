@@ -1,4 +1,4 @@
-import type { Card } from "../engine";
+import type { Card } from "@/engine";
 
 export interface SlotView {
   readonly slotIndex: number;

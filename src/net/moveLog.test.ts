@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { Move, StartGameMove } from "../engine";
+import type { Move, StartGameMove } from "@/engine";
 import {
   chooseLog,
   emptyLog,

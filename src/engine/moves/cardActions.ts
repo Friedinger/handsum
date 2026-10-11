@@ -2,9 +2,14 @@ import type {
   ExchangeBlindMove,
   ViewOtherCardMove,
   ViewOwnCardMove,
-} from "../moves";
-import { accept, reject, type Result } from "../outcome";
-import { isSlotIndex, replaceAt, seatIndexOf, withLayout } from "../state";
+} from "@/engine/moves";
+import { accept, reject, type Result } from "@/engine/outcome";
+import {
+  isSlotIndex,
+  replaceAt,
+  seatIndexOf,
+  withLayout,
+} from "@/engine/state";
 import type {
   Card,
   CardAction,
@@ -12,7 +17,7 @@ import type {
   PlayerId,
   Slot,
   StartedGame,
-} from "../types";
+} from "@/engine/types";
 import { endTurn, requireHeldCard, withEvent, type HeldCardTurn } from "./turn";
 
 interface TargetSeat {

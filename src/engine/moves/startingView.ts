@@ -1,9 +1,9 @@
-import type { ViewStartingCardsMove } from "../moves";
-import { accept, reject, type Result } from "../outcome";
-import { createMulberry32, deriveSeed } from "../random";
-import { STARTING_VIEW_CARD_COUNT } from "../rules";
-import { findSlotSelectionProblem, seatIndexOf } from "../state";
-import type { GameState, Phase, PlayerId, StartedGame } from "../types";
+import type { ViewStartingCardsMove } from "@/engine/moves";
+import { accept, reject, type Result } from "@/engine/outcome";
+import { createMulberry32, deriveSeed } from "@/engine/random";
+import { STARTING_VIEW_CARD_COUNT } from "@/engine/rules";
+import { findSlotSelectionProblem, seatIndexOf } from "@/engine/state";
+import type { GameState, Phase, PlayerId, StartedGame } from "@/engine/types";
 
 // Reshuffles salt with the move count, which is never negative, so this seed stays distinct.
 const STARTING_PLAYER_SALT = -1;

@@ -5,7 +5,7 @@ import {
   type Move,
   type MoveRejection,
   type StartGameMove,
-} from "../engine";
+} from "@/engine";
 import type { HelloMessage, MoveMessage } from "./protocol";
 
 export interface SyncedLog {

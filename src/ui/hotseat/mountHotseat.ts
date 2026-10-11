@@ -1,10 +1,5 @@
-import { strings } from "../../data/strings";
-import {
-  validateMove,
-  type GameState,
-  type Move,
-  type Player,
-} from "../../engine";
+import { strings } from "@/data/strings";
+import { validateMove, type GameState, type Move, type Player } from "@/engine";
 import { element } from "./dom";
 import { renderControls } from "./controlsView";
 import { renderDebug } from "./debugView";

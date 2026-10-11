@@ -5,7 +5,7 @@ import {
   type Move,
   type PlayerId,
   type StartedGame,
-} from "../engine";
+} from "@/engine";
 
 export interface SlotRef {
   readonly playerId: PlayerId;

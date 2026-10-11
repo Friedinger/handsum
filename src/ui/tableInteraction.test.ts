@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import type { StartedGame } from "../engine";
+import type { StartedGame } from "@/engine";
 import {
   holding,
   makeCard,
   playingGame,
   startedGame,
-} from "../engine/testFixtures";
+} from "@/engine/testFixtures";
 import {
   handleClick,
   isClickable,

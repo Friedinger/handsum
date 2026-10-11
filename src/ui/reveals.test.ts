@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyMove, type Move, type StartedGame } from "../engine";
+import { applyMove, type Move, type StartedGame } from "@/engine";
 import {
   expectStarted,
   holding,
@@ -7,7 +7,7 @@ import {
   playingGame,
   startedGame,
   withLayouts,
-} from "../engine/testFixtures";
+} from "@/engine/testFixtures";
 import {
   isRevealed,
   revealsAfterMove,

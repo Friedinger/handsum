@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { strings } from "../../data/strings";
-import type { PlayerId, PlayerResult, StartedGame } from "../../engine";
-import { playerName } from "../describe";
+import { strings } from "@/data/strings";
+import type { PlayerId, PlayerResult, StartedGame } from "@/engine";
+import { playerName } from "@/ui/describe";
 
 const props = defineProps<{
   state: StartedGame;

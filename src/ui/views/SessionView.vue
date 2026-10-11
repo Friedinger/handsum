@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { strings } from "../../data/strings";
-import type { HelloMessage } from "../../net/protocol";
-import { useGameSession } from "../composables/useGameSession";
+import { strings } from "@/data/strings";
+import type { HelloMessage } from "@/net/protocol";
+import { useGameSession } from "@/ui/composables/useGameSession";
 import GameTable from "./GameTable.vue";
 import LobbyView from "./LobbyView.vue";
 

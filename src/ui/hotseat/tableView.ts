@@ -1,14 +1,14 @@
-import { strings } from "../../data/strings";
-import type { PlayerId, Seat, StartedGame } from "../../engine";
+import { strings } from "@/data/strings";
+import type { PlayerId, Seat, StartedGame } from "@/engine";
 import { renderFaceUpCard, renderSlot } from "./cardView";
-import { playerName } from "../describe";
+import { playerName } from "@/ui/describe";
 import { element } from "./dom";
 import {
   currentHeldCard,
   heldCardVisibleTo,
   isSlotVisibleTo,
   type HeldCard,
-} from "../visibility";
+} from "@/ui/visibility";
 
 interface TableView {
   readonly state: StartedGame;

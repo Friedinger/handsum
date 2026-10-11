@@ -7,8 +7,8 @@ import {
   watch,
   type Ref,
 } from "vue";
-import type { Card, PlayerId } from "../../engine";
-import type { SyncedLog } from "../../net/moveLog";
+import type { Card, PlayerId } from "@/engine";
+import type { SyncedLog } from "@/net/moveLog";
 import {
   anchorKey,
   planDeal,
@@ -16,7 +16,7 @@ import {
   type Anchor,
   type Flight,
   type MovePlan,
-} from "../cardFlights";
+} from "@/ui/cardFlights";
 
 export const FLIGHT_MS = 450;
 const PEEK_MS = 1600;

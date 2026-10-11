@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CardSize, SlotView } from "../slotView";
+import type { CardSize, SlotView } from "@/ui/slotView";
 import PlayingCard from "./PlayingCard.vue";
 
 withDefaults(

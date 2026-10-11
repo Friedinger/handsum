@@ -1,4 +1,4 @@
-import { parseMove, type Move, type PlayerId } from "../engine";
+import { parseMove, type Move, type PlayerId } from "@/engine";
 
 export interface HelloMessage {
   readonly playerId: PlayerId;

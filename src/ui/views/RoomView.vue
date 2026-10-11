@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { strings } from "../../data/strings";
+import { strings } from "@/data/strings";
 import {
   claimPlayerId,
   hasJoinedRoom,
   loadPlayerName,
   rememberJoinedRoom,
   savePlayerName,
-} from "../../net/identity";
-import type { HelloMessage } from "../../net/protocol";
+} from "@/net/identity";
+import type { HelloMessage } from "@/net/protocol";
 import SessionView from "./SessionView.vue";
 
 const props = defineProps<{ roomCode: string }>();

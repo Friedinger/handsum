@@ -3,7 +3,7 @@ import {
   type GameState,
   type Move,
   type PlayerId,
-} from "../../engine";
+} from "@/engine";
 
 export interface HotseatSession {
   readonly moves: readonly Move[];

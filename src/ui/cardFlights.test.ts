@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { applyMove, type Move, type StartedGame } from "../engine";
+import { applyMove, type Move, type StartedGame } from "@/engine";
 import {
   expectStarted,
   holding,
   makeCard,
   playingGame,
   withLayouts,
-} from "../engine/testFixtures";
+} from "@/engine/testFixtures";
 import { anchorKey, planDeal, planMove, type MovePlan } from "./cardFlights";
 
 const self = "player-1";

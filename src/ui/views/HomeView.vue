@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { strings } from "../../data/strings";
-import { normalizeRoomCode, randomRoomCode } from "../../net/roomCode";
-import { openRoom } from "../composables/useRoomCode";
+import { strings } from "@/data/strings";
+import { normalizeRoomCode, randomRoomCode } from "@/net/roomCode";
+import { openRoom } from "@/ui/composables/useRoomCode";
 
 const codeInput = ref("");
 const showInvalidCode = ref(false);

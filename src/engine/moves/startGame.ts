@@ -1,9 +1,14 @@
-import { standardDeck } from "../deck";
-import type { StartGameMove } from "../moves";
-import { accept, reject, type MoveRejection, type Result } from "../outcome";
-import { isValidSeed, shuffle } from "../random";
-import { LAYOUT_SIZE, MAX_PLAYERS, MIN_PLAYERS } from "../rules";
-import type { GameState, Player, Seat, StartedGame } from "../types";
+import { standardDeck } from "@/engine/deck";
+import type { StartGameMove } from "@/engine/moves";
+import {
+  accept,
+  reject,
+  type MoveRejection,
+  type Result,
+} from "@/engine/outcome";
+import { isValidSeed, shuffle } from "@/engine/random";
+import { LAYOUT_SIZE, MAX_PLAYERS, MIN_PLAYERS } from "@/engine/rules";
+import type { GameState, Player, Seat, StartedGame } from "@/engine/types";
 
 function findPlayerListProblem(
   players: readonly Player[],

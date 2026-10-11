@@ -1,4 +1,4 @@
-import type { Card, Move, PlayerId, StartedGame } from "../engine";
+import type { Card, Move, PlayerId, StartedGame } from "@/engine";
 
 export const STARTING_VIEW_REVEAL_MS = 8000;
 export const VIEW_REVEAL_MS = 5000;

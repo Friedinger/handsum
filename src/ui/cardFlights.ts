@@ -4,7 +4,7 @@ import {
   type Move,
   type PlayerId,
   type StartedGame,
-} from "../engine";
+} from "@/engine";
 import type { SlotRef } from "./tableInteraction";
 
 export type Anchor =
