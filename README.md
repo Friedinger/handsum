@@ -6,9 +6,11 @@ A browser-based multiplayer card game prototype for 2 to 8 players. Players join
 
 ## Status
 
-Playable prototype: complete rules, online play via room links, no design yet.
+Playable prototype: complete rules, online play via room links, animated card table.
 
 ## Development
+
+Requires Node.js 24 (see `mise.toml`).
 
 ```bash
 npm install
@@ -17,14 +19,13 @@ npm run dev
 
 A local debug page to control all players in one browser is available at `http://localhost:5173/hotseat.html` while the dev server runs.
 
-| Command                | Purpose                       |
-| ---------------------- | ----------------------------- |
-| `npm run dev`          | Start the dev server          |
-| `npm run build`        | Type-check and build to dist/ |
-| `npm test`             | Run unit tests                |
-| `npm run lint`         | Lint with ESLint              |
-| `npm run format`       | Format with Prettier          |
-| `npm run format:check` | Check formatting              |
+| Command         | Purpose                                |
+| --------------- | -------------------------------------- |
+| `npm run dev`   | Start the dev server                   |
+| `npm run build` | Type-check and build to `dist/`        |
+| `npm test`      | Run unit tests                         |
+| `npm run lint`  | Type-check, check formatting and lint  |
+| `npm run fix`   | Format, fix lint issues and type-check |
 
 ## Play
 

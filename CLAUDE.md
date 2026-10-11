@@ -25,19 +25,22 @@ Browser-based multiplayer card game prototype (2–8 players, join via link). No
 - State technically contains everything; the UI only shows what a player may know. Console cheating is acceptable.
 - Card data in `src/data/cards.json` (value, count, action per card type), separate from logic. Points = printed value.
 - `src/net/`: Trystero (WebRTC, no own server), move log sync and player identity. `src/ui/`: Vue 3 single-file components without a UI library; the hot-seat debug page (`hotseat.html`, `src/ui/hotseat/`) stays Vanilla DOM. UI never contains game rules.
+- `src/testing/`: helpers shared by tests only (game fixtures, in-memory network). Tests sit next to the code they test.
+- Imports across folders use the `@/` alias (`@/engine`, `@/net/...`); `./` only for files in the same folder.
 
 ## Tech
 
-- TypeScript (strict) + Vite + Vue 3, Vitest, ESLint (typescript-eslint strict type-checked, eslint-plugin-vue) + Prettier. Type checking via `vue-tsc`.
+- TypeScript (strict, `erasableSyntaxOnly`) + Vite + Vue 3, Vitest, ESLint (typescript-eslint strict type-checked, eslint-plugin-vue) + Prettier with default settings. Type checking via `vue-tsc`. Node version pinned in `mise.toml`.
+- Config follows the maintainer's other projects (e.g. `Friedinger/imgsplit`): pinned action SHAs with version comments, shared workflows and Renovate presets from `Friedinger/configs`.
 - Everything bundled locally: no CDNs, no external fonts, no tracking, no accounts.
 - Vite `base` is relative (`./`) so the build works under the GitHub Pages sub-path.
-- Deployment via GitHub Actions to GitHub Pages.
+- `build-deploy.yml` lints, tests and builds on every push; deploying to GitHub Pages is manual while the repo is private.
 
 ## Workflow
 
 - Work in milestones (M0–M4). After each milestone: stop, summarize in at most 10 lines, describe how to test, wait for approval.
 - Ambiguous rules: choose the simplest solution and mention it in the milestone report (not documented in the repo).
-- Before committing: `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test`.
+- Before committing: `npm run lint` (type check, Prettier, ESLint) and `npm test`; `npm run fix` repairs formatting and lint issues.
 
 ## Git
 
