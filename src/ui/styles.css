@@ -46,13 +46,15 @@ button {
   cursor: pointer;
 }
 
+#app {
+  height: 100%;
+}
+
 .app {
   display: flex;
   flex-direction: column;
-  max-width: 72rem;
   height: 100%;
-  margin: 0 auto;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 1rem 1rem;
 }
 
 .app-title {
