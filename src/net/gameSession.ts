@@ -1,0 +1,154 @@
+import type { Move, Player, PlayerId } from "../engine";
+import {
+  adoptLongerLog,
+  appendMove,
+  emptyLog,
+  receiveMove,
+  type SyncRejection,
+  type SyncedLog,
+} from "./moveLog";
+import type { HelloMessage, MoveMessage } from "./protocol";
+import type { ConnectTransport, PeerId, Transport, TransportHandlers } from "./transport";
+
+export interface ConnectedPeer {
+  readonly peerId: PeerId;
+  readonly hello: HelloMessage;
+}
+
+export interface SessionSnapshot {
+  readonly roomCode: string;
+  readonly self: HelloMessage;
+  readonly peers: readonly ConnectedPeer[];
+  readonly log: SyncedLog;
+}
+
+export interface GameSession {
+  readonly submitMove: (move: Move) => SyncRejection | null;
+  readonly startGame: (seed: number) => SyncRejection | null;
+  readonly leave: () => void;
+}
+
+interface SessionOptions {
+  readonly roomCode: string;
+  readonly self: HelloMessage;
+  readonly connect: ConnectTransport;
+  readonly onChange: (snapshot: SessionSnapshot) => void;
+}
+
+export function lobbyPlayers(snapshot: SessionSnapshot): Player[] {
+  const everyone = [snapshot.self, ...snapshot.peers.map((peer) => peer.hello)];
+  const unique = everyone.filter(
+    (hello, index) => everyone.findIndex((other) => other.playerId === hello.playerId) === index,
+  );
+  return unique.map(({ playerId, name }) => ({ id: playerId, name }));
+}
+
+export function onlinePlayerIds(snapshot: SessionSnapshot): ReadonlySet<PlayerId> {
+  return new Set([snapshot.self.playerId, ...snapshot.peers.map((peer) => peer.hello.playerId)]);
+}
+
+function withPeer(peers: readonly ConnectedPeer[], peer: ConnectedPeer): ConnectedPeer[] {
+  // A reloaded player reconnects with a new peer ID; the stale connection is replaced.
+  const others = peers.filter(
+    (existing) =>
+      existing.peerId !== peer.peerId && existing.hello.playerId !== peer.hello.playerId,
+  );
+  return [...others, peer];
+}
+
+export function createGameSession(options: SessionOptions): GameSession {
+  let snapshot: SessionSnapshot = {
+    roomCode: options.roomCode,
+    self: options.self,
+    peers: [],
+    log: emptyLog,
+  };
+
+  const update = (changes: Partial<SessionSnapshot>) => {
+    snapshot = { ...snapshot, ...changes };
+    options.onChange(snapshot);
+  };
+
+  const senderOf = (peerId: PeerId) => snapshot.peers.find((peer) => peer.peerId === peerId)?.hello;
+
+  let transport: Transport | null = null;
+  const send = (action: (connected: Transport) => void) => {
+    if (transport) {
+      action(transport);
+    }
+  };
+
+  const handlers: TransportHandlers = {
+    onPeerJoin: (peerId) => {
+      send((connected) => {
+        connected.sendHello(snapshot.self, peerId);
+        if (snapshot.log.moves.length > 0) {
+          connected.sendLog({ moves: snapshot.log.moves }, peerId);
+        }
+      });
+    },
+    onPeerLeave: (peerId) => {
+      update({ peers: snapshot.peers.filter((peer) => peer.peerId !== peerId) });
+    },
+    onHello: (hello, peerId) => {
+      update({ peers: withPeer(snapshot.peers, { peerId, hello }) });
+    },
+    onMove: (message: MoveMessage, peerId) => {
+      const sender = senderOf(peerId);
+      if (!sender) {
+        return;
+      }
+      const outcome = receiveMove(snapshot.log, message, sender);
+      if (outcome.kind === "appended") {
+        update({ log: outcome.log });
+      } else if (outcome.kind === "behind") {
+        send((connected) => {
+          connected.requestSync(peerId);
+        });
+      }
+    },
+    onLog: ({ moves }) => {
+      const adopted = adoptLongerLog(snapshot.log, moves);
+      if (adopted) {
+        update({ log: adopted });
+      }
+    },
+    onSyncRequest: (peerId) => {
+      send((connected) => {
+        connected.sendLog({ moves: snapshot.log.moves }, peerId);
+      });
+    },
+  };
+
+  transport = options.connect(options.roomCode, handlers);
+  options.onChange(snapshot);
+
+  const submitMove = (move: Move): SyncRejection | null => {
+    const outcome = appendMove(snapshot.log, move);
+    if (outcome.kind !== "appended") {
+      return outcome.kind === "rejected" ? outcome.reason : null;
+    }
+    update({ log: outcome.log });
+    send((connected) => {
+      connected.broadcastMove({ sequence: outcome.log.moves.length, move });
+    });
+    return null;
+  };
+
+  return {
+    submitMove,
+    startGame: (seed) => {
+      if (!snapshot.self.isHost) {
+        return "notHost";
+      }
+      const players = lobbyPlayers(snapshot);
+      return submitMove({ type: "startGame", playerId: snapshot.self.playerId, players, seed });
+    },
+    leave: () => {
+      send((connected) => {
+        connected.leave();
+      });
+      transport = null;
+    },
+  };
+}
