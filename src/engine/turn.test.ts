@@ -125,11 +125,15 @@ describe("turn order", () => {
 });
 
 describe("legalMoves", () => {
-  it("lists ready during the peek phase only for players not yet ready", () => {
+  it("lists every pair of starting cards until the player has viewed them", () => {
     const state = startedGame(2);
-    expect(legalMoves(state, "player-1")).toEqual([{ type: "ready", playerId: "player-1" }]);
-    const afterReady = apply(state, { type: "ready", playerId: "player-1" });
-    expect(legalMoves(afterReady, "player-1")).toEqual([]);
+    expect(countByType(legalMoves(state, "player-1"))).toEqual({ viewStartingCards: 6 });
+    const afterViewing = apply(state, {
+      type: "viewStartingCards",
+      playerId: "player-1",
+      slotIndices: [0, 3],
+    });
+    expect(legalMoves(afterViewing, "player-1")).toEqual([]);
   });
 
   it("lists drawing, calling the end and every discard swap selection at the start of a turn", () => {

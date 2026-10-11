@@ -2,7 +2,6 @@ import type { PlayerId } from "../engine";
 
 const PLAYER_ID_KEY = "handsum.playerId";
 const PLAYER_NAME_KEY = "handsum.playerName";
-const ROOM_HOSTS_KEY = "handsum.roomHosts";
 const JOINED_ROOM_KEY = "handsum.joinedRoom";
 const PLAYER_LOCK_PREFIX = "handsum.player.";
 
@@ -72,33 +71,6 @@ export function loadPlayerName(): string {
 
 export function savePlayerName(name: string): void {
   writeItem(localStorage, PLAYER_NAME_KEY, name);
-}
-
-function loadRoomHosts(): Record<string, PlayerId> {
-  try {
-    const parsed: unknown = JSON.parse(readItem(localStorage, ROOM_HOSTS_KEY) ?? "{}");
-    return typeof parsed === "object" && parsed !== null
-      ? Object.fromEntries(
-          Object.entries(parsed).filter(
-            (entry): entry is [string, string] => typeof entry[1] === "string",
-          ),
-        )
-      : {};
-  } catch {
-    return {};
-  }
-}
-
-export function markRoomHosted(roomCode: string, playerId: PlayerId): void {
-  writeItem(
-    localStorage,
-    ROOM_HOSTS_KEY,
-    JSON.stringify({ ...loadRoomHosts(), [roomCode]: playerId }),
-  );
-}
-
-export function isRoomHost(roomCode: string, playerId: PlayerId): boolean {
-  return loadRoomHosts()[roomCode] === playerId;
 }
 
 // Per tab, so a reload rejoins directly while a fresh tab asks for the name again.

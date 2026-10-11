@@ -3,10 +3,10 @@ import { parseMove, type Move, type PlayerId } from "../engine";
 export interface HelloMessage {
   readonly playerId: PlayerId;
   readonly name: string;
-  readonly isHost: boolean;
 }
 
 export interface MoveMessage {
+  readonly startSeed: number;
   readonly sequence: number;
   readonly move: Move;
 }
@@ -25,19 +25,27 @@ export function parseHello(value: unknown): HelloMessage | null {
   if (!isRecord(value)) {
     return null;
   }
-  const { playerId, name, isHost } = value;
-  if (typeof playerId !== "string" || typeof name !== "string" || typeof isHost !== "boolean") {
+  const { playerId, name } = value;
+  if (typeof playerId !== "string" || typeof name !== "string") {
     return null;
   }
-  return { playerId, name, isHost };
+  return { playerId, name };
 }
 
 export function parseMoveMessage(value: unknown): MoveMessage | null {
-  if (!isRecord(value) || typeof value.sequence !== "number" || !Number.isInteger(value.sequence)) {
+  if (!isRecord(value)) {
+    return null;
+  }
+  const { startSeed, sequence } = value;
+  if (
+    typeof startSeed !== "number" ||
+    typeof sequence !== "number" ||
+    !Number.isInteger(sequence)
+  ) {
     return null;
   }
   const move = parseMove(value.move);
-  return move ? { sequence: value.sequence, move } : null;
+  return move ? { startSeed, sequence, move } : null;
 }
 
 export function parseLog(value: unknown): LogMessage | null {

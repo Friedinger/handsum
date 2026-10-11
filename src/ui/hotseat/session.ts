@@ -36,9 +36,9 @@ export function activePlayerId(state: GameState): PlayerId | null {
     return null;
   }
   switch (state.phase.kind) {
-    case "initialPeek": {
-      const { readyPlayerIds } = state.phase;
-      const waiting = state.seats.find((seat) => !readyPlayerIds.includes(seat.player.id));
+    case "startingView": {
+      const { viewedPlayerIds } = state.phase;
+      const waiting = state.seats.find((seat) => !viewedPlayerIds.includes(seat.player.id));
       return waiting?.player.id ?? null;
     }
     case "playing":

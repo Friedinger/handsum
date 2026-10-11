@@ -14,12 +14,6 @@ const COPIED_NOTICE_MS = 2000;
 
 const link = computed(() => roomLink(location, props.snapshot.roomCode));
 const players = computed(() => lobbyPlayers(props.snapshot));
-const hostId = computed(
-  () =>
-    [props.snapshot.self, ...props.snapshot.peers.map((peer) => peer.hello)].find(
-      (hello) => hello.isHost,
-    )?.playerId,
-);
 const canStart = computed(
   () => players.value.length >= MIN_PLAYERS && players.value.length <= MAX_PLAYERS,
 );
@@ -49,16 +43,13 @@ async function copyLink(): Promise<void> {
       <li v-for="player in players" :key="player.id">
         {{ player.name }}
         <span v-if="player.id === snapshot.self.playerId">({{ strings.table.you }})</span>
-        <span v-if="player.id === hostId">({{ strings.lobby.host }})</span>
       </li>
     </ul>
-    <template v-if="snapshot.self.isHost">
-      <button type="button" :disabled="!canStart" @click="emit('start')">
-        {{ strings.lobby.start }}
-      </button>
-      <p v-if="!canStart">{{ strings.lobby.playerLimits(MIN_PLAYERS, MAX_PLAYERS) }}</p>
-    </template>
-    <p v-else>{{ strings.lobby.waitingForHost }}</p>
+    <p>{{ strings.lobby.startHint }}</p>
+    <button type="button" :disabled="!canStart" @click="emit('start')">
+      {{ strings.lobby.start }}
+    </button>
+    <p v-if="!canStart">{{ strings.lobby.playerLimits(MIN_PLAYERS, MAX_PLAYERS) }}</p>
     <p v-if="rejection" class="error">{{ strings.syncRejectionMessages[rejection] }}</p>
     <button type="button" @click="leaveRoom">{{ strings.lobby.leave }}</button>
   </section>

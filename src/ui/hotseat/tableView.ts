@@ -22,8 +22,8 @@ function seatLabel(view: TableView, seat: Seat): string {
   const { phase, endCallerId } = view.state;
   const markers = [
     phase.kind === "playing" && phase.currentPlayerId === seat.player.id ? "▶" : null,
-    phase.kind === "initialPeek" && phase.readyPlayerIds.includes(seat.player.id)
-      ? `(${strings.table.ready})`
+    phase.kind === "startingView" && phase.viewedPlayerIds.includes(seat.player.id)
+      ? `(${strings.table.viewed})`
       : null,
     endCallerId === seat.player.id ? `[${strings.moveNames.callEnd}]` : null,
   ];

@@ -16,8 +16,12 @@ export function startGameMove(playerCount = 3, seed = TEST_SEED): StartGameMove 
   return { type: "startGame", playerId: players[0]?.id ?? "", players, seed };
 }
 
-export function readyMoves(state: StartedGame): Move[] {
-  return state.seats.map((seat) => ({ type: "ready", playerId: seat.player.id }));
+export function startingViewMoves(state: StartedGame): Move[] {
+  return state.seats.map((seat) => ({
+    type: "viewStartingCards",
+    playerId: seat.player.id,
+    slotIndices: [0, 1],
+  }));
 }
 
 export function expectStarted(state: GameState): StartedGame {
@@ -33,7 +37,7 @@ export function startedGame(playerCount = 3, seed = TEST_SEED): StartedGame {
 
 export function playingGame(playerCount = 3, seed = TEST_SEED): StartedGame {
   const started = startedGame(playerCount, seed);
-  return expectStarted(readyMoves(started).reduce(applyMove, started));
+  return expectStarted(startingViewMoves(started).reduce(applyMove, started));
 }
 
 export function allCards(state: StartedGame): Card[] {

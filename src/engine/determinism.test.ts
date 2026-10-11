@@ -4,7 +4,13 @@ import { standardDeck } from "./deck";
 import { legalMoves } from "./legalMoves";
 import type { Move } from "./moves";
 import { createMulberry32 } from "./random";
-import { allCards, expectStarted, readyMoves, startedGame, startGameMove } from "./testFixtures";
+import {
+  allCards,
+  expectStarted,
+  startingViewMoves,
+  startedGame,
+  startGameMove,
+} from "./testFixtures";
 import type { StartedGame } from "./types";
 
 const MOVES_BEFORE_CALLING_END = 120;
@@ -26,7 +32,7 @@ function chooseMove(options: readonly Move[], random: () => number, moveNumber: 
 function randomPlayout(playerCount: number, seed: number): Move[] {
   const moves: Move[] = [
     startGameMove(playerCount, seed),
-    ...readyMoves(startedGame(playerCount, seed)),
+    ...startingViewMoves(startedGame(playerCount, seed)),
   ];
   const random = createMulberry32(seed);
   let state = expectStarted(replayMoves(moves));

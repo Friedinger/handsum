@@ -5,7 +5,7 @@ import { startGameMove } from "./testFixtures";
 
 const validMoves: Move[] = [
   startGameMove(),
-  { type: "ready", playerId: "a" },
+  { type: "viewStartingCards", playerId: "a", slotIndices: [0, 1] },
   { type: "drawFromDeck", playerId: "a" },
   { type: "discardDrawnCard", playerId: "a" },
   { type: "callEnd", playerId: "a" },
@@ -28,18 +28,18 @@ describe("parseMove", () => {
   });
 
   it("drops unknown extra fields", () => {
-    expect(parseMove({ type: "ready", playerId: "a", sneaky: true })).toEqual({
-      type: "ready",
+    expect(parseMove({ type: "callEnd", playerId: "a", sneaky: true })).toEqual({
+      type: "callEnd",
       playerId: "a",
     });
   });
 
   it.each([
     null,
-    "ready",
+    "callEnd",
     [],
     { type: "fly", playerId: "a" },
-    { type: "ready" },
+    { type: "callEnd" },
     { type: "swapDrawnCard", playerId: "a" },
     { type: "swapDrawnCard", playerId: "a", slotIndices: ["0"] },
     { type: "viewOtherCard", playerId: "a", slotIndex: 0 },

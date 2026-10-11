@@ -2,8 +2,8 @@ import type { Move } from "./moves";
 import { applyCallEnd } from "./moves/callEnd";
 import { applyExchangeBlind, applyViewOtherCard, applyViewOwnCard } from "./moves/cardActions";
 import { applyDiscardDrawnCard, applyDrawFromDeck } from "./moves/draw";
-import { applyReady } from "./moves/ready";
 import { applyStartGame } from "./moves/startGame";
+import { applyViewStartingCards } from "./moves/startingView";
 import { applySwapDiscardCard, applySwapDrawnCard } from "./moves/swap";
 import { accept, type MoveRejection, type Result } from "./outcome";
 import type { GameState, StartedGame } from "./types";
@@ -24,8 +24,8 @@ function dispatchMove(state: GameState, move: Move): Result<StartedGame> {
   switch (move.type) {
     case "startGame":
       return applyStartGame(state, move);
-    case "ready":
-      return applyReady(state, move);
+    case "viewStartingCards":
+      return applyViewStartingCards(state, move);
     case "drawFromDeck":
       return applyDrawFromDeck(state, move);
     case "discardDrawnCard":

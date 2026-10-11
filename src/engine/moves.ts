@@ -7,9 +7,10 @@ export interface StartGameMove {
   readonly seed: number;
 }
 
-export interface ReadyMove {
-  readonly type: "ready";
+export interface ViewStartingCardsMove {
+  readonly type: "viewStartingCards";
   readonly playerId: PlayerId;
+  readonly slotIndices: readonly number[];
 }
 
 export interface DrawFromDeckMove {
@@ -62,7 +63,7 @@ export interface CallEndMove {
 
 export type Move =
   | StartGameMove
-  | ReadyMove
+  | ViewStartingCardsMove
   | DrawFromDeckMove
   | DiscardDrawnCardMove
   | SwapDrawnCardMove

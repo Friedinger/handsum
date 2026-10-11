@@ -1,9 +1,10 @@
 import type { Move, Player, PlayerId } from "../engine";
 import {
-  adoptLongerLog,
   appendMove,
+  chooseLog,
   emptyLog,
   receiveMove,
+  startSeedOf,
   type SyncRejection,
   type SyncedLog,
 } from "./moveLog";
@@ -98,7 +99,7 @@ export function createGameSession(options: SessionOptions): GameSession {
         return;
       }
       const outcome = receiveMove(snapshot.log, message, sender);
-      if (outcome.kind === "appended") {
+      if (outcome.kind === "accepted") {
         update({ log: outcome.log });
       } else if (outcome.kind === "behind") {
         send((connected) => {
@@ -107,7 +108,7 @@ export function createGameSession(options: SessionOptions): GameSession {
       }
     },
     onLog: ({ moves }) => {
-      const adopted = adoptLongerLog(snapshot.log, moves);
+      const adopted = chooseLog(snapshot.log, moves);
       if (adopted) {
         update({ log: adopted });
       }
@@ -124,12 +125,17 @@ export function createGameSession(options: SessionOptions): GameSession {
 
   const submitMove = (move: Move): SyncRejection | null => {
     const outcome = appendMove(snapshot.log, move);
-    if (outcome.kind !== "appended") {
+    if (outcome.kind !== "accepted") {
       return outcome.kind === "rejected" ? outcome.reason : null;
     }
-    update({ log: outcome.log });
+    const { log } = outcome;
+    update({ log });
     send((connected) => {
-      connected.broadcastMove({ sequence: outcome.log.moves.length, move });
+      connected.broadcastMove({
+        startSeed: startSeedOf(log.moves) ?? 0,
+        sequence: log.moves.length,
+        move,
+      });
     });
     return null;
   };
@@ -137,9 +143,6 @@ export function createGameSession(options: SessionOptions): GameSession {
   return {
     submitMove,
     startGame: (seed) => {
-      if (!snapshot.self.isHost) {
-        return "notHost";
-      }
       const players = lobbyPlayers(snapshot);
       return submitMove({ type: "startGame", playerId: snapshot.self.playerId, players, seed });
     },

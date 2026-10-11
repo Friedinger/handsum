@@ -18,10 +18,10 @@ describe("startGame", () => {
     expect([...ids].sort((a, b) => a - b)).toEqual(standardDeck.map((card) => card.id));
   });
 
-  it("keeps the given player order and starts in the initial peek phase", () => {
+  it("keeps the given player order and starts by viewing starting cards", () => {
     const state = startedGame(3);
     expect(state.seats.map((seat) => seat.player)).toEqual(createPlayers(3));
-    expect(state.phase).toEqual({ kind: "initialPeek", readyPlayerIds: [] });
+    expect(state.phase).toEqual({ kind: "startingView", viewedPlayerIds: [] });
     expect(state.moveCount).toBe(1);
   });
 

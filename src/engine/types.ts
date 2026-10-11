@@ -28,9 +28,9 @@ export interface HoldingDrawnCardStep {
   readonly card: Card;
 }
 
-export interface InitialPeekPhase {
-  readonly kind: "initialPeek";
-  readonly readyPlayerIds: readonly PlayerId[];
+export interface StartingViewPhase {
+  readonly kind: "startingView";
+  readonly viewedPlayerIds: readonly PlayerId[];
 }
 
 export interface PlayingPhase {
@@ -51,7 +51,7 @@ export interface FinishedPhase {
   readonly results: readonly PlayerResult[];
 }
 
-export type Phase = InitialPeekPhase | PlayingPhase | FinishedPhase;
+export type Phase = StartingViewPhase | PlayingPhase | FinishedPhase;
 
 export type GameEvent =
   | { readonly type: "drawPileReshuffled"; readonly cardCount: number }

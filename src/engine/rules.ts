@@ -1,4 +1,5 @@
 export const LAYOUT_SIZE = 4;
+export const STARTING_VIEW_CARD_COUNT = 2;
 export const MIN_PLAYERS = 2;
 export const MAX_PLAYERS = 8;
 export const CALLER_PENALTY = 5;

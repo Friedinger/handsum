@@ -1,22 +1,19 @@
 import { describe, expect, it } from "vitest";
 import type { Move, StartGameMove } from "../engine";
-import { adoptLongerLog, emptyLog, receiveMove, replayLog, type SyncedLog } from "./moveLog";
-import type { HelloMessage } from "./protocol";
+import { chooseLog, emptyLog, receiveMove, replayLog, type SyncedLog } from "./moveLog";
+import type { HelloMessage, MoveMessage } from "./protocol";
 
-const host: HelloMessage = { playerId: "alice", name: "Alice", isHost: true };
-const guest: HelloMessage = { playerId: "bob", name: "Bob", isHost: false };
+const alice: HelloMessage = { playerId: "alice", name: "Alice" };
+const bob: HelloMessage = { playerId: "bob", name: "Bob" };
 
-const startGame: StartGameMove = {
-  type: "startGame",
-  playerId: "alice",
-  players: [
-    { id: "alice", name: "Alice" },
-    { id: "bob", name: "Bob" },
-  ],
-  seed: 42,
-};
-const aliceReady: Move = { type: "ready", playerId: "alice" };
-const bobReady: Move = { type: "ready", playerId: "bob" };
+const players = [
+  { id: "alice", name: "Alice" },
+  { id: "bob", name: "Bob" },
+];
+const aliceStart: StartGameMove = { type: "startGame", playerId: "alice", players, seed: 42 };
+const bobStart: StartGameMove = { type: "startGame", playerId: "bob", players, seed: 99 };
+const aliceViews: Move = { type: "viewStartingCards", playerId: "alice", slotIndices: [0, 1] };
+const bobViews: Move = { type: "viewStartingCards", playerId: "bob", slotIndices: [2, 3] };
 
 function logOf(moves: Move[]): SyncedLog {
   const log = replayLog(moves);
@@ -26,73 +23,93 @@ function logOf(moves: Move[]): SyncedLog {
   return log;
 }
 
+function message(sequence: number, move: Move, startSeed = aliceStart.seed): MoveMessage {
+  return { startSeed, sequence, move };
+}
+
 describe("receiveMove", () => {
-  it("appends a legal move with the expected sequence number", () => {
-    const outcome = receiveMove(emptyLog, { sequence: 1, move: startGame }, host);
-    expect(outcome.kind).toBe("appended");
+  it("accepts a legal move with the expected sequence number", () => {
+    expect(receiveMove(emptyLog, message(1, aliceStart), alice).kind).toBe("accepted");
   });
 
   it("ignores a move it already has", () => {
-    const log = logOf([startGame]);
-    expect(receiveMove(log, { sequence: 1, move: startGame }, host)).toEqual({ kind: "duplicate" });
+    const log = logOf([aliceStart]);
+    expect(receiveMove(log, message(1, aliceStart), alice)).toEqual({ kind: "duplicate" });
   });
 
   it("reports being behind when a sequence number is skipped", () => {
-    expect(receiveMove(emptyLog, { sequence: 2, move: aliceReady }, host)).toEqual({
-      kind: "behind",
-    });
+    expect(receiveMove(emptyLog, message(2, aliceViews), alice)).toEqual({ kind: "behind" });
   });
 
-  it("rejects moves for another player and game starts by guests", () => {
-    expect(receiveMove(emptyLog, { sequence: 1, move: startGame }, guest)).toEqual({
+  it("rejects moves sent on behalf of another player", () => {
+    expect(receiveMove(emptyLog, message(1, aliceStart), bob)).toEqual({
       kind: "rejected",
       reason: "wrongSender",
     });
-    const guestStart = { ...startGame, playerId: "bob" };
-    expect(receiveMove(emptyLog, { sequence: 1, move: guestStart }, guest)).toEqual({
+  });
+
+  it("rejects moves that belong to a different game start", () => {
+    const log = logOf([aliceStart]);
+    expect(receiveMove(log, message(2, bobViews, bobStart.seed), bob)).toEqual({
       kind: "rejected",
-      reason: "notHost",
+      reason: "otherGame",
     });
   });
 
   it("rejects illegal moves with the engine's reason", () => {
-    const log = logOf([startGame]);
+    const log = logOf([aliceStart]);
     const draw: Move = { type: "drawFromDeck", playerId: "bob" };
-    expect(receiveMove(log, { sequence: 2, move: draw }, guest)).toEqual({
+    expect(receiveMove(log, message(2, draw), bob)).toEqual({
       kind: "rejected",
       reason: "wrongPhase",
     });
   });
 
-  it("appends a concurrent ready move that lost the race for its sequence number", () => {
-    const aliceView = logOf([startGame, aliceReady]);
-    const outcome = receiveMove(aliceView, { sequence: 2, move: bobReady }, guest);
-    if (outcome.kind !== "appended") {
-      throw new Error("Expected the ready move to be appended");
+  it("appends concurrent starting views that lost the race for their sequence number", () => {
+    const aliceLog = logOf([aliceStart, aliceViews]);
+    const outcome = receiveMove(aliceLog, message(2, bobViews), bob);
+    if (outcome.kind !== "accepted") {
+      throw new Error("Expected the starting view to be accepted");
     }
-    const bobView = logOf([startGame, bobReady, aliceReady]);
-    expect(outcome.log.state).toEqual(bobView.state);
+    expect(outcome.log.state).toEqual(logOf([aliceStart, bobViews, aliceViews]).state);
+  });
+
+  it("settles crossing starts in favour of the lower player ID", () => {
+    const outcome = receiveMove(logOf([bobStart]), message(1, aliceStart), alice);
+    expect(outcome.kind === "accepted" && outcome.log.moves).toEqual([aliceStart]);
+    expect(receiveMove(logOf([aliceStart]), message(1, bobStart, bobStart.seed), bob)).toEqual({
+      kind: "rejected",
+      reason: "gameAlreadyStarted",
+    });
   });
 
   it("rejects other moves with an outdated sequence number", () => {
-    const log = logOf([startGame, aliceReady, bobReady]);
+    const log = logOf([aliceStart, aliceViews, bobViews]);
     const draw: Move = { type: "drawFromDeck", playerId: "alice" };
-    expect(receiveMove(log, { sequence: 2, move: draw }, host)).toEqual({
+    expect(receiveMove(log, message(2, draw), alice)).toEqual({
       kind: "rejected",
       reason: "staleSequence",
     });
   });
 });
 
-describe("adoptLongerLog", () => {
-  it("adopts a longer valid log", () => {
-    const adopted = adoptLongerLog(logOf([startGame]), [startGame, aliceReady]);
-    expect(adopted?.moves).toEqual([startGame, aliceReady]);
+describe("chooseLog", () => {
+  it("adopts a longer valid log of the same game", () => {
+    expect(chooseLog(logOf([aliceStart]), [aliceStart, aliceViews])?.moves).toEqual([
+      aliceStart,
+      aliceViews,
+    ]);
   });
 
   it("keeps the own log when the incoming one is not longer or invalid", () => {
-    const own = logOf([startGame, aliceReady]);
-    expect(adoptLongerLog(own, [startGame])).toBeNull();
-    expect(adoptLongerLog(own, [startGame, aliceReady, aliceReady])).toBeNull();
+    const own = logOf([aliceStart, aliceViews]);
+    expect(chooseLog(own, [aliceStart])).toBeNull();
+    expect(chooseLog(own, [aliceStart, aliceViews, aliceViews])).toBeNull();
+  });
+
+  it("prefers the winning start over a longer log of the losing start", () => {
+    const losing = logOf([bobStart, bobViews]);
+    expect(chooseLog(losing, [aliceStart])?.moves).toEqual([aliceStart]);
+    expect(chooseLog(logOf([aliceStart]), [bobStart, bobViews])).toBeNull();
   });
 });

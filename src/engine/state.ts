@@ -1,3 +1,4 @@
+import type { MoveRejection } from "./outcome";
 import type { PlayerId, Seat, Slot, StartedGame } from "./types";
 
 export function seatIndexOf(state: StartedGame, playerId: PlayerId): number {
@@ -14,6 +15,25 @@ export function nextPlayerId(state: StartedGame, playerId: PlayerId): PlayerId {
 
 export function isSlotIndex(layout: readonly Slot[], slotIndex: number): boolean {
   return Number.isInteger(slotIndex) && slotIndex >= 0 && slotIndex < layout.length;
+}
+
+export function findSlotSelectionProblem(
+  layout: readonly Slot[],
+  slotIndices: readonly number[],
+): MoveRejection | null {
+  if (slotIndices.length === 0) {
+    return "noSlotSelected";
+  }
+  if (!slotIndices.every((slotIndex) => isSlotIndex(layout, slotIndex))) {
+    return "invalidSlot";
+  }
+  if (new Set(slotIndices).size !== slotIndices.length) {
+    return "duplicateSlot";
+  }
+  if (slotIndices.some((slotIndex) => layout[slotIndex] === null)) {
+    return "emptySlot";
+  }
+  return null;
 }
 
 export function replaceAt<T>(items: readonly T[], index: number, item: T): T[] {

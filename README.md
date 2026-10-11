@@ -28,7 +28,7 @@ A local debug page to control all players in one browser is available at `http:/
 
 ## Play
 
-Open the game on GitHub Pages, create a room and share the link. Everyone who opens the link enters a name and joins the lobby; the room creator starts the game.
+Open the game on GitHub Pages, create a room and share the link. Everyone who opens the link enters a name and joins the lobby; anyone in the lobby can start the game.
 
 ## How it works
 

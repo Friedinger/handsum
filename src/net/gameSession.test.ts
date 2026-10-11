@@ -11,9 +11,9 @@ import type { HelloMessage } from "./protocol";
 
 const ROOM = "ABCDEF";
 const SEED = 7;
-const alice: HelloMessage = { playerId: "alice", name: "Alice", isHost: true };
-const bob: HelloMessage = { playerId: "bob", name: "Bob", isHost: false };
-const carol: HelloMessage = { playerId: "carol", name: "Carol", isHost: false };
+const alice: HelloMessage = { playerId: "alice", name: "Alice" };
+const bob: HelloMessage = { playerId: "bob", name: "Bob" };
+const carol: HelloMessage = { playerId: "carol", name: "Carol" };
 
 interface Client {
   readonly session: GameSession;
@@ -51,10 +51,14 @@ function startedRoom() {
   return { network, host, guest };
 }
 
-const ready = (playerId: string): Move => ({ type: "ready", playerId });
+const ready = (playerId: string): Move => ({
+  type: "viewStartingCards",
+  playerId,
+  slotIndices: [0, 1],
+});
 
 describe("game session", () => {
-  it("lists everyone in the lobby with the host first", () => {
+  it("lists everyone in the lobby with the own player first", () => {
     const network = createMemoryNetwork();
     const host = join(network, alice);
     join(network, bob);
@@ -65,17 +69,31 @@ describe("game session", () => {
     ]);
   });
 
-  it("lets only the host start, and shares the start with everyone", () => {
+  it("shares a start by any player with everyone", () => {
     const network = createMemoryNetwork();
-    join(network, alice);
+    const host = join(network, alice);
     const guest = join(network, bob);
     network.deliverAll();
-    expect(guest.session.startGame(SEED)).toBe("notHost");
-    const { guest: startedGuest } = startedRoom();
-    expect(startedGuest.latest().log.state.status).toBe("started");
+    guest.session.startGame(SEED);
+    network.deliverAll();
+    expect(host.latest().log.state.status).toBe("started");
+    expect(host.latest().log.moves).toEqual(guest.latest().log.moves);
   });
 
-  it("keeps both clients in sync when players get ready at the same time", () => {
+  it("agrees on one game when two players start at the same time", () => {
+    const network = createMemoryNetwork();
+    const first = join(network, alice);
+    const second = join(network, bob);
+    network.deliverAll();
+    first.session.startGame(SEED);
+    second.session.startGame(SEED + 1);
+    second.session.submitMove(ready("bob"));
+    network.deliverAll();
+    expect(first.latest().log.moves).toEqual(second.latest().log.moves);
+    expect(first.latest().log.moves[0]?.playerId).toBe("alice");
+  });
+
+  it("keeps both clients in sync when players view their cards at the same time", () => {
     const { network, host, guest } = startedRoom();
     host.session.submitMove(ready("alice"));
     guest.session.submitMove(ready("bob"));

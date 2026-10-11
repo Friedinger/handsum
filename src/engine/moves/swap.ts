@@ -1,6 +1,6 @@
 import type { SwapDiscardCardMove, SwapDrawnCardMove } from "../moves";
-import { accept, reject, type MoveRejection, type Result } from "../outcome";
-import { isSlotIndex, withLayout } from "../state";
+import { accept, reject, type Result } from "../outcome";
+import { findSlotSelectionProblem, withLayout } from "../state";
 import type { Card, GameState, Slot, StartedGame } from "../types";
 import {
   endTurn,
@@ -11,25 +11,6 @@ import {
 } from "./turn";
 
 const MULTI_SWAP_MIN_CARDS = 2;
-
-function findSelectionProblem(
-  layout: readonly Slot[],
-  slotIndices: readonly number[],
-): MoveRejection | null {
-  if (slotIndices.length === 0) {
-    return "noSlotSelected";
-  }
-  if (!slotIndices.every((slotIndex) => isSlotIndex(layout, slotIndex))) {
-    return "invalidSlot";
-  }
-  if (new Set(slotIndices).size !== slotIndices.length) {
-    return "duplicateSlot";
-  }
-  if (slotIndices.some((slotIndex) => layout[slotIndex] === null)) {
-    return "emptySlot";
-  }
-  return null;
-}
 
 function cardsAt(layout: readonly Slot[], slotIndices: readonly number[]): Card[] {
   return slotIndices.map((slotIndex) => layout[slotIndex]).filter((slot) => slot != null);
@@ -61,7 +42,7 @@ function swapIntoLayout(
   discardPileBelow: readonly Card[],
 ): Result<StartedGame> {
   const { state, playerId, seatIndex, layout } = turn;
-  const selectionProblem = findSelectionProblem(layout, slotIndices);
+  const selectionProblem = findSlotSelectionProblem(layout, slotIndices);
   if (selectionProblem) {
     return reject(selectionProblem);
   }

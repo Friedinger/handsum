@@ -4,7 +4,6 @@ import { strings } from "../../data/strings";
 import {
   claimPlayerId,
   hasJoinedRoom,
-  isRoomHost,
   loadPlayerName,
   rememberJoinedRoom,
   savePlayerName,
@@ -23,7 +22,7 @@ async function join(name: string): Promise<void> {
   const playerId = await claimPlayerId();
   savePlayerName(name);
   rememberJoinedRoom(props.roomCode);
-  self.value = { playerId, name, isHost: isRoomHost(props.roomCode, playerId) };
+  self.value = { playerId, name };
 }
 
 function submitName(): void {

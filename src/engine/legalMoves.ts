@@ -1,6 +1,6 @@
 import { tryApplyMove } from "./applyMove";
 import type { Move } from "./moves";
-import { LAYOUT_SIZE } from "./rules";
+import { LAYOUT_SIZE, STARTING_VIEW_CARD_COUNT } from "./rules";
 import type { GameState, PlayerId } from "./types";
 
 const SLOT_INDICES = Array.from({ length: LAYOUT_SIZE }, (_, slotIndex) => slotIndex);
@@ -13,6 +13,9 @@ function nonEmptySubsets(items: readonly number[]): number[][] {
 }
 
 const SLOT_SELECTIONS = nonEmptySubsets(SLOT_INDICES).sort((a, b) => a.length - b.length);
+const STARTING_VIEW_SELECTIONS = SLOT_SELECTIONS.filter(
+  (selection) => selection.length === STARTING_VIEW_CARD_COUNT,
+);
 
 function otherPlayerIds(state: GameState, playerId: PlayerId): PlayerId[] {
   if (state.status !== "started") {
@@ -50,7 +53,11 @@ function cardActionCandidates(state: GameState, playerId: PlayerId): Move[] {
 // startGame is never listed: its player list and seed come from the lobby, not from the rules.
 function candidateMoves(state: GameState, playerId: PlayerId): Move[] {
   return [
-    { type: "ready", playerId },
+    ...STARTING_VIEW_SELECTIONS.map((slotIndices): Move => ({
+      type: "viewStartingCards",
+      playerId,
+      slotIndices,
+    })),
     { type: "drawFromDeck", playerId },
     { type: "callEnd", playerId },
     ...SLOT_SELECTIONS.map((slotIndices): Move => ({

@@ -38,11 +38,11 @@ function parseFields(type: MoveType, playerId: string, fields: Fields): Move | n
         ? { type, playerId, players, seed: fields.seed }
         : null;
     }
-    case "ready":
     case "drawFromDeck":
     case "discardDrawnCard":
     case "callEnd":
       return { type, playerId };
+    case "viewStartingCards":
     case "swapDrawnCard":
     case "swapDiscardCard":
       return isNumberArray(fields.slotIndices)
@@ -71,7 +71,7 @@ function parseFields(type: MoveType, playerId: string, fields: Fields): Move | n
 
 const MOVE_TYPES: readonly MoveType[] = [
   "startGame",
-  "ready",
+  "viewStartingCards",
   "drawFromDeck",
   "discardDrawnCard",
   "swapDrawnCard",

@@ -16,6 +16,7 @@ function cardList(cards: readonly Card[]): string {
 export function describeMove(state: StartedGame, move: Move): string {
   const name = strings.moveNames[move.type];
   switch (move.type) {
+    case "viewStartingCards":
     case "swapDrawnCard":
     case "swapDiscardCard":
       return `${name}: ${slotList(move.slotIndices)}`;
@@ -26,7 +27,6 @@ export function describeMove(state: StartedGame, move: Move): string {
     case "exchangeBlind":
       return `${name}: ${strings.slotLabel(move.ownSlotIndex)} ↔ ${playerName(state, move.targetPlayerId)}, ${strings.slotLabel(move.targetSlotIndex)}`;
     case "startGame":
-    case "ready":
     case "drawFromDeck":
     case "discardDrawnCard":
     case "callEnd":

@@ -4,6 +4,7 @@ import {
   type GameState,
   type Move,
   type MoveRejection,
+  type StartGameMove,
 } from "../engine";
 import type { HelloMessage, MoveMessage } from "./protocol";
 
@@ -12,10 +13,10 @@ export interface SyncedLog {
   readonly state: GameState;
 }
 
-export type SyncRejection = MoveRejection | "wrongSender" | "notHost" | "staleSequence";
+export type SyncRejection = MoveRejection | "wrongSender" | "otherGame" | "staleSequence";
 
 export type ReceiveOutcome =
-  | { readonly kind: "appended"; readonly log: SyncedLog }
+  | { readonly kind: "accepted"; readonly log: SyncedLog }
   | { readonly kind: "duplicate" }
   | { readonly kind: "behind" }
   | { readonly kind: "rejected"; readonly reason: SyncRejection };
@@ -26,14 +27,19 @@ function isSameMove(a: Move | undefined, b: Move): boolean {
   return JSON.stringify(a) === JSON.stringify(b);
 }
 
-function findSenderProblem(move: Move, sender: HelloMessage): SyncRejection | null {
-  if (move.playerId !== sender.playerId) {
-    return "wrongSender";
-  }
-  if (move.type === "startGame" && !sender.isHost) {
-    return "notHost";
-  }
-  return null;
+export function startMoveOf(moves: readonly Move[]): StartGameMove | null {
+  const [first] = moves;
+  return first?.type === "startGame" ? first : null;
+}
+
+// Anyone may start, so two starts can cross on the network. Every client settles this the
+// same way: the start by the lower player ID wins.
+function startWins(candidate: StartGameMove, current: StartGameMove): boolean {
+  return candidate.playerId < current.playerId;
+}
+
+export function startSeedOf(moves: readonly Move[]): number | null {
+  return startMoveOf(moves)?.seed ?? null;
 }
 
 export function appendMove(log: SyncedLog, move: Move): ReceiveOutcome {
@@ -41,19 +47,50 @@ export function appendMove(log: SyncedLog, move: Move): ReceiveOutcome {
   if (!outcome.ok) {
     return { kind: "rejected", reason: outcome.reason };
   }
-  return { kind: "appended", log: { moves: [...log.moves, move], state: outcome.value } };
+  return { kind: "accepted", log: { moves: [...log.moves, move], state: outcome.value } };
 }
 
-// Ready moves are the only ones players send at the same time. They commute in the engine,
-// so one that lost the race for its sequence number is still appended instead of dropped.
-function receiveStaleMove(log: SyncedLog, message: MoveMessage): ReceiveOutcome {
-  if (message.move.type !== "ready") {
+export function replayLog(moves: readonly Move[]): SyncedLog | null {
+  let log = emptyLog;
+  for (const move of moves) {
+    const outcome = appendMove(log, move);
+    if (outcome.kind !== "accepted") {
+      return null;
+    }
+    log = outcome.log;
+  }
+  return log;
+}
+
+function receiveCompetingStart(log: SyncedLog, start: StartGameMove): ReceiveOutcome {
+  const currentStart = startMoveOf(log.moves);
+  if (!currentStart || !startWins(start, currentStart)) {
+    return { kind: "rejected", reason: "gameAlreadyStarted" };
+  }
+  const restarted = replayLog([start]);
+  return restarted
+    ? { kind: "accepted", log: restarted }
+    : { kind: "rejected", reason: "invalidSeed" };
+}
+
+// Viewing the starting cards is the only move players make at the same time. It commutes in
+// the engine, so one that lost the race for its sequence number is still appended.
+function receiveStaleMove(log: SyncedLog, move: Move): ReceiveOutcome {
+  if (move.type === "startGame") {
+    return receiveCompetingStart(log, move);
+  }
+  if (move.type !== "viewStartingCards") {
     return { kind: "rejected", reason: "staleSequence" };
   }
-  const outcome = appendMove(log, message.move);
-  return outcome.kind === "rejected" && outcome.reason === "alreadyReady"
+  const outcome = appendMove(log, move);
+  return outcome.kind === "rejected" && outcome.reason === "alreadyViewed"
     ? { kind: "duplicate" }
     : outcome;
+}
+
+function belongsToOtherGame(log: SyncedLog, message: MoveMessage): boolean {
+  const startSeed = startSeedOf(log.moves);
+  return message.move.type !== "startGame" && startSeed !== null && startSeed !== message.startSeed;
 }
 
 export function receiveMove(
@@ -61,9 +98,11 @@ export function receiveMove(
   message: MoveMessage,
   sender: HelloMessage,
 ): ReceiveOutcome {
-  const senderProblem = findSenderProblem(message.move, sender);
-  if (senderProblem) {
-    return { kind: "rejected", reason: senderProblem };
+  if (message.move.playerId !== sender.playerId) {
+    return { kind: "rejected", reason: "wrongSender" };
+  }
+  if (belongsToOtherGame(log, message)) {
+    return { kind: "rejected", reason: "otherGame" };
   }
   const expectedSequence = log.moves.length + 1;
   if (message.sequence > expectedSequence) {
@@ -73,26 +112,26 @@ export function receiveMove(
     return { kind: "duplicate" };
   }
   if (message.sequence < expectedSequence) {
-    return receiveStaleMove(log, message);
+    return receiveStaleMove(log, message.move);
   }
   return appendMove(log, message.move);
 }
 
-export function replayLog(moves: readonly Move[]): SyncedLog | null {
-  let log = emptyLog;
-  for (const move of moves) {
-    const outcome = appendMove(log, move);
-    if (outcome.kind !== "appended") {
-      return null;
-    }
-    log = outcome.log;
+function prefersIncoming(own: readonly Move[], incoming: readonly Move[]): boolean {
+  const ownStart = startMoveOf(own);
+  const incomingStart = startMoveOf(incoming);
+  if (!incomingStart) {
+    return false;
   }
-  return log;
+  if (!ownStart) {
+    return true;
+  }
+  if (!isSameMove(ownStart, incomingStart)) {
+    return startWins(incomingStart, ownStart);
+  }
+  return incoming.length > own.length;
 }
 
-export function adoptLongerLog(own: SyncedLog, incoming: readonly Move[]): SyncedLog | null {
-  if (incoming.length <= own.moves.length) {
-    return null;
-  }
-  return replayLog(incoming);
+export function chooseLog(own: SyncedLog, incoming: readonly Move[]): SyncedLog | null {
+  return prefersIncoming(own.moves, incoming) ? replayLog(incoming) : null;
 }

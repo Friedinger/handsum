@@ -18,7 +18,7 @@ Browser-based multiplayer card game prototype (2–8 players, join via link). No
 ## Architecture (binding)
 
 - `src/engine/`: pure, deterministic game logic. `applyMove(state, move) -> state` (immutable, no side effects) and `legalMoves(state, playerId)`. No `Math.random`, no `Date.now`. Randomness only from a seedable PRNG (mulberry32).
-- Game state is derived solely from the move log. The first entry is a `startGame` move (player list with ID, name, order, plus seed), issued by the room creator.
+- Game state is derived solely from the move log. The first entry is a `startGame` move (player list with ID, name, order, plus seed). Any lobby member can start; if two starts cross, the one by the lower player ID wins on every client.
 - Only moves are synchronized. Each move has a sequence number. Clients accept only moves with the expected number, from an authorized player, that are legal. Duplicates are ignored, invalid moves rejected.
 - New or returning peers receive the full move log from a present peer and replay it.
 - Player identity: random player ID in localStorage, name entered on join. Trystero peer IDs change, player IDs do not. After game start only known players can rejoin.

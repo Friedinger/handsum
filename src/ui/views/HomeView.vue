@@ -1,17 +1,14 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { strings } from "../../data/strings";
-import { claimPlayerId, markRoomHosted } from "../../net/identity";
 import { normalizeRoomCode, randomRoomCode } from "../../net/roomCode";
 import { openRoom } from "../composables/useRoomCode";
 
 const codeInput = ref("");
 const showInvalidCode = ref(false);
 
-async function createRoom(): Promise<void> {
-  const roomCode = randomRoomCode();
-  markRoomHosted(roomCode, await claimPlayerId());
-  openRoom(roomCode);
+function createRoom(): void {
+  openRoom(randomRoomCode());
 }
 
 function joinRoom(): void {
@@ -26,7 +23,7 @@ function joinRoom(): void {
 <template>
   <section>
     <p>{{ strings.home.tagline }}</p>
-    <button type="button" @click="createRoom()">{{ strings.home.createRoom }}</button>
+    <button type="button" @click="createRoom">{{ strings.home.createRoom }}</button>
     <form class="inline-form" @submit.prevent="joinRoom">
       <label>
         {{ strings.home.roomCode }}
