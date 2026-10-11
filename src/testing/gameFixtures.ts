@@ -1,5 +1,5 @@
-import { applyMove, initialGameState } from "./applyMove";
-import type { Move, StartGameMove } from "./moves";
+import { applyMove, initialGameState } from "@/engine/applyMove";
+import type { Move, StartGameMove } from "@/engine/moves";
 import type {
   Card,
   CardAction,
@@ -7,7 +7,7 @@ import type {
   Player,
   Slot,
   StartedGame,
-} from "./types";
+} from "@/engine/types";
 
 export const TEST_SEED = 12345;
 

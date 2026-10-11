@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 import { applyMove, validateMove } from "./applyMove";
 import { legalMoves } from "./legalMoves";
 import type { Move } from "./moves";
-import { currentPlayerId, expectStarted, playingGame } from "./testFixtures";
+import {
+  currentPlayerId,
+  expectStarted,
+  playingGame,
+} from "@/testing/gameFixtures";
 import type { StartedGame } from "./types";
 
 function apply(state: StartedGame, move: Move): StartedGame {

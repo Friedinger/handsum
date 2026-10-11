@@ -23,7 +23,7 @@ export interface HeldCardTurn extends ActiveTurn {
   readonly heldCard: Card;
 }
 
-export function requireActiveTurn(
+function requireActiveTurn(
   state: GameState,
   playerId: PlayerId,
 ): Result<ActiveTurn> {

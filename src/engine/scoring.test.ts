@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { CALLER_PENALTY, SPECIAL_LAYOUT_PENALTY } from "./rules";
 import { scoreGame } from "./scoring";
-import { createPlayers, makeCard } from "./testFixtures";
+import { createPlayers, makeCard } from "@/testing/gameFixtures";
 import type { Seat, Slot } from "./types";
 
 function seatsWithValues(...layouts: (number | null)[][]): Seat[] {

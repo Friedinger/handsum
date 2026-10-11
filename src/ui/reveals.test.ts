@@ -7,7 +7,7 @@ import {
   playingGame,
   startedGame,
   withLayouts,
-} from "@/engine/testFixtures";
+} from "@/testing/gameFixtures";
 import {
   isRevealed,
   revealsAfterMove,

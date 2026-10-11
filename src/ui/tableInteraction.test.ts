@@ -5,7 +5,7 @@ import {
   makeCard,
   playingGame,
   startedGame,
-} from "@/engine/testFixtures";
+} from "@/testing/gameFixtures";
 import {
   handleClick,
   isClickable,

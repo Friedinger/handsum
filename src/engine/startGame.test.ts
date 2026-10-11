@@ -8,7 +8,7 @@ import {
   expectStarted,
   startedGame,
   startGameMove,
-} from "./testFixtures";
+} from "@/testing/gameFixtures";
 import type { StartedGame } from "./types";
 
 describe("startGame", () => {

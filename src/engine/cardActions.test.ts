@@ -9,7 +9,7 @@ import {
   makeCard,
   playingGame,
   withLayouts,
-} from "./testFixtures";
+} from "@/testing/gameFixtures";
 import type { Card, StartedGame } from "./types";
 
 const ownLayout = [

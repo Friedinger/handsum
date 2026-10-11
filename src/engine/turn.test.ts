@@ -8,7 +8,7 @@ import {
   layoutOf,
   playingGame,
   startedGame,
-} from "./testFixtures";
+} from "@/testing/gameFixtures";
 import type { StartedGame } from "./types";
 
 function apply(state: StartedGame, move: Move): StartedGame {

@@ -6,7 +6,7 @@ import {
   makeCard,
   playingGame,
   withLayouts,
-} from "@/engine/testFixtures";
+} from "@/testing/gameFixtures";
 import { anchorKey, planDeal, planMove, type MovePlan } from "./cardFlights";
 
 const self = "player-1";

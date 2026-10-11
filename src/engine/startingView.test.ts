@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { applyMove, initialGameState, validateMove } from "./applyMove";
 import type { Move } from "./moves";
-import { expectStarted, startedGame, startingViewMoves } from "./testFixtures";
+import {
+  expectStarted,
+  startedGame,
+  startingViewMoves,
+} from "@/testing/gameFixtures";
 
 function viewMove(playerId: string, slotIndices: number[]): Move {
   return { type: "viewStartingCards", playerId, slotIndices };

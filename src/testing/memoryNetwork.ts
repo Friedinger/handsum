@@ -1,4 +1,8 @@
-import type { ConnectTransport, PeerId, TransportHandlers } from "./transport";
+import type {
+  ConnectTransport,
+  PeerId,
+  TransportHandlers,
+} from "@/net/transport";
 
 export interface MemoryNetwork {
   readonly connect: ConnectTransport;

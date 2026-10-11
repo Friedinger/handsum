@@ -10,7 +10,7 @@ import {
   startingViewMoves,
   startedGame,
   startGameMove,
-} from "./testFixtures";
+} from "@/testing/gameFixtures";
 import type { StartedGame } from "./types";
 
 const MOVES_BEFORE_CALLING_END = 120;

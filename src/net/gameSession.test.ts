@@ -6,7 +6,10 @@ import {
   type GameSession,
   type SessionSnapshot,
 } from "./gameSession";
-import { createMemoryNetwork, type MemoryNetwork } from "./memoryNetwork";
+import {
+  createMemoryNetwork,
+  type MemoryNetwork,
+} from "@/testing/memoryNetwork";
 import type { HelloMessage } from "./protocol";
 
 const ROOM = "ABCDEF";

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { applyMove, validateMove } from "./applyMove";
 import type { Move } from "./moves";
-import { expectStarted, makeCard, playingGame } from "./testFixtures";
+import { expectStarted, makeCard, playingGame } from "@/testing/gameFixtures";
 import type { StartedGame } from "./types";
 
 const drawMove: Move = { type: "drawFromDeck", playerId: "player-1" };
