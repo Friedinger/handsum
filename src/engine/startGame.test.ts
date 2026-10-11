@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { initialGameState, validateMove } from "./applyMove";
+import { applyMove, initialGameState, validateMove } from "./applyMove";
 import { standardDeck } from "./deck";
 import { LAYOUT_SIZE, MAX_PLAYERS, MIN_PLAYERS } from "./rules";
-import { allCards, createPlayers, startedGame, startGameMove } from "./testFixtures";
+import { allCards, createPlayers, expectStarted, startedGame, startGameMove } from "./testFixtures";
+import type { StartedGame } from "./types";
 
 describe("startGame", () => {
   it.each([MIN_PLAYERS, 5, MAX_PLAYERS])("deals four cards to each of %i players", (count) => {
@@ -43,6 +44,16 @@ describe("startGame", () => {
     expect(validateMove(initialGameState, tooMany)).toBe("invalidPlayerCount");
     expect(validateMove(initialGameState, duplicate)).toBe("duplicatePlayerId");
     expect(validateMove(initialGameState, unnamed)).toBe("emptyPlayerName");
+  });
+
+  it("starts a fresh game after a finished one", () => {
+    const finished: StartedGame = {
+      ...startedGame(3, 1),
+      phase: { kind: "finished", results: [] },
+      endCallerId: "player-2",
+    };
+    const rematch = expectStarted(applyMove(finished, startGameMove(3, 2)));
+    expect(rematch).toEqual({ ...startedGame(3, 2), moveCount: finished.moveCount + 1 });
   });
 
   it("rejects an invalid seed, an outside starter and a second start", () => {
