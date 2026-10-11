@@ -26,9 +26,19 @@ A local debug page to control all players in one browser is available at `http:/
 | `npm run format`       | Format with Prettier          |
 | `npm run format:check` | Check formatting              |
 
+## Play
+
+Open the game on GitHub Pages, create a room and share the link. Everyone who opens the link enters a name and joins the lobby; the room creator starts the game.
+
+## How it works
+
+The game runs entirely in the browser. Players connect directly via WebRTC using [Trystero](https://github.com/dmotz/trystero). Only moves are exchanged; every browser computes the same game state from the shared move log. Reloading the page rejoins the game. If every player leaves, the round is gone.
+
 ## Privacy
 
 No accounts, no tracking, no external fonts or CDNs. A random player ID and your chosen name are stored in your browser's localStorage.
+
+To find each other, browsers briefly exchange connection details through public Nostr relays, and public STUN servers help establish the direct connection. Game data itself travels directly and encrypted between the players.
 
 ## Contact
 
