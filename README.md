@@ -15,6 +15,8 @@ npm install
 npm run dev
 ```
 
+A local debug page to control all players in one browser is available at `http://localhost:5173/hotseat.html` while the dev server runs.
+
 | Command                | Purpose                       |
 | ---------------------- | ----------------------------- |
 | `npm run dev`          | Start the dev server          |
