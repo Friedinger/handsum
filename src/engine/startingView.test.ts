@@ -8,14 +8,21 @@ function viewMove(playerId: string, slotIndices: number[]): Move {
 }
 
 describe("viewStartingCards", () => {
-  it("starts playing with the first seat once everyone has viewed their cards", () => {
+  it("starts playing once everyone has viewed their cards", () => {
     const started = startedGame(3);
     const state = expectStarted(startingViewMoves(started).reduce(applyMove, started));
-    expect(state.phase).toEqual({
-      kind: "playing",
-      currentPlayerId: "player-1",
-      step: { kind: "awaitingChoice" },
-    });
+    expect(state.phase.kind === "playing" && state.phase.step).toEqual({ kind: "awaitingChoice" });
+  });
+
+  it("picks the starting player from the seed", () => {
+    const startingPlayers = new Set(
+      Array.from({ length: 20 }, (_, seed) => {
+        const started = startedGame(4, seed);
+        const state = expectStarted(startingViewMoves(started).reduce(applyMove, started));
+        return state.phase.kind === "playing" ? state.phase.currentPlayerId : null;
+      }),
+    );
+    expect(startingPlayers).toEqual(new Set(["player-1", "player-2", "player-3", "player-4"]));
   });
 
   it("waits until the last player has viewed their cards", () => {

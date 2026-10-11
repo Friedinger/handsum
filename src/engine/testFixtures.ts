@@ -35,9 +35,14 @@ export function startedGame(playerCount = 3, seed = TEST_SEED): StartedGame {
   return expectStarted(applyMove(initialGameState, startGameMove(playerCount, seed)));
 }
 
+// Fixes player-1 as the starting player so tests do not depend on the seed-based choice.
 export function playingGame(playerCount = 3, seed = TEST_SEED): StartedGame {
   const started = startedGame(playerCount, seed);
-  return expectStarted(startingViewMoves(started).reduce(applyMove, started));
+  const playing = expectStarted(startingViewMoves(started).reduce(applyMove, started));
+  return {
+    ...playing,
+    phase: { kind: "playing", currentPlayerId: "player-1", step: { kind: "awaitingChoice" } },
+  };
 }
 
 export function allCards(state: StartedGame): Card[] {
