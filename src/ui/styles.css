@@ -272,7 +272,21 @@ button {
   margin-left: 0.5rem;
 }
 
+.pile-vacant {
+  visibility: hidden;
+}
+
+.pile-label {
+  min-height: 1.2em;
+  line-height: 1.2;
+}
+
+.banner-hidden {
+  visibility: hidden;
+}
+
 .banner {
+  min-height: 2.2em;
   margin: 0;
   padding: 0.4rem 1rem;
   border-radius: 999px;
@@ -282,6 +296,8 @@ button {
 }
 
 .activity {
+  height: 5.5em;
+  overflow: hidden;
   list-style: none;
   margin: 0;
   padding: 0;

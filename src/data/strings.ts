@@ -126,6 +126,7 @@ export const strings = {
     callEnd: "Call the end",
     swapSeveral: "Swap several cards",
     drawPileCount: (count: number) => `${String(count)} left`,
+    discardPile: "Discard pile",
     holdingCard: (player: string) => `${player}'s card`,
     yourCard: "Your card",
     takenCard: "Taken from the discard pile",

@@ -216,8 +216,8 @@ const results = computed(() =>
     </div>
 
     <div class="table-area area-center">
-      <p v-if="state.endCallerId && !isFinished" class="banner">
-        {{ strings.hints.lastRound(playerName(state, state.endCallerId)) }}
+      <p class="banner" :class="{ 'banner-hidden': !state.endCallerId || isFinished }">
+        {{ state.endCallerId ? strings.hints.lastRound(playerName(state, state.endCallerId)) : "" }}
       </p>
       <ResultsPanel
         v-if="isFinished"

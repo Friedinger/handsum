@@ -38,9 +38,13 @@ const emit = defineEmits<{ draw: []; discard: []; held: [] }>();
         :clickable="discardClickable"
         @click="emit('discard')"
       />
+      <span class="pile-label">{{ strings.table.discardPile }}</span>
     </div>
-    <div v-if="heldCard" class="pile pile-held">
+    <!-- The slot for a held card is always there so the piles do not shift when someone draws. -->
+    <div class="pile pile-held" :class="{ 'pile-vacant': !heldCard }">
+      <div v-if="!heldCard" class="card card-large" aria-hidden="true" />
       <PlayingCard
+        v-else
         :card="heldCard"
         :face-up="heldFaceUp"
         size="large"
@@ -48,7 +52,7 @@ const emit = defineEmits<{ draw: []; discard: []; held: [] }>();
         :marked="heldMarked"
         @click="emit('held')"
       />
-      <span class="pile-label">{{ heldLabel }}</span>
+      <span class="pile-label">{{ heldLabel ?? "" }}</span>
     </div>
   </div>
 </template>
