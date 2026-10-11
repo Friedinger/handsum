@@ -158,6 +158,14 @@ const hint = computed(() => {
   }
 });
 
+// One line for errors, reminders and hints, so the hand below never moves when the text changes.
+const message = computed(() => {
+  if (props.rejection) {
+    return strings.syncRejectionMessages[props.rejection];
+  }
+  return showRememberNotice.value ? strings.hints.rememberCards : hint.value;
+});
+
 const showSeveralToggle = computed(() => canToggleSeveral(situation.value, intent.value));
 
 const showRememberNotice = computed(() =>
@@ -188,6 +196,9 @@ const results = computed(() =>
 
 <template>
   <div class="game-table">
+    <button type="button" class="button-quiet table-leave" @click="leaveRoom">
+      {{ strings.table.leave }}
+    </button>
     <div class="table-area area-top">
       <PlayerSeat
         v-for="seat in sides.top"
@@ -261,10 +272,12 @@ const results = computed(() =>
     </div>
 
     <div class="table-area area-hand">
-      <p class="hint" :class="{ 'hint-active': situation.kind !== 'waiting' }">
-        {{ showRememberNotice ? strings.hints.rememberCards : hint }}
+      <p
+        class="hint"
+        :class="{ 'hint-active': situation.kind !== 'waiting', 'hint-error': rejection }"
+      >
+        {{ message }}
       </p>
-      <p v-if="rejection" class="error">{{ strings.syncRejectionMessages[rejection] }}</p>
       <PlayerSeat
         v-if="ownSeat"
         :name="`${ownSeat.player.name} (${strings.table.you})`"
@@ -291,9 +304,6 @@ const results = computed(() =>
           @click="emit('move', { type: 'callEnd', playerId: selfId })"
         >
           {{ strings.table.callEnd }}
-        </button>
-        <button type="button" class="button-quiet" @click="leaveRoom">
-          {{ strings.table.leave }}
         </button>
       </div>
     </div>
