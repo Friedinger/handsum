@@ -1,4 +1,4 @@
-import type { CardAction, MoveRejection, MoveType } from "@/engine";
+import type { CardAction, MoveRejection } from "@/engine";
 import type { SyncRejection } from "@/net/moveLog";
 
 const cardActionNames = {
@@ -6,19 +6,6 @@ const cardActionNames = {
   viewOther: "View other card",
   exchangeBlind: "Blind exchange",
 } as const satisfies Record<CardAction, string>;
-
-const moveNames = {
-  startGame: "Start game",
-  viewStartingCards: "View starting cards",
-  drawFromDeck: "Draw from deck",
-  discardDrawnCard: "Discard drawn card",
-  swapDrawnCard: "Swap drawn card",
-  swapDiscardCard: "Take discard and swap",
-  viewOwnCard: cardActionNames.viewOwn,
-  viewOtherCard: cardActionNames.viewOther,
-  exchangeBlind: cardActionNames.exchangeBlind,
-  callEnd: "Call the end",
-} as const satisfies Record<MoveType, string>;
 
 const rejectionMessages = {
   gameNotStarted: "The game has not started yet.",
@@ -55,31 +42,9 @@ const syncRejectionMessages = {
 export const strings = {
   appTitle: "Handsum",
   cardActionNames,
-  moveNames,
   rejectionMessages,
   syncRejectionMessages,
   cardSymbol: "◆",
-  hiddenCard: "?",
-  emptySlot: "—",
-  slotLabel: (slotIndex: number) => `slot ${String(slotIndex + 1)}`,
-  events: {
-    drawPileReshuffled: (cardCount: number) =>
-      `The discard pile was reshuffled into the draw pile (${String(cardCount)} cards).`,
-    cardsRevealed: (
-      player: string,
-      cards: string,
-      slots: string,
-      matched: boolean,
-    ) =>
-      `${player} revealed ${cards} from ${slots}: ${matched ? "match" : "no match, turn lost"}.`,
-    cardViewed: (viewer: string, owner: string, slot: string, value: number) =>
-      `${viewer} viewed ${owner}'s ${slot}: ${String(value)}.`,
-  },
-  phaseNames: {
-    startingView: "Viewing starting cards",
-    playing: "Playing",
-    finished: "Finished",
-  },
   home: {
     tagline: "A card game for 2 to 8 players in the browser.",
     createRoom: "Create a room",
@@ -158,35 +123,5 @@ export const strings = {
   },
   spectator: {
     notice: "This game has already started. Only its players can rejoin.",
-  },
-  hotseat: {
-    status: "Status",
-    phase: "Phase",
-    currentPlayer: "Current player",
-    endCaller: "End called by",
-    moveCount: "Moves",
-    drawPile: "Draw pile",
-    discardPile: "Discard pile",
-    heldCard: "Drawn card",
-    lastEvents: "Last move events",
-    viewed: "done viewing",
-    nobody: "nobody",
-    title: "Handsum hot-seat (debug)",
-    playerName: (seatNumber: number) => `Player ${String(seatNumber)}`,
-    playerCount: "Players",
-    seed: "Seed",
-    start: "Start game",
-    reset: "Reset",
-    undo: "Undo last move",
-    revealAll: "Reveal all cards",
-    followTurn: "Follow the active player",
-    actingAs: "Acting as",
-    legalMoves: "Legal moves",
-    noLegalMoves: "No legal moves for this player.",
-    manualMove: "Submit a move as JSON",
-    submit: "Submit",
-    invalidJson: "This is not valid JSON.",
-    moveLog: "Move log",
-    fullState: "Full state",
   },
 } as const;

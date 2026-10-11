@@ -24,7 +24,7 @@ Browser-based multiplayer card game prototype (2–8 players, join via link). No
 - Player identity: random player ID in localStorage, name entered on join. Trystero peer IDs change, player IDs do not. After game start only known players can rejoin.
 - State technically contains everything; the UI only shows what a player may know. Console cheating is acceptable.
 - Card data in `src/data/cards.json` (value, count, action per card type), separate from logic. Points = printed value.
-- `src/net/`: Trystero (WebRTC, no own server), move log sync and player identity. `src/ui/`: Vue 3 single-file components without a UI library; the hot-seat debug page (`hotseat.html`, `src/ui/hotseat/`) stays Vanilla DOM. UI never contains game rules.
+- `src/net/`: Trystero (WebRTC, no own server), move log sync and player identity. `src/ui/`: Vue 3 single-file components without a UI library. UI never contains game rules.
 - `src/testing/`: helpers shared by tests only (game fixtures, in-memory network). Tests sit next to the code they test.
 - Imports across folders use the `@/` alias (`@/engine`, `@/net/...`); `./` only for files in the same folder.
 
