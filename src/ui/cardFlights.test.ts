@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { applyMove, type Move, type StartedGame } from "../engine";
 import { expectStarted, holding, makeCard, playingGame, withLayouts } from "../engine/testFixtures";
-import { anchorKey, planMove, type MovePlan } from "./cardFlights";
+import { anchorKey, planDeal, planMove, type MovePlan } from "./cardFlights";
 
 const self = "player-1";
 
@@ -111,6 +111,26 @@ describe("planMove", () => {
     expect(
       movePlan.flights.slice(1).every((flight) => !flight.faceUpAtStart && !flight.faceUpAtEnd),
     ).toBe(true);
+  });
+
+  it("deals four rounds face down and then turns over the first discard", () => {
+    const dealt = playingGame(3);
+    const movePlan = planDeal(dealt);
+    const dealtRoutes = routes(movePlan);
+    expect(dealtRoutes).toHaveLength(13);
+    expect(dealtRoutes.slice(0, 4)).toEqual([
+      "drawPile -> slot:player-1:0 @0",
+      "drawPile -> slot:player-2:0 @1",
+      "drawPile -> slot:player-3:0 @2",
+      "drawPile -> slot:player-1:1 @3",
+    ]);
+    expect(dealtRoutes.at(-1)).toBe("drawPile -> discardPile @12");
+    expect(movePlan.flights.at(-1)).toMatchObject({
+      card: dealt.discardPile[0],
+      faceUpAtStart: false,
+      faceUpAtEnd: true,
+    });
+    expect(movePlan.discardTopWhileFlying).toBeNull();
   });
 
   it("does not animate calling the end", () => {

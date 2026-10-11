@@ -1,10 +1,16 @@
-import { nextTick, onUnmounted, ref, shallowRef, watch, type Ref } from "vue";
+import { nextTick, onMounted, onUnmounted, ref, shallowRef, watch, type Ref } from "vue";
 import type { Card, PlayerId } from "../../engine";
 import type { SyncedLog } from "../../net/moveLog";
-import { anchorKey, planMove, type Anchor, type Flight } from "../cardFlights";
+import {
+  anchorKey,
+  planDeal,
+  planMove,
+  type Anchor,
+  type Flight,
+  type MovePlan,
+} from "../cardFlights";
 
 export const FLIGHT_MS = 450;
-const FLIGHT_STAGGER_MS = 140;
 const PEEK_MS = 1600;
 
 export interface Box {
@@ -67,7 +73,7 @@ export function useCardFlights(
     }, PEEK_MS);
   };
 
-  const launch = async (planned: readonly Flight[]) => {
+  const launch = async (planned: readonly Flight[], staggerMs: number) => {
     const origins = planned.map((flight) => boxOf(flight.from));
     hiddenAnchors.value = new Set(planned.map((flight) => anchorKey(flight.to)));
     // Targets are measured after the new state is rendered, origins before it.
@@ -79,9 +85,20 @@ export function useCardFlights(
         return [];
       }
       nextFlightId += 1;
-      return [{ id: nextFlightId, flight, from, to, delayMs: flight.order * FLIGHT_STAGGER_MS }];
+      return [{ id: nextFlightId, flight, from, to, delayMs: flight.order * staggerMs }];
     });
     refreshHidden();
+  };
+
+  const play = (plan: MovePlan) => {
+    if (plan.peekedSlot) {
+      peek({ kind: "slot", slot: plan.peekedSlot });
+    }
+    if (plan.flights.length === 0 || !shouldAnimate()) {
+      return;
+    }
+    discardTopWhileFlying.value = plan.discardTopWhileFlying;
+    void launch(plan.flights, plan.staggerMs);
   };
 
   // Runs before the table re-renders, so the cards are still where they started.
@@ -96,18 +113,18 @@ export function useCardFlights(
       if (previous.state.status !== "started") {
         return;
       }
-      const plan = planMove(previous.state, move, next.state, selfId);
-      if (plan.peekedSlot) {
-        peek({ kind: "slot", slot: plan.peekedSlot });
-      }
-      if (plan.flights.length === 0 || !shouldAnimate()) {
-        return;
-      }
-      discardTopWhileFlying.value = plan.discardTopWhileFlying;
-      void launch(plan.flights);
+      play(planMove(previous.state, move, next.state, selfId));
     },
     { flush: "pre" },
   );
+
+  // The table first appears when the game starts, so the opening deal is played on mount.
+  onMounted(() => {
+    const { moves, state } = log();
+    if (moves.at(-1)?.type === "startGame" && state.status === "started") {
+      play(planDeal(state));
+    }
+  });
 
   const land = (id: number) => {
     flights.value = flights.value.filter((active) => active.id !== id);

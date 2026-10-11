@@ -1,4 +1,4 @@
-import type { Card, Move, PlayerId, StartedGame } from "../engine";
+import { LAYOUT_SIZE, type Card, type Move, type PlayerId, type StartedGame } from "../engine";
 import type { SlotRef } from "./tableInteraction";
 
 export type Anchor =
@@ -16,8 +16,12 @@ export interface Flight {
   readonly order: number;
 }
 
+const MOVE_STAGGER_MS = 140;
+const DEAL_STAGGER_MS = 70;
+
 export interface MovePlan {
   readonly flights: readonly Flight[];
+  readonly staggerMs: number;
   readonly peekedSlot: SlotRef | null;
   // What the discard pile shows until the cards flying onto it have landed.
   readonly discardTopWhileFlying: Card | null | undefined;
@@ -27,7 +31,12 @@ const drawPile: Anchor = { kind: "drawPile" };
 const discardPile: Anchor = { kind: "discardPile" };
 const held: Anchor = { kind: "held" };
 
-const noAnimation: MovePlan = { flights: [], peekedSlot: null, discardTopWhileFlying: undefined };
+const noAnimation: MovePlan = {
+  flights: [],
+  staggerMs: MOVE_STAGGER_MS,
+  peekedSlot: null,
+  discardTopWhileFlying: undefined,
+};
 
 export function anchorKey(anchor: Anchor): string {
   return anchor.kind === "slot"
@@ -94,6 +103,7 @@ function planSwap(
       ? noAnimation
       : {
           flights: [discardHeldCard(previous, move.playerId === selfId)],
+          staggerMs: MOVE_STAGGER_MS,
           peekedSlot: null,
           discardTopWhileFlying: previous.discardPile[0] ?? null,
         };
@@ -108,6 +118,7 @@ function planSwap(
   };
   return {
     flights: [incoming, ...outgoingFlights(previous, move.playerId, move.slotIndices, 1)],
+    staggerMs: MOVE_STAGGER_MS,
     peekedSlot: null,
     discardTopWhileFlying: previous.discardPile[fromDiscard ? 1 : 0] ?? null,
   };
@@ -120,6 +131,7 @@ function planCardAction(
 ): MovePlan {
   return {
     flights: [discardHeldCard(previous, holderIsViewer)],
+    staggerMs: MOVE_STAGGER_MS,
     peekedSlot,
     discardTopWhileFlying: previous.discardPile[0] ?? null,
   };
@@ -139,8 +151,38 @@ function planExchange(
       { from: own, to: target, ...hidden },
       { from: target, to: own, ...hidden },
     ],
+    staggerMs: MOVE_STAGGER_MS,
     peekedSlot: null,
     discardTopWhileFlying: previous.discardPile[0] ?? null,
+  };
+}
+
+// Dealt round by round like at a real table, then the first discard is turned over.
+export function planDeal(dealt: StartedGame): MovePlan {
+  const rounds = Array.from({ length: LAYOUT_SIZE }, (_, slotIndex) => slotIndex);
+  const dealing = rounds.flatMap((slotIndex) =>
+    dealt.seats.map((seat, seatIndex) => ({
+      from: drawPile,
+      to: slotAnchor(seat.player.id, slotIndex),
+      card: null,
+      faceUpAtStart: false,
+      faceUpAtEnd: false,
+      order: slotIndex * dealt.seats.length + seatIndex,
+    })),
+  );
+  const firstDiscard: Flight = {
+    from: drawPile,
+    to: discardPile,
+    card: dealt.discardPile[0] ?? null,
+    faceUpAtStart: false,
+    faceUpAtEnd: true,
+    order: dealing.length,
+  };
+  return {
+    flights: [...dealing, firstDiscard],
+    staggerMs: DEAL_STAGGER_MS,
+    peekedSlot: null,
+    discardTopWhileFlying: null,
   };
 }
 
@@ -164,6 +206,7 @@ export function planMove(
             order: 0,
           },
         ],
+        staggerMs: MOVE_STAGGER_MS,
         peekedSlot: null,
         discardTopWhileFlying: undefined,
       };
@@ -185,6 +228,7 @@ export function planMove(
     case "exchangeBlind":
       return planExchange(previous, move, moverIsViewer);
     case "startGame":
+      return planDeal(next);
     case "viewStartingCards":
     case "callEnd":
       return noAnimation;
