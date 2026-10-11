@@ -143,23 +143,6 @@ export const strings = {
     backToStart: "Back to start",
     playAgain: "Play again",
   },
-  activity: {
-    title: "What happened",
-    startGame: (player: string) => `${player} started the game.`,
-    viewStartingCards: (player: string) => `${player} looked at their starting cards.`,
-    drawFromDeck: (player: string) => `${player} drew a card.`,
-    discardDrawnCard: (player: string) => `${player} discarded the drawn card.`,
-    swapDrawnCard: (player: string, slots: string) =>
-      `${player} swapped the drawn card with ${slots}.`,
-    swapDiscardCard: (player: string, slots: string) =>
-      `${player} took the discard and swapped it with ${slots}.`,
-    viewOwnCard: (player: string, slot: string) => `${player} looked at their own ${slot}.`,
-    viewOtherCard: (player: string, owner: string, slot: string) =>
-      `${player} looked at ${owner}'s ${slot}.`,
-    exchangeBlind: (player: string, slot: string, owner: string, ownerSlot: string) =>
-      `${player} blindly exchanged their ${slot} with ${owner}'s ${ownerSlot}.`,
-    callEnd: (player: string) => `${player} called the end.`,
-  },
   spectator: {
     notice: "This game has already started. Only its players can rejoin.",
   },

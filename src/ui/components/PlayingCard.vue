@@ -11,8 +11,10 @@ const props = withDefaults(
     size?: CardSize;
     clickable?: boolean;
     marked?: boolean;
+    inFlight?: boolean;
+    peeked?: boolean;
   }>(),
-  { size: "medium", clickable: false, marked: false },
+  { size: "medium", clickable: false, marked: false, inFlight: false, peeked: false },
 );
 const emit = defineEmits<{ click: [] }>();
 
@@ -27,7 +29,13 @@ const visibleCard = computed(() => (props.faceUp ? props.card : null));
     :class="[
       `card-${size}`,
       visibleCard ? `card-face tier-${valueTier(visibleCard)}` : 'card-back',
-      { 'card-clickable': clickable, 'card-marked': marked, 'card-placeholder': faceUp && !card },
+      {
+        'card-clickable': clickable,
+        'card-marked': marked,
+        'card-placeholder': faceUp && !card,
+        'card-in-flight': inFlight,
+        'card-peeked': peeked,
+      },
     ]"
     @click="clickable && emit('click')"
   >

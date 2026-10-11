@@ -13,6 +13,8 @@ defineProps<{
   discardClickable: boolean;
   heldClickable: boolean;
   heldMarked: boolean;
+  heldInFlight: boolean;
+  heldIsTakenDiscard: boolean;
 }>();
 const emit = defineEmits<{ draw: []; discard: []; held: [] }>();
 </script>
@@ -25,6 +27,7 @@ const emit = defineEmits<{ draw: []; discard: []; held: [] }>();
         :face-up="drawPileCount === 0"
         size="large"
         class="pile-stack"
+        data-anchor="drawPile"
         :clickable="drawClickable"
         @click="emit('draw')"
       />
@@ -35,6 +38,7 @@ const emit = defineEmits<{ draw: []; discard: []; held: [] }>();
         :card="discardTop"
         face-up
         size="large"
+        :data-anchor="heldIsTakenDiscard ? 'discardBelow' : 'discardPile'"
         :clickable="discardClickable"
         @click="emit('discard')"
       />
@@ -42,7 +46,7 @@ const emit = defineEmits<{ draw: []; discard: []; held: [] }>();
     </div>
     <!-- The slot for a held card is always there so the piles do not shift when someone draws. -->
     <div class="pile pile-held" :class="{ 'pile-vacant': !heldCard }">
-      <div v-if="!heldCard" class="card card-large" aria-hidden="true" />
+      <div v-if="!heldCard" class="card card-large" data-anchor="held" aria-hidden="true" />
       <PlayingCard
         v-else
         :card="heldCard"
@@ -50,6 +54,8 @@ const emit = defineEmits<{ draw: []; discard: []; held: [] }>();
         size="large"
         :clickable="heldClickable"
         :marked="heldMarked"
+        :in-flight="heldInFlight"
+        :data-anchor="heldIsTakenDiscard ? 'discardPile' : 'held'"
         @click="emit('held')"
       />
       <span class="pile-label">{{ heldLabel ?? "" }}</span>

@@ -4,12 +4,15 @@ import { strings } from "../../data/strings";
 import { legalMoves, type Move, type Seat, type StartedGame } from "../../engine";
 import { onlinePlayerIds, type SessionSnapshot } from "../../net/gameSession";
 import type { SyncRejection } from "../../net/moveLog";
+import FlightLayer from "../components/FlightLayer.vue";
 import PlayerSeat from "../components/PlayerSeat.vue";
 import ResultsPanel from "../components/ResultsPanel.vue";
 import TableCenter from "../components/TableCenter.vue";
+import { useCardFlights } from "../composables/useCardFlights";
 import { useReveals } from "../composables/useReveals";
 import { leaveRoom } from "../composables/useRoomCode";
-import { describeActivity, describeEvent, playerName } from "../describe";
+import { anchorKey } from "../cardFlights";
+import { playerName } from "../describe";
 import { isRevealed } from "../reveals";
 import type { SlotView } from "../slotView";
 import {
@@ -28,8 +31,6 @@ import {
 import { arrangeOpponents } from "../tableLayout";
 import { currentHeldCard } from "../visibility";
 
-const ACTIVITY_ENTRIES = 3;
-
 const props = defineProps<{
   snapshot: SessionSnapshot;
   state: StartedGame;
@@ -40,6 +41,12 @@ const emit = defineEmits<{ move: [move: Move]; playAgain: [] }>();
 const selfId = computed(() => props.snapshot.self.playerId);
 const online = computed(() => onlinePlayerIds(props.snapshot));
 const reveals = useReveals(() => props.snapshot.log, props.snapshot.self.playerId);
+const tableElement = ref<HTMLElement | null>(null);
+const cardFlights = useCardFlights(
+  tableElement,
+  () => props.snapshot.log,
+  props.snapshot.self.playerId,
+);
 const situation = computed(() => situationOf(props.state, selfId.value));
 
 const intent = ref<Intent>(noIntent);
@@ -67,7 +74,13 @@ const held = computed(() => {
     ? { holderId: selfId.value, card: topDiscard }
     : currentHeldCard(props.state);
 });
-const discardTop = computed(() => props.state.discardPile[isTakingDiscard.value ? 1 : 0] ?? null);
+const discardTop = computed(() => {
+  const whileFlying = cardFlights.discardTopWhileFlying.value;
+  if (whileFlying !== undefined) {
+    return whileFlying;
+  }
+  return props.state.discardPile[isTakingDiscard.value ? 1 : 0] ?? null;
+});
 const heldLabel = computed(() => {
   if (!held.value) {
     return null;
@@ -101,6 +114,7 @@ function slotViews(seat: Seat): SlotView[] {
       return [];
     }
     const slot = { playerId: seat.player.id, slotIndex };
+    const anchor = anchorKey({ kind: "slot", slot });
     return [
       {
         slotIndex,
@@ -109,6 +123,9 @@ function slotViews(seat: Seat): SlotView[] {
           isFinished.value || isRevealed(reveals.value, props.state, seat.player.id, slotIndex),
         clickable: clickable({ kind: "slot", slot }),
         marked: isSlotMarked(intent.value, slot, selfId.value),
+        anchor,
+        inFlight: cardFlights.hiddenAnchors.value.has(anchor),
+        peeked: cardFlights.peekedAnchor.value === anchor,
       },
     ];
   });
@@ -179,23 +196,13 @@ const canCallEnd = computed(
     legalMoves(props.state, selfId.value).some((move) => move.type === "callEnd"),
 );
 
-const activity = computed(() => [
-  ...props.state.lastMoveEvents
-    .filter((event) => event.type !== "cardViewed" || event.viewerId === selfId.value)
-    .map((event) => describeEvent(props.state, event)),
-  ...props.snapshot.log.moves
-    .slice(-ACTIVITY_ENTRIES)
-    .map((move) => describeActivity(props.state, move))
-    .reverse(),
-]);
-
 const results = computed(() =>
   props.state.phase.kind === "finished" ? props.state.phase.results : [],
 );
 </script>
 
 <template>
-  <div class="game-table">
+  <div ref="tableElement" class="game-table">
     <button type="button" class="button-quiet table-leave" @click="leaveRoom">
       {{ strings.table.leave }}
     </button>
@@ -249,13 +256,12 @@ const results = computed(() =>
         :discard-clickable="clickable({ kind: 'discardPile' })"
         :held-clickable="clickable({ kind: 'heldCard' })"
         :held-marked="intent.kind === 'action'"
+        :held-in-flight="cardFlights.hiddenAnchors.value.has('held')"
+        :held-is-taken-discard="isTakingDiscard"
         @draw="click({ kind: 'drawPile' })"
         @discard="click({ kind: 'discardPile' })"
         @held="click({ kind: 'heldCard' })"
       />
-      <ul class="activity">
-        <li v-for="(text, index) in activity" :key="index">{{ text }}</li>
-      </ul>
     </div>
 
     <div class="table-area area-right">
@@ -308,5 +314,6 @@ const results = computed(() =>
         </button>
       </div>
     </div>
+    <FlightLayer :flights="cardFlights.flights.value" @land="cardFlights.land" />
   </div>
 </template>
