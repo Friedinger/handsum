@@ -34,6 +34,37 @@ export function describeMove(state: StartedGame, move: Move): string {
   }
 }
 
+export function describeActivity(state: StartedGame, move: Move): string {
+  const player = playerName(state, move.playerId);
+  const { activity } = strings;
+  switch (move.type) {
+    case "startGame":
+    case "viewStartingCards":
+    case "drawFromDeck":
+    case "discardDrawnCard":
+    case "callEnd":
+      return activity[move.type](player);
+    case "swapDrawnCard":
+    case "swapDiscardCard":
+      return activity[move.type](player, slotList(move.slotIndices));
+    case "viewOwnCard":
+      return activity.viewOwnCard(player, strings.slotLabel(move.slotIndex));
+    case "viewOtherCard":
+      return activity.viewOtherCard(
+        player,
+        playerName(state, move.targetPlayerId),
+        strings.slotLabel(move.slotIndex),
+      );
+    case "exchangeBlind":
+      return activity.exchangeBlind(
+        player,
+        strings.slotLabel(move.ownSlotIndex),
+        playerName(state, move.targetPlayerId),
+        strings.slotLabel(move.targetSlotIndex),
+      );
+  }
+}
+
 export function describeEvent(state: StartedGame, event: GameEvent): string {
   switch (event.type) {
     case "drawPileReshuffled":
