@@ -78,3 +78,64 @@ body {
   font-size: 0.8rem;
   color: #666;
 }
+
+button {
+  font: inherit;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+}
+
+.game h2 {
+  margin-bottom: 0.25rem;
+}
+
+.pile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+}
+
+.seat-active {
+  border-color: #2a6fdb;
+  box-shadow: 0 0 0 2px #2a6fdb;
+}
+
+.card-selectable {
+  cursor: pointer;
+  border-color: #2a6fdb;
+  padding: 0;
+}
+
+.card-selectable:hover {
+  transform: translateY(-2px);
+}
+
+.card-selected {
+  outline: 3px solid #e0a100;
+  outline-offset: 2px;
+}
+
+.controls {
+  margin: 1rem 0;
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.notice {
+  font-weight: 600;
+}
+
+.activity ul {
+  padding-left: 1.2rem;
+}
+
+.results th,
+.results td {
+  padding: 0.2rem 0.8rem;
+  text-align: left;
+}

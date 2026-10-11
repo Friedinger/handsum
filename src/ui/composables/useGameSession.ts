@@ -1,4 +1,4 @@
-import { onUnmounted, ref, shallowRef } from "vue";
+import { onUnmounted, ref, shallowRef, watch } from "vue";
 import type { Move } from "../../engine";
 import { createGameSession, initialSnapshot, type SessionSnapshot } from "../../net/gameSession";
 import type { SyncRejection } from "../../net/moveLog";
@@ -22,6 +22,12 @@ export function useGameSession(roomCode: string, self: HelloMessage) {
       snapshot.value = next;
     },
   });
+  watch(
+    () => snapshot.value.log.moves.length,
+    () => {
+      lastRejection.value = null;
+    },
+  );
   onUnmounted(() => {
     session.leave();
   });

@@ -6,7 +6,7 @@ A browser-based multiplayer card game prototype for 2 to 8 players. Players join
 
 ## Status
 
-Early prototype, work in progress.
+Playable prototype: complete rules, online play via room links, no design yet.
 
 ## Development
 

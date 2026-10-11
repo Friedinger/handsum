@@ -1,18 +1,31 @@
 <script setup lang="ts">
 import { strings } from "../../data/strings";
-import type { Slot } from "../../engine";
+import type { Card } from "../../engine";
 
-defineProps<{ cardSlot: Slot; faceUp: boolean }>();
+withDefaults(
+  defineProps<{ card: Card | null; faceUp: boolean; selectable?: boolean; selected?: boolean }>(),
+  { selectable: false, selected: false },
+);
+const emit = defineEmits<{ select: [] }>();
 </script>
 
 <template>
-  <div v-if="!cardSlot" class="card card-empty">{{ strings.emptySlot }}</div>
-  <div v-else-if="!faceUp" class="card card-hidden">{{ strings.hiddenCard }}</div>
-  <div v-else class="card">
-    <span class="card-value">{{ cardSlot.value }}</span>
-    <span class="card-symbol">{{ strings.cardSymbol }}</span>
-    <span v-if="cardSlot.action" class="card-action">{{
-      strings.cardActionNames[cardSlot.action]
-    }}</span>
-  </div>
+  <component
+    :is="selectable ? 'button' : 'div'"
+    :type="selectable ? 'button' : undefined"
+    class="card"
+    :class="{
+      'card-hidden': !faceUp,
+      'card-selectable': selectable,
+      'card-selected': selected,
+    }"
+    @click="selectable && emit('select')"
+  >
+    <template v-if="card && faceUp">
+      <span class="card-value">{{ card.value }}</span>
+      <span class="card-symbol">{{ strings.cardSymbol }}</span>
+      <span v-if="card.action" class="card-action">{{ strings.cardActionNames[card.action] }}</span>
+    </template>
+    <template v-else>{{ strings.hiddenCard }}</template>
+  </component>
 </template>
