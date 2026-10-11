@@ -48,6 +48,14 @@ export function lobbyPlayers(snapshot: SessionSnapshot): Player[] {
   return unique.map(({ playerId, name }) => ({ id: playerId, name }));
 }
 
+// A rematch keeps the players of the finished game; a first start takes everyone in the lobby.
+function playersForStart(snapshot: SessionSnapshot): Player[] {
+  const { state } = snapshot.log;
+  return state.status === "started"
+    ? state.seats.map((seat) => seat.player)
+    : lobbyPlayers(snapshot);
+}
+
 export function onlinePlayerIds(snapshot: SessionSnapshot): ReadonlySet<PlayerId> {
   return new Set([snapshot.self.playerId, ...snapshot.peers.map((peer) => peer.hello.playerId)]);
 }
@@ -143,7 +151,7 @@ export function createGameSession(options: SessionOptions): GameSession {
   return {
     submitMove,
     startGame: (seed) => {
-      const players = lobbyPlayers(snapshot);
+      const players = playersForStart(snapshot);
       return submitMove({ type: "startGame", playerId: snapshot.self.playerId, players, seed });
     },
     leave: () => {

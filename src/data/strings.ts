@@ -141,6 +141,7 @@ export const strings = {
     youWin: "You win!",
     playerWins: (player: string) => `${player} wins!`,
     backToStart: "Back to start",
+    playAgain: "Play again",
   },
   activity: {
     title: "What happened",

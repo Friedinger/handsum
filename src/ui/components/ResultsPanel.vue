@@ -9,7 +9,7 @@ const props = defineProps<{
   results: readonly PlayerResult[];
   selfId: PlayerId;
 }>();
-const emit = defineEmits<{ leave: [] }>();
+const emit = defineEmits<{ playAgain: []; leave: [] }>();
 
 const headline = computed(() => {
   const winners = props.results.filter((result) => result.isWinner);
@@ -48,9 +48,14 @@ const ranked = computed(() => [...props.results].sort((a, b) => a.score - b.scor
           </tr>
         </tbody>
       </table>
-      <button type="button" class="button-primary" @click="emit('leave')">
-        {{ strings.table.backToStart }}
-      </button>
+      <div class="results-actions">
+        <button type="button" class="button-primary" @click="emit('playAgain')">
+          {{ strings.table.playAgain }}
+        </button>
+        <button type="button" class="button-secondary" @click="emit('leave')">
+          {{ strings.table.backToStart }}
+        </button>
+      </div>
     </div>
   </div>
 </template>

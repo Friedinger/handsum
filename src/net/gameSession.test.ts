@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { Move } from "../engine";
+import type { GameState, Move, StartedGame } from "../engine";
 import {
   createGameSession,
   lobbyPlayers,
@@ -49,6 +49,37 @@ function startedRoom() {
   host.session.startGame(SEED);
   network.deliverAll();
   return { network, host, guest };
+}
+
+function expectStartedState(state: GameState): StartedGame {
+  if (state.status !== "started") {
+    throw new Error("Expected a started game");
+  }
+  return state;
+}
+
+function currentPlayer(client: Client): string {
+  const { phase } = expectStartedState(client.latest().log.state);
+  if (phase.kind !== "playing") {
+    throw new Error("Expected a running game");
+  }
+  return phase.currentPlayerId;
+}
+
+function playUntilFinished(network: MemoryNetwork, clients: readonly Client[]): void {
+  const turnOf = (playerId: string) =>
+    clients.find((client) => client.latest().self.playerId === playerId);
+  const caller = currentPlayer(clients[0] ?? fail());
+  turnOf(caller)?.session.submitMove({ type: "callEnd", playerId: caller });
+  network.deliverAll();
+  const last = currentPlayer(clients[0] ?? fail());
+  turnOf(last)?.session.submitMove({ type: "drawFromDeck", playerId: last });
+  turnOf(last)?.session.submitMove({ type: "discardDrawnCard", playerId: last });
+  network.deliverAll();
+}
+
+function fail(): never {
+  throw new Error("Expected a client");
 }
 
 const ready = (playerId: string): Move => ({
@@ -127,5 +158,19 @@ describe("game session", () => {
     guest.session.submitMove(ready("bob"));
     network.deliverAll();
     expect(latecomer.latest().log.state).toEqual(host.latest().log.state);
+  });
+
+  it("starts a rematch with the same players in the same room", () => {
+    const { network, host, guest } = startedRoom();
+    host.session.submitMove(ready("alice"));
+    guest.session.submitMove(ready("bob"));
+    network.deliverAll();
+    playUntilFinished(network, [host, guest]);
+    guest.session.startGame(SEED + 2);
+    network.deliverAll();
+    const rematch = expectStartedState(host.latest().log.state);
+    expect(rematch.phase.kind).toBe("startingView");
+    expect(rematch.seats.map((seat) => seat.player.id)).toEqual(["alice", "bob"]);
+    expect(rematch).toEqual(guest.latest().log.state);
   });
 });

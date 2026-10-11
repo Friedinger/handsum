@@ -34,6 +34,7 @@ const isSeated = computed(
     :state="game"
     :rejection="lastRejection"
     @move="submitMove"
+    @play-again="startGame"
   />
   <p v-else class="panel">{{ strings.spectator.notice }}</p>
 </template>

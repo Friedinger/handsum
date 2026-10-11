@@ -35,7 +35,7 @@ const props = defineProps<{
   state: StartedGame;
   rejection: SyncRejection | null;
 }>();
-const emit = defineEmits<{ move: [move: Move] }>();
+const emit = defineEmits<{ move: [move: Move]; playAgain: [] }>();
 
 const selfId = computed(() => props.snapshot.self.playerId);
 const online = computed(() => onlinePlayerIds(props.snapshot));
@@ -235,6 +235,7 @@ const results = computed(() =>
         :state="state"
         :results="results"
         :self-id="selfId"
+        @play-again="emit('playAgain')"
         @leave="leaveRoom"
       />
       <TableCenter

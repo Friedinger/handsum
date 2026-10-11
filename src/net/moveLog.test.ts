@@ -113,3 +113,56 @@ describe("chooseLog", () => {
     expect(chooseLog(logOf([aliceStart]), [bobStart, bobViews])).toBeNull();
   });
 });
+
+describe("rematches", () => {
+  const startedMoves: Move[] = [aliceStart, aliceViews, bobViews];
+
+  function finishedLog(): SyncedLog {
+    const started = logOf(startedMoves);
+    const { state } = started;
+    if (state.status !== "started" || state.phase.kind !== "playing") {
+      throw new Error("Expected a running game");
+    }
+    const first = state.phase.currentPlayerId;
+    const second = first === "alice" ? "bob" : "alice";
+    return logOf([
+      ...startedMoves,
+      { type: "callEnd", playerId: first },
+      { type: "drawFromDeck", playerId: second },
+      { type: "discardDrawnCard", playerId: second },
+    ]);
+  }
+
+  const aliceRematch: StartGameMove = { ...aliceStart, seed: 7 };
+  const bobRematch: StartGameMove = { ...bobStart, seed: 8 };
+
+  it("accepts a new start after the game has finished", () => {
+    const log = finishedLog();
+    expect(log.state.status === "started" && log.state.phase.kind).toBe("finished");
+    const outcome = receiveMove(log, message(log.moves.length + 1, bobRematch), bob);
+    expect(outcome.kind).toBe("accepted");
+  });
+
+  it("checks later moves against the seed of the latest start", () => {
+    const log = finishedLog();
+    const rematch = logOf([...log.moves, aliceRematch]);
+    const views: Move = { type: "viewStartingCards", playerId: "bob", slotIndices: [0, 1] };
+    const sequence = rematch.moves.length + 1;
+    expect(receiveMove(rematch, message(sequence, views, aliceStart.seed), bob)).toEqual({
+      kind: "rejected",
+      reason: "otherGame",
+    });
+    expect(receiveMove(rematch, message(sequence, views, aliceRematch.seed), bob).kind).toBe(
+      "accepted",
+    );
+  });
+
+  it("settles crossing rematches in favour of the lower player ID", () => {
+    const log = finishedLog();
+    const sequence = log.moves.length + 1;
+    const bobFirst = logOf([...log.moves, bobRematch]);
+    const outcome = receiveMove(bobFirst, message(sequence, aliceRematch), alice);
+    expect(outcome.kind === "accepted" && outcome.log.moves.at(-1)).toEqual(aliceRematch);
+    expect(chooseLog(bobFirst, [...log.moves, aliceRematch])?.moves.at(-1)).toEqual(aliceRematch);
+  });
+});

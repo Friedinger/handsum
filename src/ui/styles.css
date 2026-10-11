@@ -563,6 +563,12 @@ button {
   text-align: center;
 }
 
+.results-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
 .results-panel h2 {
   margin-top: 0;
 }
