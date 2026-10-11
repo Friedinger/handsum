@@ -11,7 +11,8 @@ export interface Flight {
   readonly from: Anchor;
   readonly to: Anchor;
   readonly card: Card | null;
-  readonly faceUp: boolean;
+  readonly faceUpAtStart: boolean;
+  readonly faceUpAtEnd: boolean;
   readonly order: number;
 }
 
@@ -63,13 +64,22 @@ function outgoingFlights(
     from: slotAnchor(playerId, slotIndex),
     to: discardPile,
     card: cardAt(previous, playerId, slotIndex),
-    faceUp: true,
+    faceUpAtStart: false,
+    faceUpAtEnd: true,
     order: firstOrder + index,
   }));
 }
 
-function discardHeldCard(previous: StartedGame): Flight {
-  return { from: held, to: discardPile, card: heldCardOf(previous), faceUp: true, order: 0 };
+// Only the holder has seen the drawn card; everyone else watches it turn over.
+function discardHeldCard(previous: StartedGame, holderIsViewer: boolean): Flight {
+  return {
+    from: held,
+    to: discardPile,
+    card: heldCardOf(previous),
+    faceUpAtStart: holderIsViewer,
+    faceUpAtEnd: true,
+    order: 0,
+  };
 }
 
 function planSwap(
@@ -83,7 +93,7 @@ function planSwap(
     return fromDiscard
       ? noAnimation
       : {
-          flights: [discardHeldCard(previous)],
+          flights: [discardHeldCard(previous, move.playerId === selfId)],
           peekedSlot: null,
           discardTopWhileFlying: previous.discardPile[0] ?? null,
         };
@@ -92,7 +102,8 @@ function planSwap(
     from: fromDiscard ? discardPile : held,
     to: slotAnchor(move.playerId, Math.min(...move.slotIndices)),
     card: fromDiscard ? (previous.discardPile[0] ?? null) : heldCardOf(previous),
-    faceUp: fromDiscard || move.playerId === selfId,
+    faceUpAtStart: fromDiscard || move.playerId === selfId,
+    faceUpAtEnd: false,
     order: 0,
   };
   return {
@@ -102,22 +113,31 @@ function planSwap(
   };
 }
 
-function planCardAction(previous: StartedGame, peekedSlot: SlotRef | null): MovePlan {
+function planCardAction(
+  previous: StartedGame,
+  holderIsViewer: boolean,
+  peekedSlot: SlotRef | null,
+): MovePlan {
   return {
-    flights: [discardHeldCard(previous)],
+    flights: [discardHeldCard(previous, holderIsViewer)],
     peekedSlot,
     discardTopWhileFlying: previous.discardPile[0] ?? null,
   };
 }
 
-function planExchange(previous: StartedGame, move: Move & { type: "exchangeBlind" }): MovePlan {
+function planExchange(
+  previous: StartedGame,
+  move: Move & { type: "exchangeBlind" },
+  holderIsViewer: boolean,
+): MovePlan {
   const own = slotAnchor(move.playerId, move.ownSlotIndex);
   const target = slotAnchor(move.targetPlayerId, move.targetSlotIndex);
+  const hidden = { card: null, faceUpAtStart: false, faceUpAtEnd: false, order: 1 };
   return {
     flights: [
-      discardHeldCard(previous),
-      { from: own, to: target, card: null, faceUp: false, order: 1 },
-      { from: target, to: own, card: null, faceUp: false, order: 1 },
+      discardHeldCard(previous, holderIsViewer),
+      { from: own, to: target, ...hidden },
+      { from: target, to: own, ...hidden },
     ],
     peekedSlot: null,
     discardTopWhileFlying: previous.discardPile[0] ?? null,
@@ -130,27 +150,40 @@ export function planMove(
   next: StartedGame,
   selfId: PlayerId,
 ): MovePlan {
+  const moverIsViewer = move.playerId === selfId;
   switch (move.type) {
     case "drawFromDeck":
       return {
-        flights: [{ from: drawPile, to: held, card: null, faceUp: false, order: 0 }],
+        flights: [
+          {
+            from: drawPile,
+            to: held,
+            card: heldCardOf(next),
+            faceUpAtStart: false,
+            faceUpAtEnd: moverIsViewer,
+            order: 0,
+          },
+        ],
         peekedSlot: null,
         discardTopWhileFlying: undefined,
       };
     case "discardDrawnCard":
-      return planCardAction(previous, null);
+      return planCardAction(previous, moverIsViewer, null);
     case "swapDrawnCard":
     case "swapDiscardCard":
       return planSwap(previous, next, move, selfId);
     case "viewOwnCard":
-      return planCardAction(previous, { playerId: move.playerId, slotIndex: move.slotIndex });
+      return planCardAction(previous, moverIsViewer, {
+        playerId: move.playerId,
+        slotIndex: move.slotIndex,
+      });
     case "viewOtherCard":
-      return planCardAction(previous, {
+      return planCardAction(previous, moverIsViewer, {
         playerId: move.targetPlayerId,
         slotIndex: move.slotIndex,
       });
     case "exchangeBlind":
-      return planExchange(previous, move);
+      return planExchange(previous, move, moverIsViewer);
     case "startGame":
     case "viewStartingCards":
     case "callEnd":

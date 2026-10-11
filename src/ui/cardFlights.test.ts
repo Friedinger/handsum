@@ -23,10 +23,13 @@ const fives = [
 ];
 
 describe("planMove", () => {
-  it("flies a drawn card face down from the draw pile to the held spot", () => {
-    const movePlan = plan(playingGame(), { type: "drawFromDeck", playerId: self });
+  it("turns a drawn card face up in flight only for the player who draws it", () => {
+    const draw: Move = { type: "drawFromDeck", playerId: self };
+    const movePlan = plan(playingGame(), draw);
     expect(routes(movePlan)).toEqual(["drawPile -> held @0"]);
-    expect(movePlan.flights[0]?.faceUp).toBe(false);
+    expect(movePlan.flights[0]).toMatchObject({ faceUpAtStart: false, faceUpAtEnd: true });
+    expect(movePlan.flights[0]?.card).toEqual(playingGame().drawPile[0]);
+    expect(plan(playingGame(), draw, "player-2").flights[0]?.faceUpAtEnd).toBe(false);
   });
 
   it("flies a discarded card face up onto the discard pile", () => {
@@ -34,8 +37,10 @@ describe("planMove", () => {
     const previous = holding(playingGame(), card);
     const movePlan = plan(previous, { type: "discardDrawnCard", playerId: self });
     expect(routes(movePlan)).toEqual(["held -> discardPile @0"]);
-    expect(movePlan.flights[0]).toMatchObject({ card, faceUp: true });
+    expect(movePlan.flights[0]).toMatchObject({ card, faceUpAtStart: true, faceUpAtEnd: true });
     expect(movePlan.discardTopWhileFlying).toEqual(previous.discardPile[0]);
+    const seenByOthers = plan(previous, { type: "discardDrawnCard", playerId: self }, "player-2");
+    expect(seenByOthers.flights[0]).toMatchObject({ faceUpAtStart: false, faceUpAtEnd: true });
   });
 
   it("swaps several matching cards: the new card goes in, the old ones fly to the discard", () => {
@@ -48,11 +53,13 @@ describe("planMove", () => {
     ]);
   });
 
-  it("shows the drawn card face up in flight only to the player who swaps it in", () => {
+  it("turns a swapped-in card face down, and the swapped-out card face up", () => {
     const previous = holding(withLayouts(playingGame(), [fives]), makeCard(2));
     const move: Move = { type: "swapDrawnCard", playerId: self, slotIndices: [3] };
-    expect(plan(previous, move, self).flights[0]?.faceUp).toBe(true);
-    expect(plan(previous, move, "player-2").flights[0]?.faceUp).toBe(false);
+    const [incoming, outgoing] = plan(previous, move, self).flights;
+    expect(incoming).toMatchObject({ faceUpAtStart: true, faceUpAtEnd: false });
+    expect(outgoing).toMatchObject({ faceUpAtStart: false, faceUpAtEnd: true });
+    expect(plan(previous, move, "player-2").flights[0]?.faceUpAtStart).toBe(false);
   });
 
   it("only discards the drawn card when a multi-swap fails", () => {
@@ -101,7 +108,9 @@ describe("planMove", () => {
       "slot:player-1:0 -> slot:player-2:3 @1",
       "slot:player-2:3 -> slot:player-1:0 @1",
     ]);
-    expect(movePlan.flights.slice(1).every((flight) => !flight.faceUp)).toBe(true);
+    expect(
+      movePlan.flights.slice(1).every((flight) => !flight.faceUpAtStart && !flight.faceUpAtEnd),
+    ).toBe(true);
   });
 
   it("does not animate calling the end", () => {
