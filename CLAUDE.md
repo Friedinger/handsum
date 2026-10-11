@@ -36,7 +36,7 @@ Browser-based multiplayer card game prototype (2–8 players, join via link). No
 ## Workflow
 
 - Work in milestones (M0–M4). After each milestone: stop, summarize in at most 10 lines, describe how to test, wait for approval.
-- Ambiguous rules: choose the simplest solution, document it in `docs/rule-decisions.md`, mention it in the milestone report.
+- Ambiguous rules: choose the simplest solution and mention it in the milestone report (not documented in the repo).
 - Before committing: `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm test`.
 
 ## Git
