@@ -1,0 +1,60 @@
+import { standardDeck } from "../deck";
+import type { StartGameMove } from "../moves";
+import { accept, reject, type MoveRejection, type Result } from "../outcome";
+import { isValidSeed, shuffle } from "../random";
+import { LAYOUT_SIZE, MAX_PLAYERS, MIN_PLAYERS } from "../rules";
+import type { GameState, Player, Seat, StartedGame } from "../types";
+
+function findPlayerListProblem(players: readonly Player[]): MoveRejection | null {
+  if (players.length < MIN_PLAYERS || players.length > MAX_PLAYERS) {
+    return "invalidPlayerCount";
+  }
+  if (players.some((player) => player.id.length === 0)) {
+    return "invalidPlayerId";
+  }
+  if (new Set(players.map((player) => player.id)).size !== players.length) {
+    return "duplicatePlayerId";
+  }
+  if (players.some((player) => player.name.trim().length === 0)) {
+    return "emptyPlayerName";
+  }
+  return null;
+}
+
+function dealGame(players: readonly Player[], seed: number): StartedGame {
+  const deck = shuffle(standardDeck, seed);
+  const seats: Seat[] = players.map((player, seatIndex) => ({
+    player,
+    layout: deck.slice(seatIndex * LAYOUT_SIZE, (seatIndex + 1) * LAYOUT_SIZE),
+  }));
+  const [firstDiscard, ...drawPile] = deck.slice(players.length * LAYOUT_SIZE);
+  if (!firstDiscard) {
+    throw new Error("Deck is too small to deal");
+  }
+  return {
+    status: "started",
+    seed,
+    moveCount: 0,
+    seats,
+    drawPile,
+    discardPile: [firstDiscard],
+    phase: { kind: "initialPeek", readyPlayerIds: [] },
+  };
+}
+
+export function applyStartGame(state: GameState, move: StartGameMove): Result<StartedGame> {
+  if (state.status === "started") {
+    return reject("gameAlreadyStarted");
+  }
+  const playerListProblem = findPlayerListProblem(move.players);
+  if (playerListProblem) {
+    return reject(playerListProblem);
+  }
+  if (!isValidSeed(move.seed)) {
+    return reject("invalidSeed");
+  }
+  if (!move.players.some((player) => player.id === move.playerId)) {
+    return reject("unknownPlayer");
+  }
+  return accept(dealGame(move.players, move.seed));
+}
