@@ -65,11 +65,13 @@ export function claimPlayerId(): Promise<PlayerId> {
   return claimedPlayerId;
 }
 
+// The tab's own name wins over the shared one, so another tab cannot rename this player.
 export function loadPlayerName(): string {
-  return readItem(localStorage, PLAYER_NAME_KEY) ?? "";
+  return readItem(sessionStorage, PLAYER_NAME_KEY) ?? readItem(localStorage, PLAYER_NAME_KEY) ?? "";
 }
 
 export function savePlayerName(name: string): void {
+  writeItem(sessionStorage, PLAYER_NAME_KEY, name);
   writeItem(localStorage, PLAYER_NAME_KEY, name);
 }
 
