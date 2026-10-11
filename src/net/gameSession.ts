@@ -35,6 +35,10 @@ interface SessionOptions {
   readonly onChange: (snapshot: SessionSnapshot) => void;
 }
 
+export function initialSnapshot(roomCode: string, self: HelloMessage): SessionSnapshot {
+  return { roomCode, self, peers: [], log: emptyLog };
+}
+
 export function lobbyPlayers(snapshot: SessionSnapshot): Player[] {
   const everyone = [snapshot.self, ...snapshot.peers.map((peer) => peer.hello)];
   const unique = everyone.filter(
@@ -57,12 +61,7 @@ function withPeer(peers: readonly ConnectedPeer[], peer: ConnectedPeer): Connect
 }
 
 export function createGameSession(options: SessionOptions): GameSession {
-  let snapshot: SessionSnapshot = {
-    roomCode: options.roomCode,
-    self: options.self,
-    peers: [],
-    log: emptyLog,
-  };
+  let snapshot = initialSnapshot(options.roomCode, options.self);
 
   const update = (changes: Partial<SessionSnapshot>) => {
     snapshot = { ...snapshot, ...changes };

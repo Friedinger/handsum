@@ -1,0 +1,80 @@
+:root {
+  font-family: system-ui, sans-serif;
+  color: #1d1d1f;
+  background: #f6f6f4;
+}
+
+body {
+  margin: 0;
+}
+
+.app {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.inline-form,
+.piles,
+.seats,
+.layout,
+.moves {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+.link {
+  min-width: 20rem;
+}
+
+.seat {
+  border: 1px solid #999;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+}
+
+.seat h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.card {
+  width: 4rem;
+  height: 5.5rem;
+  border: 2px solid #333;
+  border-radius: 0.4rem;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  text-align: center;
+}
+
+.card-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.card-hidden {
+  background: repeating-linear-gradient(45deg, #b8c4d6, #b8c4d6 4px, #dfe5ee 4px, #dfe5ee 8px);
+  font-size: 1.5rem;
+}
+
+.card-empty {
+  border-style: dashed;
+  background: transparent;
+}
+
+.error {
+  color: #b00020;
+}
+
+.disclaimer {
+  margin-top: 3rem;
+  font-size: 0.8rem;
+  color: #666;
+}

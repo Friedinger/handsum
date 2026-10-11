@@ -1,10 +1,5 @@
-import { mountApp } from "./ui/mountApp";
+import { createApp } from "vue";
+import App from "./ui/App.vue";
+import "./ui/styles.css";
 
-const APP_ROOT_ID = "app";
-
-const root = document.getElementById(APP_ROOT_ID);
-if (!root) {
-  throw new Error(`Missing #${APP_ROOT_ID} element`);
-}
-
-mountApp(root);
+createApp(App).mount("#app");
