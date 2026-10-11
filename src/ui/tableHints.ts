@@ -1,12 +1,12 @@
 import { strings } from "@/data/strings";
 import type { PlayerId, StartedGame } from "@/engine";
-import { playerName } from "@/ui/playerName";
+import { playerName } from "./playerName";
 import {
   isSwappingSeveral,
   selectedOwnSlots,
   situationOf,
   type Intent,
-} from "@/ui/tableInteraction";
+} from "./tableInteraction";
 
 function waitingHint(state: StartedGame): string {
   const { phase } = state;

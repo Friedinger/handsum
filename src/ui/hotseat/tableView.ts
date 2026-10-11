@@ -3,12 +3,8 @@ import type { PlayerId, Seat, StartedGame } from "@/engine";
 import { renderFaceUpCard, renderSlot } from "./cardView";
 import { playerName } from "@/ui/playerName";
 import { element } from "./dom";
-import {
-  currentHeldCard,
-  heldCardVisibleTo,
-  isSlotVisibleTo,
-  type HeldCard,
-} from "@/ui/visibility";
+import { currentHeldCard, type HeldCard } from "@/ui/heldCard";
+import { heldCardVisibleTo, isSlotVisibleTo } from "./visibility";
 
 interface TableView {
   readonly state: StartedGame;

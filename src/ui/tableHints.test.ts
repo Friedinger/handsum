@@ -6,8 +6,8 @@ import {
   playingGame,
   startedGame,
 } from "@/testing/gameFixtures";
-import { hintFor } from "@/ui/tableHints";
-import { noIntent, toggleSeveral } from "@/ui/tableInteraction";
+import { hintFor } from "./tableHints";
+import { noIntent, toggleSeveral } from "./tableInteraction";
 
 const self = "player-1";
 

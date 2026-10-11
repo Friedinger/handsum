@@ -5,6 +5,7 @@ import {
   type PlayerId,
   type StartedGame,
 } from "@/engine";
+import { currentHeldCard } from "./heldCard";
 import type { SlotRef } from "./tableInteraction";
 
 export type Anchor =
@@ -67,10 +68,7 @@ function cardAt(
 }
 
 function heldCardOf(state: StartedGame): Card | null {
-  const { phase } = state;
-  return phase.kind === "playing" && phase.step.kind === "holdingDrawnCard"
-    ? phase.step.card
-    : null;
+  return currentHeldCard(state)?.card ?? null;
 }
 
 function swapFailed(next: StartedGame): boolean {

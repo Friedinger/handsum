@@ -29,7 +29,7 @@ import {
   type Intent,
 } from "@/ui/tableInteraction";
 import { arrangeOpponents } from "@/ui/tableLayout";
-import { currentHeldCard } from "@/ui/visibility";
+import { currentHeldCard } from "@/ui/heldCard";
 
 const props = defineProps<{
   snapshot: SessionSnapshot;
