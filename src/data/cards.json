@@ -1,0 +1,18 @@
+{
+  "cardTypes": [
+    { "value": 0, "count": 2, "action": null },
+    { "value": 1, "count": 4, "action": null },
+    { "value": 2, "count": 4, "action": null },
+    { "value": 3, "count": 4, "action": null },
+    { "value": 4, "count": 4, "action": null },
+    { "value": 5, "count": 4, "action": null },
+    { "value": 6, "count": 4, "action": null },
+    { "value": 7, "count": 4, "action": "viewOwn" },
+    { "value": 8, "count": 4, "action": "viewOwn" },
+    { "value": 9, "count": 4, "action": "viewOther" },
+    { "value": 10, "count": 4, "action": "viewOther" },
+    { "value": 11, "count": 4, "action": "exchangeBlind" },
+    { "value": 12, "count": 4, "action": "exchangeBlind" },
+    { "value": 13, "count": 2, "action": null }
+  ]
+}
