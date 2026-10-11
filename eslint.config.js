@@ -1,26 +1,21 @@
 import js from "@eslint/js";
+import { vueTsConfigs, withVueTs } from "@vue/eslint-config-typescript";
 import prettier from "eslint-config-prettier";
-import { defineConfig } from "eslint/config";
+import pluginVue from "eslint-plugin-vue";
 import globals from "globals";
-import tseslint from "typescript-eslint";
 
-export default defineConfig(
+export default withVueTs(
   { ignores: ["dist", "node_modules"] },
   js.configs.recommended,
-  tseslint.configs.strictTypeChecked,
-  tseslint.configs.stylisticTypeChecked,
+  pluginVue.configs["flat/recommended"],
+  vueTsConfigs.strictTypeChecked,
+  vueTsConfigs.stylisticTypeChecked,
   {
-    languageOptions: {
-      globals: globals.browser,
-      parserOptions: {
-        projectService: true,
-        tsconfigRootDir: import.meta.dirname,
-      },
-    },
+    languageOptions: { globals: globals.browser },
   },
   {
     files: ["**/*.js"],
-    extends: [tseslint.configs.disableTypeChecked],
+    extends: [vueTsConfigs.disableTypeChecked],
     languageOptions: { globals: globals.node },
   },
   prettier,
