@@ -43,7 +43,7 @@ DEV_FILES=$(compose exec -T apache sh -c "ls -A /var/www/html/$SUBFOLDER/api | g
 check "no development files are deployed" "${DEV_FILES:-none}" "none"
 check "sources are not served" "$(status "$BASE/api/src/Config.php")" "403"
 SMOKE=$(curl -s "$BASE/api/smoke-test.php")
-check "smoke test passes in the sub-folder" "$SMOKE" "All OK means"
+check "smoke test passes in the sub-folder" "$SMOKE" "No FAIL means"
 check "smoke test reports no failure" "$(grep -c '^FAIL' <<<"$SMOKE" || true)" "0"
 echo "$SMOKE" | grep "^FAIL" || true
 
