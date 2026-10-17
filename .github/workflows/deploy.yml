@@ -53,6 +53,5 @@ jobs:
       exclude-paths: |
         api/data
         api/config.local.php
-        .htaccess
         .htpasswd
     secrets: inherit
