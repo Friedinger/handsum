@@ -19,6 +19,7 @@
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
     "test": "vitest run",
+    "test:server": "php server/tests/run.php",
     "lint": "vue-tsc && prettier . --check && eslint .",
     "fix": "prettier . --write && eslint . --fix && vue-tsc"
   },
