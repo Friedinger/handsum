@@ -1,4 +1,7 @@
-import type { SwapDiscardCardMove, SwapDrawnCardMove } from "@/engine/moves";
+import type {
+  SwapDiscardCardMove,
+  SwapDrawnCardMove,
+} from "@/engine/moves/types";
 import { accept, reject, type Result } from "@/engine/outcome";
 import { findSlotSelectionProblem, withLayout } from "@/engine/state";
 import type { Card, GameState, Slot, StartedGame } from "@/engine/types";

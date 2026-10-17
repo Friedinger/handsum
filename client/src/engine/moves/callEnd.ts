@@ -1,4 +1,4 @@
-import type { CallEndMove } from "@/engine/moves";
+import type { CallEndMove } from "@/engine/moves/types";
 import { accept, reject, type Result } from "@/engine/outcome";
 import type { GameState, StartedGame } from "@/engine/types";
 import { endTurn, requireAwaitingChoice } from "./turn";

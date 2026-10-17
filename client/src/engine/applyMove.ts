@@ -1,4 +1,4 @@
-import type { Move } from "./moves";
+import type { Move } from "./moves/types";
 import { applyCallEnd } from "./moves/callEnd";
 import {
   applyExchangeBlind,

@@ -1,5 +1,5 @@
 import { applyMove, initialGameState } from "@/engine/applyMove";
-import type { Move, StartGameMove } from "@/engine/moves";
+import type { Move, StartGameMove } from "@/engine/moves/types";
 import type {
   Card,
   CardAction,

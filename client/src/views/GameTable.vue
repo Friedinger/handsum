@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { strings } from "@/data/strings";
-import { legalMoves, type Move, type Seat, type StartedGame } from "@/engine";
+import {
+  legalMoves,
+  type Move,
+  type MoveRejection,
+  type Seat,
+  type StartedGame,
+} from "@/engine";
 import { onlinePlayerIds, type SessionSnapshot } from "@/net/gameSession";
-import type { MoveRejection } from "@/engine";
 import FlightLayer from "@/components/FlightLayer.vue";
 import PlayerSeat from "@/components/PlayerSeat.vue";
 import ResultsPanel from "@/components/ResultsPanel.vue";

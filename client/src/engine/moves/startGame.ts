@@ -1,5 +1,5 @@
 import { standardDeck } from "@/engine/deck";
-import type { StartGameMove } from "@/engine/moves";
+import type { StartGameMove } from "@/engine/moves/types";
 import {
   accept,
   reject,

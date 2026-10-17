@@ -1,4 +1,4 @@
-import type { Player, PlayerId } from "./types";
+import type { Player, PlayerId } from "@/engine/types";
 
 export interface StartGameMove {
   readonly type: "startGame";

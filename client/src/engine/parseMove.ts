@@ -1,4 +1,4 @@
-import type { Move, MoveType } from "./moves";
+import type { Move, MoveType } from "./moves/types";
 import type { Player } from "./types";
 
 type Fields = Readonly<Record<string, unknown>>;

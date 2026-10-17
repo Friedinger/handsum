@@ -1,4 +1,4 @@
-import type { ViewStartingCardsMove } from "@/engine/moves";
+import type { ViewStartingCardsMove } from "@/engine/moves/types";
 import { accept, reject, type Result } from "@/engine/outcome";
 import { createMulberry32, deriveSeed } from "@/engine/random";
 import { STARTING_VIEW_CARD_COUNT } from "@/engine/rules";

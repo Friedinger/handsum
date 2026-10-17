@@ -2,7 +2,7 @@ import type {
   ExchangeBlindMove,
   ViewOtherCardMove,
   ViewOwnCardMove,
-} from "@/engine/moves";
+} from "@/engine/moves/types";
 import { accept, reject, type Result } from "@/engine/outcome";
 import {
   isSlotIndex,

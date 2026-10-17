@@ -1,5 +1,5 @@
 import { tryApplyMove } from "./applyMove";
-import type { Move } from "./moves";
+import type { Move } from "./moves/types";
 import { LAYOUT_SIZE, STARTING_VIEW_CARD_COUNT } from "./rules";
 import type { GameState, PlayerId } from "./types";
 

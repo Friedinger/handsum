@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { applyMove, validateMove } from "@/engine/applyMove";
 import { legalMoves } from "@/engine/legalMoves";
-import type { Move } from "@/engine/moves";
+import type { Move } from "@/engine/moves/types";
 import {
   currentPlayerId,
   expectStarted,
