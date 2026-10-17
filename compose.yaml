@@ -1,5 +1,5 @@
 x-php: &php
-  image: php:8.4-cli
+  image: php:8.5-cli
   volumes:
     - ./server:/server:Z
 
@@ -31,7 +31,7 @@ services:
 
   apache:
     profiles: [deploy-check]
-    image: php:8.4-apache
+    image: php:8.5-apache
     network_mode: host
     command:
       - sh
