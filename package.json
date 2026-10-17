@@ -14,14 +14,16 @@
   "license": "MIT",
   "author": "Friedinger",
   "scripts": {
-    "dev": "npm --prefix client run dev",
-    "build": "npm --prefix client run build",
-    "preview": "npm --prefix client run preview",
-    "test": "npm --prefix client test",
-    "lint": "npm --prefix client run lint",
-    "fix": "npm --prefix client run fix",
-    "test:server": "docker compose run --rm php-test",
-    "dev:server": "docker compose run --rm --service-ports php-dev",
-    "test:deploy": "scripts/check-subfolder-deploy.sh"
+    "client:dev": "npm --prefix client run dev",
+    "client:build": "npm --prefix client run build",
+    "client:test": "npm --prefix client run test",
+    "client:lint": "npm --prefix client run lint",
+    "client:fix": "npm --prefix client run fix",
+    "server:dev": "docker compose run --rm --service-ports php-dev",
+    "server:test": "docker compose run --rm php-test",
+    "deploy:check": "scripts/check-subfolder-deploy.sh",
+    "test": "npm run client:test && npm run server:test",
+    "lint": "npm run client:lint",
+    "fix": "npm run client:fix"
   }
 }

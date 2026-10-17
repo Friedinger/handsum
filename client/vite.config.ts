@@ -12,7 +12,7 @@ export default defineConfig({
     },
   },
   server: {
-    // `npm run dev:server` runs the PHP API; in production it lives next to the build as api/.
+    // `npm run server:dev` runs the PHP API; in production it lives next to the build as api/.
     proxy: {
       "/api": {
         target: "http://127.0.0.1:8080",

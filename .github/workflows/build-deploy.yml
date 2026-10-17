@@ -76,7 +76,7 @@ jobs:
         run: npm --prefix client ci
 
       - name: Check the production layout in an Apache container
-        run: npm run test:deploy
+        run: npm run deploy:check
 
   deploy:
     name: Deploy to GitHub Pages

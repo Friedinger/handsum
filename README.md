@@ -14,21 +14,25 @@ Requires Node.js 24 (see `mise.toml`).
 
 ```bash
 npm --prefix client install
-npm run dev
+npm run server:dev   # PHP API on port 8080, in its own terminal
+npm run client:dev   # Vite dev server
 ```
 
 To try it alone, open the room link in two browser windows. The PHP commands run in containers through `docker compose`; with Podman enable the API socket once: `systemctl --user enable --now podman.socket`.
 
-| Command               | Purpose                                  |
-| --------------------- | ---------------------------------------- |
-| `npm run dev`         | Start the dev server                     |
-| `npm run build`       | Type-check and build to `client/dist/`   |
-| `npm test`            | Run unit tests                           |
-| `npm run lint`        | Type-check, check formatting and lint    |
-| `npm run fix`         | Format, fix lint issues and type-check   |
-| `npm run dev:server`  | Start the PHP API on port 8080 (Compose) |
-| `npm run test:server` | Run the PHP server tests (Compose)       |
-| `npm run test:deploy` | Check the build in an Apache sub-folder  |
+| Command                | Purpose                                  |
+| ---------------------- | ---------------------------------------- |
+| `npm run client:dev`   | Start the Vite dev server                |
+| `npm run client:build` | Type-check and build to `client/dist/`   |
+| `npm run client:test`  | Run the client unit tests                |
+| `npm run client:lint`  | Type-check, check formatting and lint    |
+| `npm run client:fix`   | Format, fix lint issues and type-check   |
+| `npm run server:dev`   | Start the PHP API on port 8080 (Compose) |
+| `npm run server:test`  | Run the PHP server tests (Compose)       |
+| `npm run deploy:check` | Check the build in an Apache sub-folder  |
+| `npm test`             | Run client and server tests              |
+| `npm run lint`         | Same as `client:lint`                    |
+| `npm run fix`          | Same as `client:fix`                     |
 
 ## Repository layout
 
@@ -78,7 +82,7 @@ IP addresses are never stored in clear text. Limits (rooms, moves, sizes, reques
 The app runs in a sub-folder (for example `https://example.com/handsum/`), needs PHP 8.4 with Apache and no database. Build it and upload with SFTP:
 
 ```bash
-npm run build
+npm run client:build
 ```
 
 ```

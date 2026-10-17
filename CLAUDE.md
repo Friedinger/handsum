@@ -35,7 +35,7 @@ Browser-based multiplayer card game prototype (2–8 players, join via link). No
 - TypeScript (strict, `erasableSyntaxOnly`) + Vite + Vue 3, Vitest, ESLint (typescript-eslint strict type-checked, eslint-plugin-vue) + Prettier with default settings. Type checking via `vue-tsc`. Node version pinned in `mise.toml`.
 - Config follows the maintainer's other projects (e.g. `Friedinger/imgsplit`): pinned action SHAs with version comments, shared workflows and Renovate presets from `Friedinger/configs`.
 - Everything bundled locally: no CDNs, no external fonts, no tracking, no accounts. The server needs no ini settings, no mod_rewrite and no database.
-- Vite `base` is relative (`./`) and the API URL is relative to the page, so the build works in any sub-folder. `npm run test:deploy` checks this in an Apache container.
+- Vite `base` is relative (`./`) and the API URL is relative to the page, so the build works in any sub-folder. `npm run deploy:check` checks this in an Apache container.
 - `build-deploy.yml` lints, tests and builds on every push; its GitHub Pages deploy job is not used; production is deployed by hand via SFTP (see README).
 
 ## Workflow
