@@ -31,7 +31,10 @@ function createFakeServer() {
     Promise.resolve(Response.json(body, { status }));
 
   const fetchFake = (input: string | URL | Request, init?: RequestInit) => {
-    const query = (typeof input === "string" ? input : "").replace("api/index.php", "");
+    const query = (typeof input === "string" ? input : "").replace(
+      "api/index.php",
+      "",
+    );
     const headers = new Headers(init?.headers);
     const body: unknown =
       typeof init?.body === "string" ? JSON.parse(init.body) : undefined;
