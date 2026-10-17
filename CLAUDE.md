@@ -1,6 +1,6 @@
 # Handsum – project conventions
 
-Browser-based multiplayer card game prototype (2–8 players, join via link). Non-commercial hobby project, public on GitHub, hosted on GitHub Pages.
+Browser-based multiplayer card game prototype (2–8 players, join via link). Non-commercial hobby project, public on GitHub, hosted on the maintainer's shared hosting (PHP, Apache) in a sub-folder.
 
 ## Language
 
@@ -18,13 +18,14 @@ Browser-based multiplayer card game prototype (2–8 players, join via link). No
 ## Architecture (binding)
 
 - `client/src/engine/`: pure, deterministic game logic. `applyMove(state, move) -> state` (immutable, no side effects) and `legalMoves(state, playerId)`. No `Math.random`, no `Date.now`. Randomness only from a seedable PRNG (mulberry32).
-- Game state is derived solely from the move log. The first entry is a `startGame` move (player list with ID, name, order, plus seed). Any lobby member can start; if two starts cross, the one by the lower player ID wins on every client.
-- Only moves are synchronized. Each move has a sequence number. Clients accept only moves with the expected number, from an authorized player, that are legal. Duplicates are ignored, invalid moves rejected.
-- New or returning peers receive the full move log from a present peer and replay it.
-- Player identity: random player ID in localStorage, name entered on join. Trystero peer IDs change, player IDs do not. After game start only known players can rejoin.
+- Game state is derived solely from the move log. The first entry is a `startGame` move (player list with ID, name, order, plus seed). Any lobby member can start; the server orders all moves, so when two starts cross, the first one it accepts wins and the other is dropped after the client refetched the log.
+- Only moves are synchronized, through the PHP server. A move's sequence number is its index in the log; the server appends only if it is the next free one (compare-and-append), otherwise the client refetches, checks the move again against the engine and retries or drops it. A client applies its own move only after the server accepted it, and every client validates every move it receives with the engine.
+- The server is a dumb log store per room (`server/`, plain PHP, files instead of a database, no game rules). New or returning players fetch the full log from it and replay it. Presence (lobby, online status) is a per-room player list kept alive by the clients.
+- Player identity: random player ID in localStorage, name entered on join. After game start only known players can rejoin.
 - State technically contains everything; the UI only shows what a player may know. Console cheating is acceptable.
 - Card data in `client/src/data/cards.json` (value, count, action per card type), separate from logic. Points = printed value.
-- `client/src/net/`: Trystero (WebRTC, no own server), move log sync and player identity.
+- `client/src/net/`: polling transport against the PHP server (`ConnectTransport` interface), move log sync and player identity.
+- `server/`: PHP move log server for shared hosting (Apache, PHP 8.4, no database, no APCu). Limits live as named constants in `server/src/Config.php`. It stores only hashed room IDs, player names and IDs, seed, moves and hashed IPs for rate limiting; rooms expire when inactive. The API uses no absolute paths so the app works in a sub-folder.
 - The Vue 3 app (single-file components, no UI library) lives in `client/src/components/`, `views/` and `composables/`; Vue-free table logic in `client/src/utils/`. The UI never contains game rules. ESLint enforces the layering: `engine` and `data` import neither Vue nor `net`/UI folders, `net` and `utils` import no UI, composables and components import no views.
 - Tests live in `client/test/`, mirroring the folder structure of `client/src/`. `client/test/support/` holds helpers shared by tests only (game fixtures, in-memory network).
 - Imports across folders use the `@/` alias (`@/engine`, `@/net/...`), tests import their helpers via `@test/support/...`; `./` only for files in the same folder, `../` is forbidden.
@@ -33,9 +34,9 @@ Browser-based multiplayer card game prototype (2–8 players, join via link). No
 
 - TypeScript (strict, `erasableSyntaxOnly`) + Vite + Vue 3, Vitest, ESLint (typescript-eslint strict type-checked, eslint-plugin-vue) + Prettier with default settings. Type checking via `vue-tsc`. Node version pinned in `mise.toml`.
 - Config follows the maintainer's other projects (e.g. `Friedinger/imgsplit`): pinned action SHAs with version comments, shared workflows and Renovate presets from `Friedinger/configs`.
-- Everything bundled locally: no CDNs, no external fonts, no tracking, no accounts.
-- Vite `base` is relative (`./`) so the build works under the GitHub Pages sub-path.
-- `build-deploy.yml` lints, tests and builds on every push; deploying to GitHub Pages is manual while the repo is private.
+- Everything bundled locally: no CDNs, no external fonts, no tracking, no accounts. The server needs no ini settings, no mod_rewrite and no database.
+- Vite `base` is relative (`./`) and the API URL is relative to the page, so the build works in any sub-folder. `npm run test:deploy` checks this in an Apache container.
+- `build-deploy.yml` lints, tests and builds on every push; its GitHub Pages deploy job is not used; production is deployed by hand via SFTP (see README).
 
 ## Workflow
 
