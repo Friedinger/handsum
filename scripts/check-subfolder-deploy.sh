@@ -16,7 +16,7 @@ cp -r "$ROOT_DIR"/client/dist/. "$SITE_DIR/$SUBFOLDER/"
 cp -r "$ROOT_DIR"/server/. "$SITE_DIR/$SUBFOLDER/api/"
 rm -rf "$SITE_DIR/$SUBFOLDER/api/tests"
 
-compose up --detach --build apache >/dev/null
+compose up --detach apache >/dev/null
 # Copying into the container instead of bind-mounting keeps file ownership out of the host.
 compose cp "$SITE_DIR/." apache:/var/www/html/
 compose exec apache chown -R www-data:www-data /var/www/html
