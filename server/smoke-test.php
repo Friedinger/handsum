@@ -10,7 +10,7 @@ require __DIR__ . '/src/RoomStore.php';
 
 const PARALLEL_POSTS = 20;
 const PROBE_FILE = 'smoke-probe.txt';
-const FORBIDDEN_PATHS = ['src/Config.php', 'config.local.php', 'tests/run.php'];
+const FORBIDDEN_PATHS = ['src/Config.php', 'config.local.php', 'composer.json'];
 
 header('Content-Type: text/plain; charset=utf-8');
 ini_set('display_errors', '1');

@@ -16,7 +16,18 @@ services:
   php-test:
     <<: *php
     profiles: [test]
-    command: php -d display_errors=On -d error_reporting=E_ALL /server/tests/run.php
+    working_dir: /server
+    command: vendor/bin/phpunit
+
+  composer:
+    profiles: [tools]
+    image: composer:2
+    working_dir: /server
+    environment:
+      COMPOSER_CACHE_DIR: /cache
+    volumes:
+      - ./server:/server:Z
+      - composer-cache:/cache
 
   apache:
     profiles: [deploy-check]
@@ -32,3 +43,6 @@ services:
         && exec apache2-foreground
     environment:
       APACHE_PORT: ${APACHE_PORT:-8089}
+
+volumes:
+  composer-cache:

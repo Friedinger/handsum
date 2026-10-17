@@ -55,6 +55,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      - name: Install server dependencies
+        run: docker compose run --rm composer install --no-interaction --no-progress
+
       - name: Run server tests
         run: docker compose run --rm php-test
 
