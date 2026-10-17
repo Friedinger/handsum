@@ -19,9 +19,10 @@
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:server": "php server/tests/run.php",
+    "test:server": "podman run --rm -v \"$PWD:/app:Z\" -w /app php:8.4-cli php -d display_errors=On -d error_reporting=E_ALL server/tests/run.php",
     "lint": "vue-tsc && prettier . --check && eslint .",
-    "fix": "prettier . --write && eslint . --fix && vue-tsc"
+    "fix": "prettier . --write && eslint . --fix && vue-tsc",
+    "dev:server": "podman run --rm -p 127.0.0.1:8080:8080 -v \"$PWD:/app:Z\" -w /app/server php:8.4-cli php -d display_errors=On -d error_reporting=E_ALL -S 0.0.0.0:8080 index.php"
   },
   "dependencies": {
     "trystero": "0.26.0",

@@ -78,7 +78,6 @@ final class Api
             AppendStatus::Appended => [200, ['length' => $result->length]],
             AppendStatus::Conflict => [409, ['error' => 'conflict', 'length' => $result->length]],
             AppendStatus::RoomFull => [413, ['error' => 'roomFull']],
-            AppendStatus::Failed => [500, ['error' => 'storage']],
         };
     }
 

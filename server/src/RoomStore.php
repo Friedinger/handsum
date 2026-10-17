@@ -45,7 +45,7 @@ final class RoomStore
     {
         $handle = fopen($this->logPath($roomId), 'c+');
         if ($handle === false) {
-            return new AppendResult(AppendStatus::Failed, 0);
+            throw new StorageException('Cannot open room log');
         }
         flock($handle, LOCK_EX);
         $existing = stream_get_contents($handle);
@@ -80,7 +80,7 @@ final class RoomStore
     {
         $handle = fopen($this->playersPath($roomId), 'c+');
         if ($handle === false) {
-            return null;
+            throw new StorageException('Cannot open player list');
         }
         flock($handle, LOCK_EX);
         $now = ($this->clock)();
@@ -161,7 +161,6 @@ enum AppendStatus
     case Appended;
     case Conflict;
     case RoomFull;
-    case Failed;
 }
 
 final class AppendResult
@@ -171,9 +170,16 @@ final class AppendResult
     }
 }
 
+final class StorageException extends \RuntimeException
+{
+}
+
 function ensureDirectory(string $path): void
 {
-    if (!is_dir($path) && !mkdir($path, 0700, true) && !is_dir($path)) {
-        throw new \RuntimeException('Cannot create data directory');
+    if (!is_dir($path) && !@mkdir($path, 0700, true) && !is_dir($path)) {
+        throw new StorageException("Cannot create directory $path");
+    }
+    if (!is_writable($path)) {
+        throw new StorageException("Directory $path is not writable");
     }
 }

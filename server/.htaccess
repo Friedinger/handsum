@@ -1,5 +1,5 @@
-# Only the API entry point is reachable; sources and stored data are not.
+# Only the API entry point (and the one-off smoke test) is reachable; sources and stored data are not.
 Require all denied
-<Files "index.php">
+<FilesMatch "^(index|smoke-test)\.php$">
     Require all granted
-</Files>
+</FilesMatch>

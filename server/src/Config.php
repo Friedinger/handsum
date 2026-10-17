@@ -6,7 +6,10 @@ namespace Handsum;
 
 final class Config
 {
-    public const DATA_DIR = __DIR__ . '/../data';
+    public const DEFAULT_DATA_DIR = __DIR__ . '/../data';
+    public const LOCAL_CONFIG_FILE = __DIR__ . '/../config.local.php';
+    public const ERROR_LOG_FILE = 'error.log';
+    public const MAX_ERROR_LOG_BYTES = 100_000;
 
     public const ROOM_ID_PATTERN = '/^[0-9a-f]{64}$/';
     public const ROOM_ID_HEADER = 'HTTP_X_ROOM';
@@ -29,4 +32,14 @@ final class Config
     public const REQUEST_WINDOW_SECONDS = 60;
     public const ROOM_CREATIONS_PER_IP_PER_WINDOW = 10;
     public const ROOM_CREATION_WINDOW_SECONDS = 3600;
+
+    /** config.local.php may return ['dataDir' => '/path'] to keep the data outside the web root. */
+    public static function dataDir(): string
+    {
+        if (!is_file(self::LOCAL_CONFIG_FILE)) {
+            return self::DEFAULT_DATA_DIR;
+        }
+        $local = require self::LOCAL_CONFIG_FILE;
+        return is_array($local) && is_string($local['dataDir'] ?? null) ? $local['dataDir'] : self::DEFAULT_DATA_DIR;
+    }
 }

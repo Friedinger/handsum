@@ -6,6 +6,7 @@ declare(strict_types=1);
 namespace Handsum;
 
 require __DIR__ . '/../src/Config.php';
+require __DIR__ . '/../src/ErrorLog.php';
 require __DIR__ . '/../src/RoomStore.php';
 require __DIR__ . '/../src/RateLimiter.php';
 require __DIR__ . '/../src/Api.php';
@@ -143,6 +144,20 @@ for ($i = 0; $i < Config::MAX_MOVES_PER_ROOM + 1; $i++) {
 }
 check('room size is capped', $result !== null && $result->status === AppendStatus::RoomFull && $result->length * strlen($filler) <= Config::MAX_BYTES_PER_ROOM);
 removeTree($dir);
+
+$storageError = null;
+try {
+    new RoomStore('/dev/null/nested', $clock);
+} catch (StorageException $error) {
+    $storageError = $error;
+}
+check('unwritable data directory raises a clear error', $storageError !== null && str_contains($storageError->getMessage(), 'nested'));
+
+$logDir = sys_get_temp_dir() . '/handsum-log-' . bin2hex(random_bytes(6));
+mkdir($logDir);
+ErrorLog::write(new \RuntimeException('boom'), $logDir);
+check('errors are logged to the data directory', str_contains((string) file_get_contents($logDir . '/' . Config::ERROR_LOG_FILE), 'boom'));
+removeTree($logDir);
 
 echo $failures === [] ? "\nAll passed\n" : "\n" . count($failures) . " failed\n";
 exit($failures === [] ? 0 : 1);
