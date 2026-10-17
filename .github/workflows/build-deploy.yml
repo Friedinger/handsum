@@ -48,9 +48,19 @@ jobs:
         with:
           path: client/dist
 
+  test-server:
+    name: Test PHP server
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Run server tests
+        run: docker run --rm -v "$PWD:/app" -w /app php:8.4-cli php -d display_errors=On -d error_reporting=E_ALL server/tests/run.php
+
   deploy:
     name: Deploy to GitHub Pages
-    needs: build
+    needs: [build, test-server]
     # Deploying is manual while the repository stays private.
     if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest

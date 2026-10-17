@@ -13,20 +13,21 @@ Browser-based multiplayer card game prototype (2–8 players, join via link). No
 - Comments only for the non-obvious "why". No comments restating code, no commented-out code, no TODO leftovers, no JSDoc that only repeats types.
 - TypeScript strict. No `any`, no non-null assertions without good reason. Immutable state.
 - Prefer types over comments for documentation (e.g. discriminated unions for moves and events).
-- All visible texts and game terms (including action names) live in `src/data/strings.ts`.
+- All visible texts and game terms (including action names) live in `client/src/data/strings.ts`.
 
 ## Architecture (binding)
 
-- `src/engine/`: pure, deterministic game logic. `applyMove(state, move) -> state` (immutable, no side effects) and `legalMoves(state, playerId)`. No `Math.random`, no `Date.now`. Randomness only from a seedable PRNG (mulberry32).
+- `client/src/engine/`: pure, deterministic game logic. `applyMove(state, move) -> state` (immutable, no side effects) and `legalMoves(state, playerId)`. No `Math.random`, no `Date.now`. Randomness only from a seedable PRNG (mulberry32).
 - Game state is derived solely from the move log. The first entry is a `startGame` move (player list with ID, name, order, plus seed). Any lobby member can start; if two starts cross, the one by the lower player ID wins on every client.
 - Only moves are synchronized. Each move has a sequence number. Clients accept only moves with the expected number, from an authorized player, that are legal. Duplicates are ignored, invalid moves rejected.
 - New or returning peers receive the full move log from a present peer and replay it.
 - Player identity: random player ID in localStorage, name entered on join. Trystero peer IDs change, player IDs do not. After game start only known players can rejoin.
 - State technically contains everything; the UI only shows what a player may know. Console cheating is acceptable.
-- Card data in `src/data/cards.json` (value, count, action per card type), separate from logic. Points = printed value.
-- `src/net/`: Trystero (WebRTC, no own server), move log sync and player identity. `src/ui/`: Vue 3 single-file components without a UI library. UI never contains game rules.
-- `src/testing/`: helpers shared by tests only (game fixtures, in-memory network). Tests sit next to the code they test.
-- Imports across folders use the `@/` alias (`@/engine`, `@/net/...`); `./` only for files in the same folder.
+- Card data in `client/src/data/cards.json` (value, count, action per card type), separate from logic. Points = printed value.
+- `client/src/net/`: Trystero (WebRTC, no own server), move log sync and player identity.
+- The Vue 3 app (single-file components, no UI library) lives in `client/src/components/`, `views/` and `composables/`; Vue-free table logic in `client/src/utils/`. The UI never contains game rules. ESLint enforces the layering: `engine` and `data` import neither Vue nor `net`/UI folders, `net` and `utils` import no UI, composables and components import no views.
+- Tests live in `client/test/`, mirroring the folder structure of `client/src/`. `client/test/support/` holds helpers shared by tests only (game fixtures, in-memory network).
+- Imports across folders use the `@/` alias (`@/engine`, `@/net/...`), tests import their helpers via `@test/support/...`; `./` only for files in the same folder, `../` is forbidden.
 
 ## Tech
 

@@ -13,7 +13,7 @@ Playable prototype: complete rules, online play via room links, animated card ta
 Requires Node.js 24 (see `mise.toml`).
 
 ```bash
-npm install
+npm --prefix client install
 npm run dev
 ```
 
@@ -22,10 +22,28 @@ To try it alone, open the room link in two browser windows.
 | Command         | Purpose                                |
 | --------------- | -------------------------------------- |
 | `npm run dev`   | Start the dev server                   |
-| `npm run build` | Type-check and build to `dist/`        |
+| `npm run build` | Type-check and build to `client/dist/` |
 | `npm test`      | Run unit tests                         |
 | `npm run lint`  | Type-check, check formatting and lint  |
 | `npm run fix`   | Format, fix lint issues and type-check |
+
+## Repository layout
+
+```
+client/            Vue 3 app (own package.json, Vite, Vitest, ESLint)
+  src/engine/      pure game logic
+  src/net/         move log sync and player identity
+  src/data/        card data and UI texts
+  src/components/  Vue components
+  src/views/       page-level components
+  src/composables/ Vue composables
+  src/utils/       Vue-free table logic
+  test/            tests, mirroring src/ (test/support/ holds shared helpers)
+server/            PHP move log server
+scripts/           helper scripts
+```
+
+The root `package.json` only delegates to `client/` and runs the PHP helpers; install dependencies with `npm --prefix client install`.
 
 ## Play
 
