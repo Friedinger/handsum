@@ -13,7 +13,7 @@ import type {
   Transport,
 } from "./transport";
 
-const API_URL = "api/";
+const API_URL = "api/index.php";
 const ACTIVE_POLL_MS = 1500;
 const QUIET_AFTER_MS = 30_000;
 const QUIET_POLL_MS = 4000;
