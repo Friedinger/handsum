@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import { strings } from "@/data/strings";
 import { normalizeRoomCode, randomRoomCode } from "@/net/roomCode";
-import { openRoom } from "@/ui/composables/useRoomCode";
+import { openRoom } from "@/utils/roomNavigation";
 
 const codeInput = ref("");
 const showInvalidCode = ref(false);

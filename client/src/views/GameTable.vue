@@ -4,18 +4,18 @@ import { strings } from "@/data/strings";
 import { legalMoves, type Move, type Seat, type StartedGame } from "@/engine";
 import { onlinePlayerIds, type SessionSnapshot } from "@/net/gameSession";
 import type { MoveRejection } from "@/engine";
-import FlightLayer from "@/ui/components/FlightLayer.vue";
-import PlayerSeat from "@/ui/components/PlayerSeat.vue";
-import ResultsPanel from "@/ui/components/ResultsPanel.vue";
-import TableCenter from "@/ui/components/TableCenter.vue";
-import { useCardFlights } from "@/ui/composables/useCardFlights";
-import { useReveals } from "@/ui/composables/useReveals";
-import { leaveRoom } from "@/ui/composables/useRoomCode";
-import { anchorKey } from "@/ui/cardFlights";
-import { playerName } from "@/ui/playerName";
-import { isRevealed } from "@/ui/reveals";
-import type { SlotView } from "@/ui/slotView";
-import { hintFor } from "@/ui/tableHints";
+import FlightLayer from "@/components/FlightLayer.vue";
+import PlayerSeat from "@/components/PlayerSeat.vue";
+import ResultsPanel from "@/components/ResultsPanel.vue";
+import TableCenter from "@/components/TableCenter.vue";
+import { useCardFlights } from "@/composables/useCardFlights";
+import { useReveals } from "@/composables/useReveals";
+import { leaveRoom } from "@/utils/roomNavigation";
+import { anchorKey } from "@/utils/cardFlights";
+import { displayName } from "@/utils/displayName";
+import { isRevealed } from "@/utils/reveals";
+import type { SlotView } from "@/utils/slotView";
+import { hintFor } from "@/utils/tableHints";
 import {
   canToggleSeveral,
   handleClick,
@@ -27,9 +27,9 @@ import {
   toggleSeveral,
   type ClickTarget,
   type Intent,
-} from "@/ui/tableInteraction";
-import { arrangeOpponents } from "@/ui/tableLayout";
-import { currentHeldCard } from "@/ui/heldCard";
+} from "@/utils/tableInteraction";
+import { arrangeOpponents } from "@/utils/tableLayout";
+import { currentHeldCard } from "@/utils/heldCard";
 
 const props = defineProps<{
   snapshot: SessionSnapshot;
@@ -107,7 +107,7 @@ const heldLabel = computed(() => {
   }
   return held.value.holderId === selfId.value
     ? strings.table.yourCard
-    : strings.table.holdingCard(playerName(props.state, held.value.holderId));
+    : strings.table.holdingCard(displayName(props.state, held.value.holderId));
 });
 const targetsOpponents = computed(
   () => intent.value.kind === "action" && intent.value.action !== "viewOwn",
@@ -227,7 +227,7 @@ const results = computed(() =>
       >
         {{
           state.endCallerId
-            ? strings.hints.lastRound(playerName(state, state.endCallerId))
+            ? strings.hints.lastRound(displayName(state, state.endCallerId))
             : ""
         }}
       </p>

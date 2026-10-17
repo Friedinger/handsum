@@ -5,7 +5,7 @@ import { MAX_PLAYERS, MIN_PLAYERS } from "@/engine";
 import { lobbyPlayers, type SessionSnapshot } from "@/net/gameSession";
 import type { MoveRejection } from "@/engine";
 import { roomLink } from "@/net/roomCode";
-import { leaveRoom } from "@/ui/composables/useRoomCode";
+import { leaveRoom } from "@/utils/roomNavigation";
 
 const props = defineProps<{
   snapshot: SessionSnapshot;

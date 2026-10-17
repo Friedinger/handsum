@@ -7,7 +7,7 @@ import {
 import type { Move, MoveRejection } from "@/engine";
 import type { HelloMessage } from "@/net/protocol";
 import { connectPolling } from "@/net/pollingTransport";
-import { randomSeed } from "@/ui/randomSeed";
+import { randomSeed } from "@/utils/randomSeed";
 
 export function useGameSession(roomCode: string, self: HelloMessage) {
   const snapshot = shallowRef<SessionSnapshot>(initialSnapshot(roomCode, self));

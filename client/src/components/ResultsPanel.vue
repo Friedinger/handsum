@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import { strings } from "@/data/strings";
 import type { PlayerId, PlayerResult, StartedGame } from "@/engine";
-import { playerName } from "@/ui/playerName";
+import { displayName } from "@/utils/displayName";
 
 const props = defineProps<{
   state: StartedGame;
@@ -18,7 +18,7 @@ const headline = computed(() => {
   }
   return strings.table.playerWins(
     winners
-      .map((winner) => playerName(props.state, winner.playerId))
+      .map((winner) => displayName(props.state, winner.playerId))
       .join(" & "),
   );
 });
@@ -46,7 +46,7 @@ const ranked = computed(() =>
             :key="result.playerId"
             :class="{ 'result-winner': result.isWinner }"
           >
-            <td>{{ playerName(state, result.playerId) }}</td>
+            <td>{{ displayName(state, result.playerId) }}</td>
             <td>{{ result.cardSum }}</td>
             <td>{{ result.score }}</td>
           </tr>

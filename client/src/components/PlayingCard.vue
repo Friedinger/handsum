@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import { strings } from "@/data/strings";
 import type { Card } from "@/engine";
-import { valueTier, type CardSize } from "@/ui/slotView";
+import { valueTier, type CardSize } from "@/utils/slotView";
 
 const props = withDefaults(
   defineProps<{

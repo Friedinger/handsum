@@ -1,6 +1,6 @@
 import { strings } from "@/data/strings";
 import type { PlayerId, StartedGame } from "@/engine";
-import { playerName } from "./playerName";
+import { displayName } from "./displayName";
 import {
   isSwappingSeveral,
   selectedOwnSlots,
@@ -16,7 +16,9 @@ function waitingHint(state: StartedGame): string {
     case "startingView":
       return strings.hints.waitingForStartingView;
     case "playing":
-      return strings.hints.othersTurn(playerName(state, phase.currentPlayerId));
+      return strings.hints.othersTurn(
+        displayName(state, phase.currentPlayerId),
+      );
   }
 }
 

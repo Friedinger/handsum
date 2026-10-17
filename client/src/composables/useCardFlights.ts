@@ -16,7 +16,7 @@ import {
   type Anchor,
   type Flight,
   type MovePlan,
-} from "@/ui/cardFlights";
+} from "@/utils/cardFlights";
 
 export const FLIGHT_MS = 450;
 const PEEK_MS = 1600;
