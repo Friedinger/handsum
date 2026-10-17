@@ -1,4 +1,12 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>Friedinger/configs//renovate/recommended.json"]
+  "extends": ["github>Friedinger/configs//renovate/recommended.json"],
+  "packageRules": [
+    {
+      "description": "The PHP requirement in composer.json is a range on purpose; an exact patch would conflict with config.platform.php",
+      "matchManagers": ["composer"],
+      "matchDepNames": ["php"],
+      "enabled": false
+    }
+  ]
 }
