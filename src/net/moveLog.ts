@@ -4,45 +4,20 @@ import {
   type GameState,
   type Move,
   type MoveRejection,
-  type StartGameMove,
 } from "@/engine";
-import type { HelloMessage, MoveMessage } from "./protocol";
 
 export interface SyncedLog {
   readonly moves: readonly Move[];
   readonly state: GameState;
 }
 
-export type SyncRejection =
-  MoveRejection | "wrongSender" | "otherGame" | "staleSequence";
-
-export type ReceiveOutcome =
+export type AppendOutcome =
   | { readonly kind: "accepted"; readonly log: SyncedLog }
-  | { readonly kind: "duplicate" }
-  | { readonly kind: "behind" }
-  | { readonly kind: "rejected"; readonly reason: SyncRejection };
+  | { readonly kind: "rejected"; readonly reason: MoveRejection };
 
 export const emptyLog: SyncedLog = { moves: [], state: initialGameState };
 
-function isSameMove(a: Move | undefined, b: Move): boolean {
-  return JSON.stringify(a) === JSON.stringify(b);
-}
-
-function latestStartOf(moves: readonly Move[]): StartGameMove | null {
-  return moves.findLast((move) => move.type === "startGame") ?? null;
-}
-
-// Anyone may start, so two starts can cross on the network. Every client settles this the
-// same way: the start by the lower player ID wins.
-function startWins(candidate: StartGameMove, current: StartGameMove): boolean {
-  return candidate.playerId < current.playerId;
-}
-
-export function startSeedOf(moves: readonly Move[]): number | null {
-  return latestStartOf(moves)?.seed ?? null;
-}
-
-export function appendMove(log: SyncedLog, move: Move): ReceiveOutcome {
+export function appendMove(log: SyncedLog, move: Move): AppendOutcome {
   const outcome = tryApplyMove(log.state, move);
   if (!outcome.ok) {
     return { kind: "rejected", reason: outcome.reason };
@@ -65,105 +40,23 @@ export function replayLog(moves: readonly Move[]): SyncedLog | null {
   return log;
 }
 
-function receiveCompetingStart(
+// The server orders all moves, so a batch only has to be applied after the moves already known.
+// It stops at the first illegal move, because everything after it would build on a broken log.
+export function extendLog(
   log: SyncedLog,
-  start: StartGameMove,
-  sequence: number,
-): ReceiveOutcome {
-  const currentStart = log.moves[sequence - 1];
-  if (currentStart?.type !== "startGame" || !startWins(start, currentStart)) {
-    return { kind: "rejected", reason: "gameAlreadyStarted" };
+  firstIndex: number,
+  moves: readonly Move[],
+): SyncedLog {
+  if (firstIndex > log.moves.length) {
+    return log;
   }
-  const restarted = replayLog([...log.moves.slice(0, sequence - 1), start]);
-  return restarted
-    ? { kind: "accepted", log: restarted }
-    : { kind: "rejected", reason: "invalidSeed" };
-}
-
-// Viewing the starting cards is the only move players make at the same time. It commutes in
-// the engine, so one that lost the race for its sequence number is still appended.
-function receiveStaleMove(
-  log: SyncedLog,
-  move: Move,
-  sequence: number,
-): ReceiveOutcome {
-  if (move.type === "startGame") {
-    return receiveCompetingStart(log, move, sequence);
+  let extended = log;
+  for (const move of moves.slice(log.moves.length - firstIndex)) {
+    const outcome = appendMove(extended, move);
+    if (outcome.kind !== "accepted") {
+      return extended;
+    }
+    extended = outcome.log;
   }
-  if (move.type !== "viewStartingCards") {
-    return { kind: "rejected", reason: "staleSequence" };
-  }
-  const outcome = appendMove(log, move);
-  return outcome.kind === "rejected" && outcome.reason === "alreadyViewed"
-    ? { kind: "duplicate" }
-    : outcome;
-}
-
-function belongsToOtherGame(log: SyncedLog, message: MoveMessage): boolean {
-  const startSeed = startSeedOf(log.moves);
-  return (
-    message.move.type !== "startGame" &&
-    startSeed !== null &&
-    startSeed !== message.startSeed
-  );
-}
-
-export function receiveMove(
-  log: SyncedLog,
-  message: MoveMessage,
-  sender: HelloMessage,
-): ReceiveOutcome {
-  if (message.move.playerId !== sender.playerId) {
-    return { kind: "rejected", reason: "wrongSender" };
-  }
-  if (belongsToOtherGame(log, message)) {
-    return { kind: "rejected", reason: "otherGame" };
-  }
-  const expectedSequence = log.moves.length + 1;
-  if (message.sequence > expectedSequence) {
-    return { kind: "behind" };
-  }
-  if (isSameMove(log.moves[message.sequence - 1], message.move)) {
-    return { kind: "duplicate" };
-  }
-  if (message.sequence < expectedSequence) {
-    return receiveStaleMove(log, message.move, message.sequence);
-  }
-  return appendMove(log, message.move);
-}
-
-function firstDifference(
-  own: readonly Move[],
-  incoming: readonly Move[],
-): number {
-  const index = own.findIndex(
-    (move, position) => !isSameMove(incoming[position], move),
-  );
-  return index === -1 ? own.length : index;
-}
-
-function prefersIncoming(
-  own: readonly Move[],
-  incoming: readonly Move[],
-): boolean {
-  const divergence = firstDifference(own, incoming);
-  if (divergence >= incoming.length) {
-    return false;
-  }
-  if (divergence === own.length) {
-    return true;
-  }
-  const ownMove = own[divergence];
-  const incomingMove = incoming[divergence];
-  if (ownMove?.type === "startGame" && incomingMove?.type === "startGame") {
-    return startWins(incomingMove, ownMove);
-  }
-  return incoming.length > own.length;
-}
-
-export function chooseLog(
-  own: SyncedLog,
-  incoming: readonly Move[],
-): SyncedLog | null {
-  return prefersIncoming(own.moves, incoming) ? replayLog(incoming) : null;
+  return extended;
 }

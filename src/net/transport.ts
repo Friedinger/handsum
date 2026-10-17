@@ -1,25 +1,32 @@
-import type { HelloMessage, LogMessage, MoveMessage } from "./protocol";
+import type { Move } from "@/engine";
+import type { HelloMessage } from "./protocol";
 
-export type PeerId = string;
+export type ConnectionState = "connecting" | "online" | "offline";
 
-export interface TransportHandlers {
-  readonly onPeerJoin: (peerId: PeerId) => void;
-  readonly onPeerLeave: (peerId: PeerId) => void;
-  readonly onHello: (hello: HelloMessage, peerId: PeerId) => void;
-  readonly onMove: (message: MoveMessage, peerId: PeerId) => void;
-  readonly onLog: (log: LogMessage, peerId: PeerId) => void;
-  readonly onSyncRequest: (peerId: PeerId) => void;
+export interface RoomUpdate {
+  readonly firstIndex: number;
+  readonly moves: readonly Move[];
+  readonly players: readonly HelloMessage[];
 }
 
+export interface TransportHandlers {
+  readonly onUpdate: (update: RoomUpdate) => void;
+  readonly onConnectionChange: (state: ConnectionState) => void;
+}
+
+export type AppendResult =
+  | { readonly kind: "appended" }
+  | { readonly kind: "conflict" }
+  | { readonly kind: "failed" };
+
 export interface Transport {
-  readonly sendHello: (hello: HelloMessage, target: PeerId) => void;
-  readonly broadcastMove: (message: MoveMessage) => void;
-  readonly sendLog: (log: LogMessage, target: PeerId) => void;
-  readonly requestSync: (target: PeerId) => void;
+  readonly appendMove: (sequence: number, move: Move) => Promise<AppendResult>;
+  readonly refresh: () => Promise<void>;
   readonly leave: () => void;
 }
 
 export type ConnectTransport = (
   roomCode: string,
+  self: HelloMessage,
   handlers: TransportHandlers,
 ) => Transport;

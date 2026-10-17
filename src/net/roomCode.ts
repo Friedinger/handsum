@@ -29,3 +29,14 @@ export function roomLink(
 ): string {
   return `${location.origin}${location.pathname}#${roomCode}`;
 }
+
+// The server only ever sees this hash, so the room code stays out of its logs.
+export async function hashRoomCode(roomCode: string): Promise<string> {
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(roomCode),
+  );
+  return Array.from(new Uint8Array(digest), (byte) =>
+    byte.toString(16).padStart(2, "0"),
+  ).join("");
+}

@@ -22,6 +22,9 @@ const isSeated = computed(
 </script>
 
 <template>
+  <p v-if="snapshot.connection === 'offline'" class="error">
+    {{ strings.connection.offline }}
+  </p>
   <LobbyView
     v-if="game.status === 'notStarted'"
     :snapshot="snapshot"

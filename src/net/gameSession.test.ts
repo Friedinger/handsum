@@ -44,13 +44,13 @@ function join(network: MemoryNetwork, self: HelloMessage): Client {
   };
 }
 
-function startedRoom() {
+async function startedRoom() {
   const network = createMemoryNetwork();
   const host = join(network, alice);
   const guest = join(network, bob);
-  network.deliverAll();
+  await network.deliverAll();
   host.session.startGame(SEED);
-  network.deliverAll();
+  await settle(network);
   return { network, host, guest };
 }
 
@@ -61,6 +61,12 @@ function expectStartedState(state: GameState): StartedGame {
   return state;
 }
 
+// Moves reach the server asynchronously, so give pending requests time to finish first.
+async function settle(network: MemoryNetwork): Promise<void> {
+  await Promise.resolve();
+  await network.deliverAll();
+}
+
 function currentPlayer(client: Client): string {
   const { phase } = expectStartedState(client.latest().log.state);
   if (phase.kind !== "playing") {
@@ -69,22 +75,23 @@ function currentPlayer(client: Client): string {
   return phase.currentPlayerId;
 }
 
-function playUntilFinished(
+async function playUntilFinished(
   network: MemoryNetwork,
   clients: readonly Client[],
-): void {
+): Promise<void> {
   const turnOf = (playerId: string) =>
     clients.find((client) => client.latest().self.playerId === playerId);
   const caller = currentPlayer(clients[0] ?? fail());
   turnOf(caller)?.session.submitMove({ type: "callEnd", playerId: caller });
-  network.deliverAll();
+  await settle(network);
   const last = currentPlayer(clients[0] ?? fail());
   turnOf(last)?.session.submitMove({ type: "drawFromDeck", playerId: last });
+  await settle(network);
   turnOf(last)?.session.submitMove({
     type: "discardDrawnCard",
     playerId: last,
   });
-  network.deliverAll();
+  await settle(network);
 }
 
 function fail(): never {
@@ -98,89 +105,94 @@ const ready = (playerId: string): Move => ({
 });
 
 describe("game session", () => {
-  it("lists everyone in the lobby with the own player first", () => {
+  it("lists everyone in the lobby in the order they joined", async () => {
     const network = createMemoryNetwork();
     const host = join(network, alice);
     join(network, bob);
-    network.deliverAll();
+    await network.deliverAll();
     expect(lobbyPlayers(host.latest())).toEqual([
       { id: "alice", name: "Alice" },
       { id: "bob", name: "Bob" },
     ]);
   });
 
-  it("shares a start by any player with everyone", () => {
+  it("shares a start by any player with everyone", async () => {
     const network = createMemoryNetwork();
     const host = join(network, alice);
     const guest = join(network, bob);
-    network.deliverAll();
+    await network.deliverAll();
     guest.session.startGame(SEED);
-    network.deliverAll();
+    await settle(network);
     expect(host.latest().log.state.status).toBe("started");
     expect(host.latest().log.moves).toEqual(guest.latest().log.moves);
   });
 
-  it("agrees on one game when two players start at the same time", () => {
+  it("lets the first start win when two players start at the same time", async () => {
     const network = createMemoryNetwork();
     const first = join(network, alice);
     const second = join(network, bob);
-    network.deliverAll();
+    await network.deliverAll();
     first.session.startGame(SEED);
     second.session.startGame(SEED + 1);
-    second.session.submitMove(ready("bob"));
-    network.deliverAll();
+    await settle(network);
+    await settle(network);
     expect(first.latest().log.moves).toEqual(second.latest().log.moves);
+    expect(first.latest().log.moves).toHaveLength(1);
     expect(first.latest().log.moves[0]?.playerId).toBe("alice");
   });
 
-  it("keeps both clients in sync when players view their cards at the same time", () => {
-    const { network, host, guest } = startedRoom();
+  it("keeps both clients in sync when players view their cards at the same time", async () => {
+    const { network, host, guest } = await startedRoom();
     host.session.submitMove(ready("alice"));
     guest.session.submitMove(ready("bob"));
-    network.deliverAll();
+    await settle(network);
+    await settle(network);
     expect(host.latest().log.state).toEqual(guest.latest().log.state);
     const { state } = host.latest().log;
     expect(state.status === "started" && state.phase.kind).toBe("playing");
   });
 
-  it("rejects local moves the rules do not allow", () => {
-    const { guest } = startedRoom();
+  it("rejects local moves the rules do not allow", async () => {
+    const { guest } = await startedRoom();
     expect(
       guest.session.submitMove({ type: "drawFromDeck", playerId: "bob" }),
     ).toBe("wrongPhase");
   });
 
-  it("restores the full game for a player who reloads", () => {
-    const { network, host, guest } = startedRoom();
+  it("restores the full game for a player who reloads", async () => {
+    const { network, host, guest } = await startedRoom();
     host.session.submitMove(ready("alice"));
-    network.deliverAll();
+    await settle(network);
     guest.session.leave();
     const rejoined = join(network, bob);
-    network.deliverAll();
+    await network.deliverAll();
     expect(rejoined.latest().log.moves).toEqual(host.latest().log.moves);
-    expect(rejoined.latest().peers.map((peer) => peer.hello.playerId)).toEqual([
+    expect(rejoined.latest().players.map((player) => player.playerId)).toEqual([
       "alice",
+      "bob",
     ]);
   });
 
-  it("catches up a client that missed moves while still connected", () => {
-    const { network, host, guest } = startedRoom();
+  it("catches up a client that joined after the game started", async () => {
+    const { network, host, guest } = await startedRoom();
     const latecomer = join(network, carol);
-    network.deliverAll();
+    await network.deliverAll();
     host.session.submitMove(ready("alice"));
     guest.session.submitMove(ready("bob"));
-    network.deliverAll();
+    await settle(network);
+    await settle(network);
     expect(latecomer.latest().log.state).toEqual(host.latest().log.state);
   });
 
-  it("starts a rematch with the same players in the same room", () => {
-    const { network, host, guest } = startedRoom();
+  it("starts a rematch with the same players in the same room", async () => {
+    const { network, host, guest } = await startedRoom();
     host.session.submitMove(ready("alice"));
     guest.session.submitMove(ready("bob"));
-    network.deliverAll();
-    playUntilFinished(network, [host, guest]);
+    await settle(network);
+    await settle(network);
+    await playUntilFinished(network, [host, guest]);
     guest.session.startGame(SEED + 2);
-    network.deliverAll();
+    await settle(network);
     const rematch = expectStartedState(host.latest().log.state);
     expect(rematch.phase.kind).toBe("startingView");
     expect(rematch.seats.map((seat) => seat.player.id)).toEqual([

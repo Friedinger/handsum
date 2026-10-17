@@ -3,13 +3,13 @@ import { computed, ref } from "vue";
 import { strings } from "@/data/strings";
 import { MAX_PLAYERS, MIN_PLAYERS } from "@/engine";
 import { lobbyPlayers, type SessionSnapshot } from "@/net/gameSession";
-import type { SyncRejection } from "@/net/moveLog";
+import type { MoveRejection } from "@/engine";
 import { roomLink } from "@/net/roomCode";
 import { leaveRoom } from "@/ui/composables/useRoomCode";
 
 const props = defineProps<{
   snapshot: SessionSnapshot;
-  rejection: SyncRejection | null;
+  rejection: MoveRejection | null;
 }>();
 const emit = defineEmits<{ start: [] }>();
 
@@ -63,7 +63,7 @@ async function copyLink(): Promise<void> {
       }}
     </p>
     <p v-if="rejection" class="error">
-      {{ strings.syncRejectionMessages[rejection] }}
+      {{ strings.rejectionMessages[rejection] }}
     </p>
     <div class="inline-form">
       <button

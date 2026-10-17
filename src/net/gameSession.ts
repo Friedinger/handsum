@@ -1,36 +1,26 @@
-import type { Move, Player, PlayerId } from "@/engine";
-import {
-  appendMove,
-  chooseLog,
-  emptyLog,
-  receiveMove,
-  startSeedOf,
-  type SyncRejection,
-  type SyncedLog,
-} from "./moveLog";
-import type { HelloMessage, MoveMessage } from "./protocol";
+import type { Move, MoveRejection, Player, PlayerId } from "@/engine";
+import { appendMove, emptyLog, extendLog, type SyncedLog } from "./moveLog";
+import type { HelloMessage } from "./protocol";
 import type {
+  ConnectionState,
   ConnectTransport,
-  PeerId,
   Transport,
   TransportHandlers,
 } from "./transport";
 
-export interface ConnectedPeer {
-  readonly peerId: PeerId;
-  readonly hello: HelloMessage;
-}
+const MAX_CONFLICT_RETRIES = 3;
 
 export interface SessionSnapshot {
   readonly roomCode: string;
   readonly self: HelloMessage;
-  readonly peers: readonly ConnectedPeer[];
+  readonly players: readonly HelloMessage[];
   readonly log: SyncedLog;
+  readonly connection: ConnectionState;
 }
 
 export interface GameSession {
-  readonly submitMove: (move: Move) => SyncRejection | null;
-  readonly startGame: (seed: number) => SyncRejection | null;
+  readonly submitMove: (move: Move) => MoveRejection | null;
+  readonly startGame: (seed: number) => MoveRejection | null;
   readonly leave: () => void;
 }
 
@@ -45,17 +35,22 @@ export function initialSnapshot(
   roomCode: string,
   self: HelloMessage,
 ): SessionSnapshot {
-  return { roomCode, self, peers: [], log: emptyLog };
+  return {
+    roomCode,
+    self,
+    players: [],
+    log: emptyLog,
+    connection: "connecting",
+  };
 }
 
 export function lobbyPlayers(snapshot: SessionSnapshot): Player[] {
-  const everyone = [snapshot.self, ...snapshot.peers.map((peer) => peer.hello)];
-  const unique = everyone.filter(
-    (hello, index) =>
-      everyone.findIndex((other) => other.playerId === hello.playerId) ===
-      index,
-  );
-  return unique.map(({ playerId, name }) => ({ id: playerId, name }));
+  const everyone = snapshot.players.some(
+    (player) => player.playerId === snapshot.self.playerId,
+  )
+    ? snapshot.players
+    : [...snapshot.players, snapshot.self];
+  return everyone.map(({ playerId, name }) => ({ id: playerId, name }));
 }
 
 // A rematch keeps the players of the finished game; a first start takes everyone in the lobby.
@@ -69,23 +64,7 @@ function playersForStart(snapshot: SessionSnapshot): Player[] {
 export function onlinePlayerIds(
   snapshot: SessionSnapshot,
 ): ReadonlySet<PlayerId> {
-  return new Set([
-    snapshot.self.playerId,
-    ...snapshot.peers.map((peer) => peer.hello.playerId),
-  ]);
-}
-
-function withPeer(
-  peers: readonly ConnectedPeer[],
-  peer: ConnectedPeer,
-): ConnectedPeer[] {
-  // A reloaded player reconnects with a new peer ID; the stale connection is replaced.
-  const others = peers.filter(
-    (existing) =>
-      existing.peerId !== peer.peerId &&
-      existing.hello.playerId !== peer.hello.playerId,
-  );
-  return [...others, peer];
+  return new Set(lobbyPlayers(snapshot).map((player) => player.id));
 }
 
 export function createGameSession(options: SessionOptions): GameSession {
@@ -96,96 +75,65 @@ export function createGameSession(options: SessionOptions): GameSession {
     options.onChange(snapshot);
   };
 
-  const senderOf = (peerId: PeerId) =>
-    snapshot.peers.find((peer) => peer.peerId === peerId)?.hello;
-
-  let transport: Transport | null = null;
-  const send = (action: (connected: Transport) => void) => {
-    if (transport) {
-      action(transport);
+  const applyMoves = (firstIndex: number, moves: readonly Move[]) => {
+    const log = extendLog(snapshot.log, firstIndex, moves);
+    if (log !== snapshot.log) {
+      update({ log });
     }
   };
 
   const handlers: TransportHandlers = {
-    onPeerJoin: (peerId) => {
-      send((connected) => {
-        connected.sendHello(snapshot.self, peerId);
-        if (snapshot.log.moves.length > 0) {
-          connected.sendLog({ moves: snapshot.log.moves }, peerId);
-        }
-      });
+    onUpdate: ({ firstIndex, moves, players }) => {
+      update({ players });
+      applyMoves(firstIndex, moves);
     },
-    onPeerLeave: (peerId) => {
-      update({
-        peers: snapshot.peers.filter((peer) => peer.peerId !== peerId),
-      });
-    },
-    onHello: (hello, peerId) => {
-      update({ peers: withPeer(snapshot.peers, { peerId, hello }) });
-    },
-    onMove: (message: MoveMessage, peerId) => {
-      const sender = senderOf(peerId);
-      if (!sender) {
-        return;
-      }
-      const outcome = receiveMove(snapshot.log, message, sender);
-      if (outcome.kind === "accepted") {
-        update({ log: outcome.log });
-      } else if (outcome.kind === "behind") {
-        send((connected) => {
-          connected.requestSync(peerId);
-        });
-      }
-    },
-    onLog: ({ moves }) => {
-      const adopted = chooseLog(snapshot.log, moves);
-      if (adopted) {
-        update({ log: adopted });
-      }
-    },
-    onSyncRequest: (peerId) => {
-      send((connected) => {
-        connected.sendLog({ moves: snapshot.log.moves }, peerId);
-      });
+    onConnectionChange: (connection) => {
+      update({ connection });
     },
   };
 
-  transport = options.connect(options.roomCode, handlers);
-  options.onChange(snapshot);
-
-  const submitMove = (move: Move): SyncRejection | null => {
+  // Moves are only applied once the server has accepted them. If another player got in first,
+  // the move is checked again against the newer log and dropped if it is no longer legal.
+  const deliver = async (
+    transport: Transport,
+    move: Move,
+    retriesLeft: number,
+  ): Promise<void> => {
     const outcome = appendMove(snapshot.log, move);
     if (outcome.kind !== "accepted") {
-      return outcome.kind === "rejected" ? outcome.reason : null;
+      return;
     }
-    const { log } = outcome;
-    update({ log });
-    send((connected) => {
-      connected.broadcastMove({
-        startSeed: startSeedOf(log.moves) ?? 0,
-        sequence: log.moves.length,
-        move,
-      });
-    });
+    const sequence = snapshot.log.moves.length;
+    const result = await transport.appendMove(sequence, move);
+    if (result.kind === "appended") {
+      applyMoves(sequence, [move]);
+    } else if (result.kind === "conflict" && retriesLeft > 0) {
+      await transport.refresh();
+      await deliver(transport, move, retriesLeft - 1);
+    }
+  };
+
+  const transport = options.connect(options.roomCode, options.self, handlers);
+  options.onChange(snapshot);
+
+  const submitMove = (move: Move): MoveRejection | null => {
+    const outcome = appendMove(snapshot.log, move);
+    if (outcome.kind === "rejected") {
+      return outcome.reason;
+    }
+    void deliver(transport, move, MAX_CONFLICT_RETRIES);
     return null;
   };
 
   return {
     submitMove,
-    startGame: (seed) => {
-      const players = playersForStart(snapshot);
-      return submitMove({
+    startGame: (seed) =>
+      submitMove({
         type: "startGame",
         playerId: snapshot.self.playerId,
-        players,
+        players: playersForStart(snapshot),
         seed,
-      });
-    },
-    leave: () => {
-      send((connected) => {
-        connected.leave();
-      });
-      transport = null;
-    },
+      }),
+    leave: transport.leave,
   };
 }

@@ -1,5 +1,4 @@
 import type { CardAction, MoveRejection } from "@/engine";
-import type { SyncRejection } from "@/net/moveLog";
 
 const cardActionNames = {
   viewOwn: "View own card",
@@ -32,18 +31,13 @@ const rejectionMessages = {
   endAlreadyCalled: "The end has already been called.",
 } as const satisfies Record<MoveRejection, string>;
 
-const syncRejectionMessages = {
-  ...rejectionMessages,
-  wrongSender: "This move belongs to another player.",
-  otherGame: "This move belongs to a different game start.",
-  staleSequence: "This move arrived too late.",
-} as const satisfies Record<SyncRejection, string>;
-
 export const strings = {
   appTitle: "Handsum",
   cardActionNames,
   rejectionMessages,
-  syncRejectionMessages,
+  connection: {
+    offline: "No connection to the server. Retrying …",
+  },
   cardSymbol: "◆",
   home: {
     tagline: "A card game for 2 to 8 players in the browser.",

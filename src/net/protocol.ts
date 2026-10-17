@@ -5,14 +5,10 @@ export interface HelloMessage {
   readonly name: string;
 }
 
-export interface MoveMessage {
-  readonly startSeed: number;
-  readonly sequence: number;
-  readonly move: Move;
-}
-
-export interface LogMessage {
+export interface RoomSnapshot {
+  readonly length: number;
   readonly moves: readonly Move[];
+  readonly players: readonly HelloMessage[];
 }
 
 type Fields = Readonly<Record<string, unknown>>;
@@ -32,26 +28,26 @@ export function parseHello(value: unknown): HelloMessage | null {
   return { playerId, name };
 }
 
-export function parseMoveMessage(value: unknown): MoveMessage | null {
-  if (!isRecord(value)) {
+function parseAll<T>(
+  values: unknown,
+  parse: (value: unknown) => T | null,
+): T[] | null {
+  if (!Array.isArray(values)) {
     return null;
   }
-  const { startSeed, sequence } = value;
-  if (
-    typeof startSeed !== "number" ||
-    typeof sequence !== "number" ||
-    !Number.isInteger(sequence)
-  ) {
-    return null;
-  }
-  const move = parseMove(value.move);
-  return move ? { startSeed, sequence, move } : null;
+  const parsed = (values as unknown[]).map(parse);
+  return parsed.every((item) => item !== null) ? parsed : null;
 }
 
-export function parseLog(value: unknown): LogMessage | null {
-  if (!isRecord(value) || !Array.isArray(value.moves)) {
+export function parsePlayers(value: unknown): HelloMessage[] | null {
+  return isRecord(value) ? parseAll(value.players, parseHello) : null;
+}
+
+export function parseRoomSnapshot(value: unknown): RoomSnapshot | null {
+  if (!isRecord(value) || typeof value.length !== "number") {
     return null;
   }
-  const moves = value.moves.map(parseMove);
-  return moves.every((move) => move !== null) ? { moves } : null;
+  const moves = parseAll(value.moves, parseMove);
+  const players = parsePlayers(value);
+  return moves && players ? { length: value.length, moves, players } : null;
 }

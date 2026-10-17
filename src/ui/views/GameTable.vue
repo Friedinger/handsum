@@ -3,7 +3,7 @@ import { computed, ref, watch } from "vue";
 import { strings } from "@/data/strings";
 import { legalMoves, type Move, type Seat, type StartedGame } from "@/engine";
 import { onlinePlayerIds, type SessionSnapshot } from "@/net/gameSession";
-import type { SyncRejection } from "@/net/moveLog";
+import type { MoveRejection } from "@/engine";
 import FlightLayer from "@/ui/components/FlightLayer.vue";
 import PlayerSeat from "@/ui/components/PlayerSeat.vue";
 import ResultsPanel from "@/ui/components/ResultsPanel.vue";
@@ -34,7 +34,7 @@ import { currentHeldCard } from "@/ui/heldCard";
 const props = defineProps<{
   snapshot: SessionSnapshot;
   state: StartedGame;
-  rejection: SyncRejection | null;
+  rejection: MoveRejection | null;
 }>();
 const emit = defineEmits<{ move: [move: Move]; playAgain: [] }>();
 
@@ -169,7 +169,7 @@ const hint = computed(() => hintFor(props.state, selfId.value, intent.value));
 // One line for errors, reminders and hints, so the hand below never moves when the text changes.
 const message = computed(() => {
   if (props.rejection) {
-    return strings.syncRejectionMessages[props.rejection];
+    return strings.rejectionMessages[props.rejection];
   }
   return showRememberNotice.value ? strings.hints.rememberCards : hint.value;
 });
