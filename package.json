@@ -25,7 +25,6 @@
     "dev:server": "podman run --rm -p 127.0.0.1:8080:8080 -v \"$PWD:/app:Z\" -w /app/server php:8.4-cli php -d display_errors=On -d error_reporting=E_ALL -S 0.0.0.0:8080 index.php"
   },
   "dependencies": {
-    "trystero": "0.26.0",
     "vue": "3.5.43"
   },
   "devDependencies": {
