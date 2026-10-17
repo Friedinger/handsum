@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Serves the production layout (client/dist/ plus the deployable parts of server/ as api/) from a sub-folder of an Apache
+# Serves the production layout (assembled by stage-site.sh) from a sub-folder of an Apache
 # container and checks that the page, its assets, the API and the smoke test work there.
 set -euo pipefail
 
@@ -11,12 +11,7 @@ compose() { docker compose --project-directory "$ROOT_DIR" --profile deploy-chec
 trap 'compose down --volumes >/dev/null 2>&1 || true; rm -rf "$SITE_DIR"' EXIT
 
 npm --prefix "$ROOT_DIR/client" run build >/dev/null
-mkdir -p "$SITE_DIR/$SUBFOLDER/api"
-cp -r "$ROOT_DIR"/client/dist/. "$SITE_DIR/$SUBFOLDER/"
-# Only these paths belong on the host; vendor/, tests/ and the Composer and PHPUnit files are for development.
-for entry in .htaccess index.php smoke-test.php src; do
-  cp -r "$ROOT_DIR/server/$entry" "$SITE_DIR/$SUBFOLDER/api/"
-done
+"$ROOT_DIR/scripts/stage-site.sh" "$SITE_DIR/$SUBFOLDER" --with-smoke-test
 
 compose up --detach apache >/dev/null
 # Copying into the container instead of bind-mounting keeps file ownership out of the host.
