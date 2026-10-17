@@ -1,4 +1,4 @@
-name: Deploy to shared hosting
+name: Deploy to server
 
 on:
   workflow_dispatch:
@@ -11,24 +11,15 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    name: Build and deploy
-    # Deploying is manual while the repository stays private.
+  build:
+    name: Build
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    env:
-      DEPLOY_APPS_PATH: ${{ vars.DEPLOY_APPS_PATH }}
-      TARGET: ${{ vars.DEPLOY_APPS_PATH }}/handsum/
     steps:
-      - name: Require the target folder variable
-        run: |
-          if [ -z "$DEPLOY_APPS_PATH" ]; then
-            echo "The repository variable DEPLOY_APPS_PATH is required"
-            exit 1
-          fi
-
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -46,16 +37,22 @@ jobs:
       - name: Stage site
         run: scripts/stage-site.sh site
 
-      - name: Deploy to server
-        uses: easingthemes/ssh-deploy@2cc5b27bf3029d0455dd5e09fe02633904031447 # v6.0.3
+      - name: Upload site
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
-          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-          REMOTE_USER: ${{ secrets.REMOTE_USER }}
-          SOURCE: site/
-          TARGET: ${{ env.TARGET }}
-          ARGS: "--archive --verbose --compress --human-readable --delete-after --update"
-          # Runtime data, the optional local config and the optional password protection are managed on the host.
-          EXCLUDE: "/api/data/, /api/config.local.php, /.htaccess, /.htpasswd"
-          SCRIPT_BEFORE: mkdir -p ${{ env.TARGET }}
-          SCRIPT_BEFORE_REQUIRED: "true"
+          name: site
+          path: ./site/
+
+  deploy:
+    name: Deploy
+    needs: [build]
+    uses: Friedinger/configs/.github/workflows/action-deploy-sftp.yml@main
+    with:
+      environment: prod
+      path: site
+      exclude-paths: |
+        api/data
+        api/config.local.php
+        .htaccess
+        .htpasswd
+    secrets: inherit
