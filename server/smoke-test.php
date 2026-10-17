@@ -34,12 +34,14 @@ function authHeaders(): array
     return $authorization === null ? [] : ['Authorization: ' . $authorization];
 }
 
-function statusOf(string $url): int
+/** @return array{int, string} the status code and a description that includes the curl error when there was no response */
+function probe(string $url): array
 {
     $curl = curl_init($url);
     curl_setopt_array($curl, [CURLOPT_RETURNTRANSFER => true, CURLOPT_HTTPHEADER => authHeaders(), CURLOPT_TIMEOUT => 10]);
     curl_exec($curl);
-    return (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+    $status = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+    return [$status, $status === 0 ? 'no response: ' . curl_error($curl) . ' (' . $url . ')' : "HTTP $status"];
 }
 
 echo 'PHP ' . PHP_VERSION . ' (' . PHP_SAPI . ")\n";
@@ -108,15 +110,15 @@ $documentRoot = realpath($_SERVER['DOCUMENT_ROOT'] ?? '') ?: '';
 $realDataDir = realpath($dataDir) ?: $dataDir;
 if ($documentRoot !== '' && str_starts_with($realDataDir, $documentRoot)) {
     $probeUrl = 'http' . (str_starts_with(baseUrl(), 'https') ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . substr($realDataDir, strlen($documentRoot)) . '/' . PROBE_FILE;
-    $status = statusOf($probeUrl);
-    report('data directory is not served over HTTP', $status === 403 || $status === 404, "HTTP $status");
+    [$status, $detail] = probe($probeUrl);
+    report('data directory is not served over HTTP', $status === 403 || $status === 404, $detail);
 } else {
     report('data directory is outside the web root', true);
 }
 unlink($probe);
 foreach (FORBIDDEN_PATHS as $path) {
-    $status = statusOf(baseUrl() . $path);
-    report("$path is not served", $status === 403 || $status === 404, "HTTP $status");
+    [$status, $detail] = probe(baseUrl() . $path);
+    report("$path is not served", $status === 403 || $status === 404, $detail);
 }
 
 echo "\nAll OK means: delete smoke-test.php from the server now.\n";
