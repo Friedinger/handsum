@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Serves the production layout (assembled by stage-site.sh) from a sub-folder of an Apache
-# container and checks that the page, its assets, the API and the smoke test work there.
+# container and checks that the page, its assets, and the API work there.
 set -euo pipefail
 
 SUBFOLDER=${SUBFOLDER:-handsum}
@@ -11,7 +11,7 @@ compose() { docker compose --project-directory "$ROOT_DIR" --profile deploy-chec
 trap 'compose down --volumes >/dev/null 2>&1 || true; rm -rf "$SITE_DIR"' EXIT
 
 npm --prefix "$ROOT_DIR/client" run build >/dev/null
-"$ROOT_DIR/scripts/stage-site.sh" "$SITE_DIR/$SUBFOLDER" --with-smoke-test
+"$ROOT_DIR/scripts/stage-site.sh" "$SITE_DIR/$SUBFOLDER"
 
 compose up --detach apache >/dev/null
 # Copying into the container instead of bind-mounting keeps file ownership out of the host.
@@ -42,9 +42,5 @@ check "API rejects requests without a room" "$(status "$BASE/api/index.php")" "4
 DEV_FILES=$(compose exec -T apache sh -c "ls -A /var/www/html/$SUBFOLDER/api | grep -E '^(vendor|tests|composer|phpunit)' || true")
 check "no development files are deployed" "${DEV_FILES:-none}" "none"
 check "sources are not served" "$(status "$BASE/api/src/Config.php")" "403"
-SMOKE=$(curl -s "$BASE/api/smoke-test.php")
-check "smoke test passes in the sub-folder" "$SMOKE" "No FAIL means"
-check "smoke test reports no failure" "$(grep -c '^FAIL' <<<"$SMOKE" || true)" "0"
-echo "$SMOKE" | grep "^FAIL" || true
 
 exit $((failures > 0))

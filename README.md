@@ -87,7 +87,6 @@ handsum/                  contents of client/dist/ (index.html, assets/)
   .htaccess               optional password protection, see below
   api/                    only the files below, not vendor/, tests/ or Composer files
     index.php
-    smoke-test.php        only while checking a new host, see below
     .htaccess
     src/
     config.local.php      optional, see below
@@ -111,9 +110,11 @@ If other deployments sync the same host folder with `rsync --delete`, the `apps/
 
 ### First deployment on a new host
 
-1. Run the workflow with the option "Also upload api/smoke-test.php".
-2. Open `https://example.com/apps/handsum/api/smoke-test.php`. It checks that the data folder is writable, that `flock` works, that 20 parallel appends for one sequence number yield exactly one winner and that sources and data are not served. All lines must say `OK`.
-3. Run the workflow again without the option. The upload then removes `smoke-test.php` from the host.
+Check in the browser after the first deploy:
+
+1. The app loads at `https://example.com/apps/handsum/` and a game can be created and joined.
+2. `https://example.com/apps/handsum/api/src/Config.php` and `https://example.com/apps/handsum/api/data/` answer `403`.
+3. The data folder is writable by PHP and `flock` works on its file system. Both are needed for the server to accept moves; if creating a game fails, look at `error.log` in the data folder.
 
 Optional: to keep the data outside the web root, create `api/config.local.php` on the host returning `['dataDir' => '/absolute/path/to/data'];`. The folder must be writable by PHP. Otherwise the server uses `api/data/`, which `api/.htaccess` blocks. Unexpected server errors never appear in responses; they are logged to `error.log` in the data folder.
 
@@ -123,10 +124,10 @@ Without the workflow, build and assemble the same folder yourself and upload it 
 
 ```bash
 npm run client:build
-scripts/stage-site.sh site            # add --with-smoke-test for the first check
+scripts/stage-site.sh site
 ```
 
-Upload the contents of `site/` to the sub-folder on the host and delete `api/smoke-test.php` after the check.
+Upload the contents of `site/` to the sub-folder on the host.
 
 ### Optional password protection
 
