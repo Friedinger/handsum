@@ -1,0 +1,73 @@
+name: Deploy to shared hosting
+
+on:
+  workflow_dispatch:
+    inputs:
+      smoke-test:
+        description: Also upload api/smoke-test.php (run the deploy again without it to remove it)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build and deploy
+    # Deploying is manual while the repository stays private.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_APPS_PATH: ${{ vars.DEPLOY_APPS_PATH }}
+      TARGET: ${{ vars.DEPLOY_APPS_PATH }}/handsum/
+    steps:
+      - name: Require the target folder variable
+        run: |
+          if [ -z "$DEPLOY_APPS_PATH" ]; then
+            echo "The repository variable DEPLOY_APPS_PATH is required"
+            exit 1
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24.21.0
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install dependencies
+        run: npm --prefix client ci
+
+      - name: Build client
+        run: npm run client:build
+
+      - name: Stage site
+        env:
+          WITH_SMOKE_TEST: ${{ inputs.smoke-test }}
+        run: |
+          if [ "$WITH_SMOKE_TEST" = "true" ]; then
+            scripts/stage-site.sh site --with-smoke-test
+          else
+            scripts/stage-site.sh site
+          fi
+
+      - name: Deploy to server
+        uses: easingthemes/ssh-deploy@2cc5b27bf3029d0455dd5e09fe02633904031447 # v6.0.3
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+          SOURCE: site/
+          TARGET: ${{ env.TARGET }}
+          ARGS: "--archive --verbose --compress --human-readable --delete-after --update"
+          # Runtime data, the optional local config and the optional password protection are managed on the host.
+          EXCLUDE: "/api/data/, /api/config.local.php, /.htaccess, /.htpasswd"
+          SCRIPT_BEFORE: mkdir -p ${{ env.TARGET }}
+          SCRIPT_BEFORE_REQUIRED: "true"
