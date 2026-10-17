@@ -17,6 +17,9 @@ jobs:
   build:
     name: Build project
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -26,6 +29,7 @@ jobs:
         with:
           node-version: 24.21.0
           cache: npm
+          cache-dependency-path: client/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -42,7 +46,7 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
-          path: dist
+          path: client/dist
 
   deploy:
     name: Deploy to GitHub Pages

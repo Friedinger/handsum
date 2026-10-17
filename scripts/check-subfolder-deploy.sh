@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Serves the production layout (dist/ plus server/ as api/) from a sub-folder of an Apache
+# Serves the production layout (client/dist/ plus server/ as api/) from a sub-folder of an Apache
 # container and checks that the page, its assets, the API and the smoke test work there.
 set -euo pipefail
 
@@ -10,9 +10,9 @@ SITE_DIR=$(mktemp -d)
 CONTAINER=handsum-subfolder-check
 trap 'podman rm -f "$CONTAINER" >/dev/null 2>&1 || true; podman unshare rm -rf "$SITE_DIR"' EXIT
 
-npm --prefix "$ROOT_DIR" run build >/dev/null
+npm --prefix "$ROOT_DIR/client" run build >/dev/null
 mkdir -p "$SITE_DIR/$SUBFOLDER/api"
-cp -r "$ROOT_DIR"/dist/. "$SITE_DIR/$SUBFOLDER/"
+cp -r "$ROOT_DIR"/client/dist/. "$SITE_DIR/$SUBFOLDER/"
 cp -r "$ROOT_DIR"/server/. "$SITE_DIR/$SUBFOLDER/api/"
 rm -rf "$SITE_DIR/$SUBFOLDER/api/tests"
 chmod -R a+rwX "$SITE_DIR"

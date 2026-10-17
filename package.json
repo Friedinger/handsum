@@ -1,6 +1,6 @@
 {
   "name": "handsum",
-  "description": "Browser-based multiplayer card game prototype for 2 to 8 players, played peer-to-peer via a shared link.",
+  "description": "Browser-based multiplayer card game prototype for 2 to 8 players, played in the browser via a shared link.",
   "private": true,
   "version": "0.0.0",
   "homepage": "https://github.com/Friedinger/handsum#readme",
@@ -13,33 +13,15 @@
   },
   "license": "MIT",
   "author": "Friedinger",
-  "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vue-tsc && vite build",
-    "preview": "vite preview",
-    "test": "vitest run",
+    "dev": "npm --prefix client run dev",
+    "build": "npm --prefix client run build",
+    "preview": "npm --prefix client run preview",
+    "test": "npm --prefix client test",
+    "lint": "npm --prefix client run lint",
+    "fix": "npm --prefix client run fix",
     "test:server": "podman run --rm -v \"$PWD:/app:Z\" -w /app php:8.4-cli php -d display_errors=On -d error_reporting=E_ALL server/tests/run.php",
-    "lint": "vue-tsc && prettier . --check && eslint .",
-    "fix": "prettier . --write && eslint . --fix && vue-tsc",
     "dev:server": "podman run --rm -p 127.0.0.1:8080:8080 -v \"$PWD:/app:Z\" -w /app/server php:8.4-cli php -d display_errors=On -d error_reporting=E_ALL -S 0.0.0.0:8080 index.php",
     "test:deploy": "scripts/check-subfolder-deploy.sh"
-  },
-  "dependencies": {
-    "vue": "3.5.43"
-  },
-  "devDependencies": {
-    "@eslint/js": "10.0.1",
-    "@vitejs/plugin-vue": "6.0.9",
-    "@vue/eslint-config-typescript": "14.9.0",
-    "eslint": "10.12.0",
-    "eslint-config-prettier": "10.1.8",
-    "eslint-plugin-vue": "10.11.1",
-    "globals": "17.13.0",
-    "prettier": "3.9.9",
-    "typescript": "6.0.3",
-    "vite": "8.3.4",
-    "vitest": "5.0.3",
-    "vue-tsc": "3.3.12"
   }
 }
