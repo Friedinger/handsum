@@ -95,18 +95,9 @@ handsum/                  contents of client/dist/ (index.html, assets/)
 
 ### Automatic deployment
 
-The workflow `deploy.yml` builds the site and uploads it with `rsync` over SSH. It runs only when started by hand from the `main` branch (Actions → Deploy to shared hosting → Run workflow). Create these in the repository settings first:
+The workflow `deploy.yml` builds the site and deploys it via SFTP with the shared workflow from `Friedinger/configs` (environment `prod`). It runs only when started by hand from the `main` branch (Actions → Deploy to server → Run workflow).
 
-| Name               | Kind     | Content                                                                                                   |
-| ------------------ | -------- | --------------------------------------------------------------------------------------------------------- |
-| `DEPLOY_APPS_PATH` | Variable | Folder on the host that holds the apps, for example `~/projects/apps`; the site goes to `handsum/` inside |
-| `SSH_KEY`          | Secret   | Private key of an SSH key pair whose public key is allowed on the host                                    |
-| `REMOTE_HOST`      | Secret   | Hostname of the SSH server                                                                                |
-| `REMOTE_USER`      | Secret   | SSH user                                                                                                  |
-
-Every deploy replaces the site folder completely (`--delete-after`), except `api/data/`, `api/config.local.php`, `.htaccess` and `.htpasswd` in the site folder, which belong to the host. Changing `DEPLOY_APPS_PATH` moves the next deploy to another folder (for example from a protected test site to the live one); the old folder stays as it was.
-
-If other deployments sync the same host folder with `rsync --delete`, the `apps/` folder must be excluded there, otherwise every run deletes it.
+The site is mirrored into the root of the SFTP user. Everything else there is deleted, except `api/data/`, `api/config.local.php`, `.htaccess` and `.htpasswd` in the site root, which belong to the host.
 
 ### First deployment on a new host
 
