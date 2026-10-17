@@ -3,7 +3,7 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   plugins: [vue()],
-  // Relative base keeps the build working under the GitHub Pages sub-path and locally.
+  // Relative base keeps the build working under any sub-folder and locally.
   base: "./",
   resolve: {
     alias: {
