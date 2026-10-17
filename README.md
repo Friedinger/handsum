@@ -20,19 +20,20 @@ npm run client:dev   # Vite dev server
 
 To try it alone, open the room link in two browser windows. The PHP commands run in containers through `docker compose`; with Podman enable the API socket once: `systemctl --user enable --now podman.socket`.
 
-| Command                | Purpose                                  |
-| ---------------------- | ---------------------------------------- |
-| `npm run client:dev`   | Start the Vite dev server                |
-| `npm run client:build` | Type-check and build to `client/dist/`   |
-| `npm run client:test`  | Run the client unit tests                |
-| `npm run client:lint`  | Type-check, check formatting and lint    |
-| `npm run client:fix`   | Format, fix lint issues and type-check   |
-| `npm run server:dev`   | Start the PHP API on port 8080 (Compose) |
-| `npm run server:test`  | Run the PHP server tests (Compose)       |
-| `npm run deploy:check` | Check the build in an Apache sub-folder  |
-| `npm test`             | Run client and server tests              |
-| `npm run lint`         | Same as `client:lint`                    |
-| `npm run fix`          | Same as `client:fix`                     |
+| Command                  | Purpose                                                     |
+| ------------------------ | ----------------------------------------------------------- |
+| `npm run client:dev`     | Start the Vite dev server                                   |
+| `npm run client:build`   | Type-check and build to `client/dist/`                      |
+| `npm run client:test`    | Run the client unit tests                                   |
+| `npm run client:lint`    | Type-check, check formatting and lint                       |
+| `npm run client:fix`     | Format, fix lint issues and type-check                      |
+| `npm run server:dev`     | Start the PHP API on port 8080 (Compose)                    |
+| `npm run server:install` | Install the PHP test dependencies (Composer in a container) |
+| `npm run server:test`    | Run the PHP server tests (PHPUnit, Compose)                 |
+| `npm run deploy:check`   | Check the build in an Apache sub-folder                     |
+| `npm test`               | Run client and server tests                                 |
+| `npm run lint`           | Same as `client:lint`                                       |
+| `npm run fix`            | Same as `client:fix`                                        |
 
 ## Repository layout
 
@@ -87,7 +88,7 @@ npm run client:build
 
 ```
 handsum/                  contents of client/dist/ (index.html, assets/)
-  api/                    contents of server/ without tests/
+  api/                    only the files below, not vendor/, tests/ or Composer files
     index.php
     smoke-test.php        delete after the first check
     .htaccess
@@ -95,7 +96,7 @@ handsum/                  contents of client/dist/ (index.html, assets/)
     data/                 created and filled by the server
 ```
 
-1. Upload `client/dist/*` to the sub-folder and `server/*` (without `tests/`) to its `api/` folder.
+1. Upload `client/dist/*` to the sub-folder and `server/.htaccess`, `server/index.php`, `server/smoke-test.php` and `server/src/` to its `api/` folder. `vendor/`, `tests/`, `composer.json`, `composer.lock` and `phpunit.xml.dist` stay on your machine.
 2. Optional: to keep the data outside the web root, create `api/config.local.php` returning `['dataDir' => '/absolute/path/to/data'];`. The folder must be writable by PHP. Otherwise the server uses `api/data/`, which `.htaccess` blocks.
 3. Open `https://example.com/handsum/api/smoke-test.php`. It checks that the data folder is writable, that `flock` works, that 20 parallel appends for one sequence number yield exactly one winner and that sources and data are not served. All lines must say `OK`.
 4. Delete `smoke-test.php` from the server.

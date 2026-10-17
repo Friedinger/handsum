@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Serves the production layout (client/dist/ plus server/ as api/) from a sub-folder of an Apache
+# Serves the production layout (client/dist/ plus the deployable parts of server/ as api/) from a sub-folder of an Apache
 # container and checks that the page, its assets, the API and the smoke test work there.
 set -euo pipefail
 
@@ -13,8 +13,10 @@ trap 'compose down --volumes >/dev/null 2>&1 || true; rm -rf "$SITE_DIR"' EXIT
 npm --prefix "$ROOT_DIR/client" run build >/dev/null
 mkdir -p "$SITE_DIR/$SUBFOLDER/api"
 cp -r "$ROOT_DIR"/client/dist/. "$SITE_DIR/$SUBFOLDER/"
-cp -r "$ROOT_DIR"/server/. "$SITE_DIR/$SUBFOLDER/api/"
-rm -rf "$SITE_DIR/$SUBFOLDER/api/tests"
+# Only these paths belong on the host; vendor/, tests/ and the Composer and PHPUnit files are for development.
+for entry in .htaccess index.php smoke-test.php src; do
+  cp -r "$ROOT_DIR/server/$entry" "$SITE_DIR/$SUBFOLDER/api/"
+done
 
 compose up --detach apache >/dev/null
 # Copying into the container instead of bind-mounting keeps file ownership out of the host.
@@ -42,6 +44,8 @@ for asset in $(grep -oE '(src|href)="\./[^"]+"' <<<"$PAGE" | sed -E 's/.*"\.\/([
 done
 check "API answers below the sub-folder" "$(curl -s -H "X-Room: $ROOM" "$BASE/api/index.php?since=0")" '"moves":[]'
 check "API rejects requests without a room" "$(status "$BASE/api/index.php")" "400"
+DEV_FILES=$(compose exec -T apache sh -c "ls -A /var/www/html/$SUBFOLDER/api | grep -E '^(vendor|tests|composer|phpunit)' || true")
+check "no development files are deployed" "${DEV_FILES:-none}" "none"
 check "sources are not served" "$(status "$BASE/api/src/Config.php")" "403"
 SMOKE=$(curl -s "$BASE/api/smoke-test.php")
 check "smoke test passes in the sub-folder" "$SMOKE" "All OK means"
