@@ -20,8 +20,8 @@
     "test": "npm --prefix client test",
     "lint": "npm --prefix client run lint",
     "fix": "npm --prefix client run fix",
-    "test:server": "podman run --rm -v \"$PWD:/app:Z\" -w /app php:8.4-cli php -d display_errors=On -d error_reporting=E_ALL server/tests/run.php",
-    "dev:server": "podman run --rm -p 127.0.0.1:8080:8080 -v \"$PWD:/app:Z\" -w /app/server php:8.4-cli php -d display_errors=On -d error_reporting=E_ALL -S 0.0.0.0:8080 index.php",
+    "test:server": "docker compose run --rm php-test",
+    "dev:server": "docker compose run --rm --service-ports php-dev",
     "test:deploy": "scripts/check-subfolder-deploy.sh"
   }
 }

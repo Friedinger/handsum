@@ -1,0 +1,28 @@
+x-php: &php
+  image: php:8.4-cli
+  volumes:
+    - ./server:/server:Z
+
+services:
+  php-dev:
+    <<: *php
+    profiles: [dev]
+    init: true
+    working_dir: /server
+    ports:
+      - "127.0.0.1:8080:8080"
+    command: php -d display_errors=On -d error_reporting=E_ALL -S 0.0.0.0:8080 index.php
+
+  php-test:
+    <<: *php
+    profiles: [test]
+    command: php -d display_errors=On -d error_reporting=E_ALL /server/tests/run.php
+
+  apache:
+    profiles: [deploy-check]
+    build:
+      context: docker
+      dockerfile: apache.Dockerfile
+    network_mode: host
+    environment:
+      APACHE_PORT: ${APACHE_PORT:-8089}
