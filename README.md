@@ -80,28 +80,53 @@ IP addresses are never stored in clear text. Limits (rooms, moves, sizes, reques
 
 ## Deployment to shared hosting
 
-The app runs in a sub-folder (for example `https://example.com/handsum/`), needs PHP 8.4 with Apache and no database. Build it and upload with SFTP:
-
-```bash
-npm run client:build
-```
+The app runs in a sub-folder (for example `https://example.com/apps/handsum/`), needs PHP 8.4 with Apache and no database. The result on the host looks like this:
 
 ```
 handsum/                  contents of client/dist/ (index.html, assets/)
+  .htaccess               optional password protection, see below
   api/                    only the files below, not vendor/, tests/ or Composer files
     index.php
-    smoke-test.php        delete after the first check
+    smoke-test.php        only while checking a new host, see below
     .htaccess
     src/
+    config.local.php      optional, see below
     data/                 created and filled by the server
 ```
 
-1. Upload `client/dist/*` to the sub-folder and `server/.htaccess`, `server/index.php`, `server/smoke-test.php` and `server/src/` to its `api/` folder. `vendor/`, `tests/`, `composer.json`, `composer.lock` and `phpunit.xml.dist` stay on your machine.
-2. Optional: to keep the data outside the web root, create `api/config.local.php` returning `['dataDir' => '/absolute/path/to/data'];`. The folder must be writable by PHP. Otherwise the server uses `api/data/`, which `.htaccess` blocks.
-3. Open `https://example.com/handsum/api/smoke-test.php`. It checks that the data folder is writable, that `flock` works, that 20 parallel appends for one sequence number yield exactly one winner and that sources and data are not served. All lines must say `OK`.
-4. Delete `smoke-test.php` from the server.
+### Automatic deployment
 
-Unexpected server errors never appear in responses; they are logged to `error.log` in the data folder.
+The workflow `deploy.yml` builds the site and uploads it with `rsync` over SSH. It runs only when started by hand from the `main` branch (Actions → Deploy to shared hosting → Run workflow). Create these in the repository settings first:
+
+| Name               | Kind     | Content                                                                                                   |
+| ------------------ | -------- | --------------------------------------------------------------------------------------------------------- |
+| `DEPLOY_APPS_PATH` | Variable | Folder on the host that holds the apps, for example `~/projects/apps`; the site goes to `handsum/` inside |
+| `SSH_KEY`          | Secret   | Private key of an SSH key pair whose public key is allowed on the host                                    |
+| `REMOTE_HOST`      | Secret   | Hostname of the SSH server                                                                                |
+| `REMOTE_USER`      | Secret   | SSH user                                                                                                  |
+
+Every deploy replaces the site folder completely (`--delete-after`), except `api/data/`, `api/config.local.php`, `.htaccess` and `.htpasswd` in the site folder, which belong to the host. Changing `DEPLOY_APPS_PATH` moves the next deploy to another folder (for example from a protected test site to the live one); the old folder stays as it was.
+
+If other deployments sync the same host folder with `rsync --delete`, the `apps/` folder must be excluded there, otherwise every run deletes it.
+
+### First deployment on a new host
+
+1. Run the workflow with the option "Also upload api/smoke-test.php".
+2. Open `https://example.com/apps/handsum/api/smoke-test.php`. It checks that the data folder is writable, that `flock` works, that 20 parallel appends for one sequence number yield exactly one winner and that sources and data are not served. All lines must say `OK`.
+3. Run the workflow again without the option. The upload then removes `smoke-test.php` from the host.
+
+Optional: to keep the data outside the web root, create `api/config.local.php` on the host returning `['dataDir' => '/absolute/path/to/data'];`. The folder must be writable by PHP. Otherwise the server uses `api/data/`, which `api/.htaccess` blocks. Unexpected server errors never appear in responses; they are logged to `error.log` in the data folder.
+
+### Manual deployment
+
+Without the workflow, build and assemble the same folder yourself and upload it with SFTP:
+
+```bash
+npm run client:build
+scripts/stage-site.sh site            # add --with-smoke-test for the first check
+```
+
+Upload the contents of `site/` to the sub-folder on the host and delete `api/smoke-test.php` after the check.
 
 ### Optional password protection
 
