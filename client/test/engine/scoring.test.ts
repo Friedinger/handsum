@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { CALLER_PENALTY, SPECIAL_LAYOUT_PENALTY } from "./rules";
-import { scoreGame } from "./scoring";
-import { createPlayers, makeCard } from "@/testing/gameFixtures";
-import type { Seat, Slot } from "./types";
+import { CALLER_PENALTY, SPECIAL_LAYOUT_PENALTY } from "@/engine/rules";
+import { scoreGame } from "@/engine/scoring";
+import { createPlayers, makeCard } from "@test/support/gameFixtures";
+import type { Seat, Slot } from "@/engine/types";
 
 function seatsWithValues(...layouts: (number | null)[][]): Seat[] {
   const players = createPlayers(layouts.length);

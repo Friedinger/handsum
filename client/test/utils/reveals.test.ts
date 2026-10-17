@@ -7,13 +7,13 @@ import {
   playingGame,
   startedGame,
   withLayouts,
-} from "@/testing/gameFixtures";
+} from "@test/support/gameFixtures";
 import {
   isRevealed,
   revealsAfterMove,
   STARTING_VIEW_REVEAL_MS,
   VIEW_REVEAL_MS,
-} from "./reveals";
+} from "@/utils/reveals";
 
 function afterMove(state: StartedGame, move: Move): StartedGame {
   return expectStarted(applyMove(state, move));

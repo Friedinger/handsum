@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { applyMove, initialGameState, validateMove } from "./applyMove";
-import type { Move } from "./moves";
+import { applyMove, initialGameState, validateMove } from "@/engine/applyMove";
+import type { Move } from "@/engine/moves";
 import {
   expectStarted,
   startedGame,
   startingViewMoves,
-} from "@/testing/gameFixtures";
+} from "@test/support/gameFixtures";
 
 function viewMove(playerId: string, slotIndices: number[]): Move {
   return { type: "viewStartingCards", playerId, slotIndices };

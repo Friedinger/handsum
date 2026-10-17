@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { applyMove, validateMove } from "./applyMove";
-import type { Move } from "./moves";
-import { expectStarted, makeCard, playingGame } from "@/testing/gameFixtures";
-import type { StartedGame } from "./types";
+import { applyMove, validateMove } from "@/engine/applyMove";
+import type { Move } from "@/engine/moves";
+import {
+  expectStarted,
+  makeCard,
+  playingGame,
+} from "@test/support/gameFixtures";
+import type { StartedGame } from "@/engine/types";
 
 const drawMove: Move = { type: "drawFromDeck", playerId: "player-1" };
 const discardPile = [

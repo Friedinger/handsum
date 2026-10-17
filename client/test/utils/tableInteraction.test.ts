@@ -5,7 +5,7 @@ import {
   makeCard,
   playingGame,
   startedGame,
-} from "@/testing/gameFixtures";
+} from "@test/support/gameFixtures";
 import {
   handleClick,
   isClickable,
@@ -14,7 +14,7 @@ import {
   type ClickTarget,
   type Intent,
   type SlotRef,
-} from "./tableInteraction";
+} from "@/utils/tableInteraction";
 
 const self = "player-1";
 const own = (slotIndex: number): ClickTarget => ({

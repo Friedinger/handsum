@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import type { Move } from "./moves";
-import { parseMove } from "./parseMove";
-import { startGameMove } from "@/testing/gameFixtures";
+import type { Move } from "@/engine/moves";
+import { parseMove } from "@/engine/parseMove";
+import { startGameMove } from "@test/support/gameFixtures";
 
 const validMoves: Move[] = [
   startGameMove(),

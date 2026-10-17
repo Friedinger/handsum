@@ -3,8 +3,8 @@ import type { Move } from "@/engine";
 import {
   createPollingTransport,
   type PageVisibility,
-} from "./pollingTransport";
-import type { ConnectionState, RoomUpdate } from "./transport";
+} from "@/net/pollingTransport";
+import type { ConnectionState, RoomUpdate } from "@/net/transport";
 
 const ROOM_CODE = "ABCDEF";
 const self = { playerId: "alice", name: "Alice" };

@@ -6,8 +6,13 @@ import {
   makeCard,
   playingGame,
   withLayouts,
-} from "@/testing/gameFixtures";
-import { anchorKey, planDeal, planMove, type MovePlan } from "./cardFlights";
+} from "@test/support/gameFixtures";
+import {
+  anchorKey,
+  planDeal,
+  planMove,
+  type MovePlan,
+} from "@/utils/cardFlights";
 
 const self = "player-1";
 

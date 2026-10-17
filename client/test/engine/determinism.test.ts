@@ -1,17 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { applyMove, replayMoves } from "./applyMove";
-import { standardDeck } from "./deck";
-import { legalMoves } from "./legalMoves";
-import type { Move } from "./moves";
-import { createMulberry32 } from "./random";
+import { applyMove, replayMoves } from "@/engine/applyMove";
+import { standardDeck } from "@/engine/deck";
+import { legalMoves } from "@/engine/legalMoves";
+import type { Move } from "@/engine/moves";
+import { createMulberry32 } from "@/engine/random";
 import {
   allCards,
   expectStarted,
   startingViewMoves,
   startedGame,
   startGameMove,
-} from "@/testing/gameFixtures";
-import type { StartedGame } from "./types";
+} from "@test/support/gameFixtures";
+import type { StartedGame } from "@/engine/types";
 
 const MOVES_BEFORE_CALLING_END = 120;
 

@@ -5,12 +5,12 @@ import {
   lobbyPlayers,
   type GameSession,
   type SessionSnapshot,
-} from "./gameSession";
+} from "@/net/gameSession";
 import {
   createMemoryNetwork,
   type MemoryNetwork,
-} from "@/testing/memoryNetwork";
-import type { HelloMessage } from "./protocol";
+} from "@test/support/memoryNetwork";
+import type { HelloMessage } from "@/net/protocol";
 
 const ROOM = "ABCDEF";
 const SEED = 7;

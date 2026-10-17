@@ -5,9 +5,9 @@ import {
   makeCard,
   playingGame,
   startedGame,
-} from "@/testing/gameFixtures";
-import { hintFor } from "./tableHints";
-import { noIntent, toggleSeveral } from "./tableInteraction";
+} from "@test/support/gameFixtures";
+import { hintFor } from "@/utils/tableHints";
+import { noIntent, toggleSeveral } from "@/utils/tableInteraction";
 
 const self = "player-1";
 

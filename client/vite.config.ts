@@ -8,6 +8,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": "/src",
+      "@test": "/test",
     },
   },
   server: {
@@ -24,6 +25,6 @@ export default defineConfig({
     assetsDir: "assets",
   },
   test: {
-    include: ["src/**/*.test.ts"],
+    include: ["test/**/*.test.ts"],
   },
 });

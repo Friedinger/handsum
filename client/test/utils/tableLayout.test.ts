@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { startedGame } from "@/testing/gameFixtures";
-import { arrangeOpponents, opponentsInTurnOrder } from "./tableLayout";
+import { startedGame } from "@test/support/gameFixtures";
+import { arrangeOpponents, opponentsInTurnOrder } from "@/utils/tableLayout";
 
 function namesAround(playerCount: number, selfId: string) {
   const sides = arrangeOpponents(startedGame(playerCount).seats, selfId);

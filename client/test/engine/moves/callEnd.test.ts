@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { applyMove, validateMove } from "./applyMove";
-import { legalMoves } from "./legalMoves";
-import type { Move } from "./moves";
+import { applyMove, validateMove } from "@/engine/applyMove";
+import { legalMoves } from "@/engine/legalMoves";
+import type { Move } from "@/engine/moves";
 import {
   currentPlayerId,
   expectStarted,
   playingGame,
-} from "@/testing/gameFixtures";
-import type { StartedGame } from "./types";
+} from "@test/support/gameFixtures";
+import type { StartedGame } from "@/engine/types";
 
 function apply(state: StartedGame, move: Move): StartedGame {
   return expectStarted(applyMove(state, move));

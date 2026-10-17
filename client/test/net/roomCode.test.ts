@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createRoomCode, normalizeRoomCode, roomLink } from "./roomCode";
+import { createRoomCode, normalizeRoomCode, roomLink } from "@/net/roomCode";
 
 describe("room codes", () => {
   it("creates six-character codes that normalize to themselves", () => {

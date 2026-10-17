@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createMulberry32, isValidSeed, shuffle } from "./random";
+import { createMulberry32, isValidSeed, shuffle } from "@/engine/random";
 
 const SAMPLE_SIZE = 1000;
 

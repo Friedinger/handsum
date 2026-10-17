@@ -1,15 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { applyMove, initialGameState, validateMove } from "./applyMove";
-import { standardDeck } from "./deck";
-import { LAYOUT_SIZE, MAX_PLAYERS, MIN_PLAYERS } from "./rules";
+import { applyMove, initialGameState, validateMove } from "@/engine/applyMove";
+import { standardDeck } from "@/engine/deck";
+import { LAYOUT_SIZE, MAX_PLAYERS, MIN_PLAYERS } from "@/engine/rules";
 import {
   allCards,
   createPlayers,
   expectStarted,
   startedGame,
   startGameMove,
-} from "@/testing/gameFixtures";
-import type { StartedGame } from "./types";
+} from "@test/support/gameFixtures";
+import type { StartedGame } from "@/engine/types";
 
 describe("startGame", () => {
   it.each([MIN_PLAYERS, 5, MAX_PLAYERS])(
