@@ -17,15 +17,18 @@ npm --prefix client install
 npm run dev
 ```
 
-To try it alone, open the room link in two browser windows.
+To try it alone, open the room link in two browser windows. The PHP commands run in containers through `docker compose`; with Podman enable the API socket once: `systemctl --user enable --now podman.socket`.
 
-| Command         | Purpose                                |
-| --------------- | -------------------------------------- |
-| `npm run dev`   | Start the dev server                   |
-| `npm run build` | Type-check and build to `client/dist/` |
-| `npm test`      | Run unit tests                         |
-| `npm run lint`  | Type-check, check formatting and lint  |
-| `npm run fix`   | Format, fix lint issues and type-check |
+| Command               | Purpose                                  |
+| --------------------- | ---------------------------------------- |
+| `npm run dev`         | Start the dev server                     |
+| `npm run build`       | Type-check and build to `client/dist/`   |
+| `npm test`            | Run unit tests                           |
+| `npm run lint`        | Type-check, check formatting and lint    |
+| `npm run fix`         | Format, fix lint issues and type-check   |
+| `npm run dev:server`  | Start the PHP API on port 8080 (Compose) |
+| `npm run test:server` | Run the PHP server tests (Compose)       |
+| `npm run test:deploy` | Check the build in an Apache sub-folder  |
 
 ## Repository layout
 

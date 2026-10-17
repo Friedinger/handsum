@@ -56,7 +56,27 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Run server tests
-        run: docker run --rm -v "$PWD:/app" -w /app php:8.4-cli php -d display_errors=On -d error_reporting=E_ALL server/tests/run.php
+        run: docker compose run --rm php-test
+
+  check-deploy:
+    name: Check sub-folder deployment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24.21.0
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install dependencies
+        run: npm --prefix client ci
+
+      - name: Check the production layout in an Apache container
+        run: npm run test:deploy
 
   deploy:
     name: Deploy to GitHub Pages
