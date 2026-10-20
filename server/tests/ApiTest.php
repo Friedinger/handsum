@@ -7,6 +7,7 @@ namespace Handsum\Tests;
 use Handsum\Api;
 use Handsum\Config;
 use Handsum\RateLimiter;
+use Handsum\Response;
 use Handsum\Storage\RoomStore;
 use Handsum\Tests\Support\DataDirTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -26,11 +27,11 @@ final class ApiTest extends DataDirTestCase
 
     public function testEmptyRoomReadsAsEmptyLog(): void
     {
-        [$status, $body] = $this->call('GET', self::room(), [], '');
+        $response = $this->call('GET', self::room(), [], '');
 
-        self::assertSame(200, $status);
-        self::assertSame(0, $body['length']);
-        self::assertSame([], $body['moves']);
+        self::assertSame(200, $response->status);
+        self::assertSame(0, $response->payload['length']);
+        self::assertSame([], $response->payload['moves']);
     }
 
     public function testReadingDoesNotCreateARoom(): void
@@ -42,19 +43,19 @@ final class ApiTest extends DataDirTestCase
 
     public function testFirstMoveIsAppended(): void
     {
-        [$status, $body] = $this->postMove(0, 'startGame');
+        $response = $this->postMove(0, 'startGame');
 
-        self::assertSame(200, $status);
-        self::assertSame(1, $body['length']);
+        self::assertSame(200, $response->status);
+        self::assertSame(1, $response->payload['length']);
     }
 
     public function testNextSequenceIsAppended(): void
     {
         $this->postMove(0, 'startGame');
 
-        [$status] = $this->postMove(1);
+        $response = $this->postMove(1);
 
-        self::assertSame(200, $status);
+        self::assertSame(200, $response->status);
     }
 
     public function testDuplicateSequenceConflicts(): void
@@ -62,10 +63,10 @@ final class ApiTest extends DataDirTestCase
         $this->postMove(0, 'startGame');
         $this->postMove(1);
 
-        [$status, $body] = $this->postMove(1);
+        $response = $this->postMove(1);
 
-        self::assertSame(409, $status);
-        self::assertSame(2, $body['length']);
+        self::assertSame(409, $response->status);
+        self::assertSame(2, $response->payload['length']);
     }
 
     public function testGapConflicts(): void
@@ -73,10 +74,10 @@ final class ApiTest extends DataDirTestCase
         $this->postMove(0, 'startGame');
         $this->postMove(1);
 
-        [$status, $body] = $this->postMove(5);
+        $response = $this->postMove(5);
 
-        self::assertSame(409, $status);
-        self::assertSame(2, $body['length']);
+        self::assertSame(409, $response->status);
+        self::assertSame(2, $response->payload['length']);
     }
 
     public function testSinceReturnsOnlyNewerMoves(): void
@@ -84,10 +85,10 @@ final class ApiTest extends DataDirTestCase
         $this->postMove(0, 'startGame');
         $this->postMove(1);
 
-        [, $body] = $this->call('GET', self::room(), ['since' => '1'], '');
+        $response = $this->call('GET', self::room(), ['since' => '1'], '');
 
-        self::assertCount(1, $body['moves']);
-        self::assertSame('drawFromDeck', $body['moves'][0]->type);
+        self::assertCount(1, $response->payload['moves']);
+        self::assertSame('drawFromDeck', $response->payload['moves'][0]->type);
     }
 
     public function testSinceAtTheEndReturnsNothing(): void
@@ -95,39 +96,39 @@ final class ApiTest extends DataDirTestCase
         $this->postMove(0, 'startGame');
         $this->postMove(1);
 
-        [, $body] = $this->call('GET', self::room(), ['since' => '2'], '');
+        $response = $this->call('GET', self::room(), ['since' => '2'], '');
 
-        self::assertSame([], $body['moves']);
-        self::assertSame(2, $body['length']);
+        self::assertSame([], $response->payload['moves']);
+        self::assertSame(2, $response->payload['length']);
     }
 
     public function testMissingRoomIdIsRejected(): void
     {
-        self::assertSame(400, $this->call('GET', [], [], '')[0]);
+        self::assertSame(400, $this->call('GET', [], [], '')->status);
     }
 
     public function testPathTraversalRoomIdIsRejected(): void
     {
         $server = [Config::ROOM_ID_HEADER => '../../etc/passwd'];
 
-        self::assertSame(400, $this->call('GET', $server, [], '')[0]);
+        self::assertSame(400, $this->call('GET', $server, [], '')->status);
     }
 
     public function testUppercaseHexRoomIdIsRejected(): void
     {
         $server = [Config::ROOM_ID_HEADER => strtoupper(hash('sha256', 'x'))];
 
-        self::assertSame(400, $this->call('GET', $server, [], '')[0]);
+        self::assertSame(400, $this->call('GET', $server, [], '')->status);
     }
 
     public function testInvalidSinceIsRejected(): void
     {
-        self::assertSame(400, $this->call('GET', self::room(), ['since' => '-1'], '')[0]);
+        self::assertSame(400, $this->call('GET', self::room(), ['since' => '-1'], '')->status);
     }
 
     public function testUnknownActionIsRejected(): void
     {
-        self::assertSame(405, $this->call('POST', self::room(), ['action' => 'nope'], '{}')[0]);
+        self::assertSame(405, $this->call('POST', self::room(), ['action' => 'nope'], '{}')->status);
     }
 
     /** @return array<string, array{string}> */
@@ -144,47 +145,47 @@ final class ApiTest extends DataDirTestCase
     #[DataProvider('malformedMoveBodies')]
     public function testMalformedMoveIsRejected(string $body): void
     {
-        self::assertSame(400, $this->call('POST', self::room(), ['action' => 'move'], $body)[0]);
+        self::assertSame(400, $this->call('POST', self::room(), ['action' => 'move'], $body)->status);
     }
 
     public function testOversizedMoveIsRejected(): void
     {
         $body = json_encode(['sequence' => 2, 'move' => ['type' => 'a', 'pad' => str_repeat('x', Config::MAX_BYTES_PER_MOVE)]]);
 
-        self::assertSame(413, $this->call('POST', self::room(), ['action' => 'move'], $body)[0]);
+        self::assertSame(413, $this->call('POST', self::room(), ['action' => 'move'], $body)->status);
     }
 
     public function testOversizedRequestBodyIsRejected(): void
     {
         $body = str_repeat(' ', Config::MAX_REQUEST_BYTES + 1) . self::moveBody(2);
 
-        self::assertSame(400, $this->call('POST', self::room(), ['action' => 'move'], $body)[0]);
+        self::assertSame(400, $this->call('POST', self::room(), ['action' => 'move'], $body)->status);
     }
 
     public function testPlayerJoins(): void
     {
-        [$status, $body] = $this->join('p1', 'Anna');
+        $response = $this->join('p1', 'Anna');
 
-        self::assertSame(200, $status);
-        self::assertSame([['playerId' => 'p1', 'name' => 'Anna']], $body['players']);
+        self::assertSame(200, $response->status);
+        self::assertSame([['playerId' => 'p1', 'name' => 'Anna']], $response->payload['players']);
     }
 
     public function testRejoiningUpdatesTheName(): void
     {
         $this->join('p1', 'Anna');
 
-        [, $body] = $this->join('p1', 'Anna B');
+        $response = $this->join('p1', 'Anna B');
 
-        self::assertSame([['playerId' => 'p1', 'name' => 'Anna B']], $body['players']);
+        self::assertSame([['playerId' => 'p1', 'name' => 'Anna B']], $response->payload['players']);
     }
 
     public function testPlayersAreListedOnRead(): void
     {
         $this->join('p1', 'Anna');
 
-        [, $body] = $this->call('GET', self::room('JOIN22'), [], '');
+        $response = $this->call('GET', self::room('JOIN22'), [], '');
 
-        self::assertCount(1, $body['players']);
+        self::assertCount(1, $response->payload['players']);
     }
 
     /** @return array<string, array{string, string}> */
@@ -200,7 +201,7 @@ final class ApiTest extends DataDirTestCase
     #[DataProvider('invalidPlayers')]
     public function testInvalidPlayerIsRejected(string $playerId, string $name): void
     {
-        self::assertSame(400, $this->join($playerId, $name)[0]);
+        self::assertSame(400, $this->join($playerId, $name)->status);
     }
 
     public function testSilentPlayersDisappear(): void
@@ -208,9 +209,9 @@ final class ApiTest extends DataDirTestCase
         $this->join('p1', 'Anna');
         $this->now += Config::PLAYER_ACTIVE_SECONDS + 1;
 
-        [, $body] = $this->call('GET', self::room('JOIN22'), [], '');
+        $response = $this->call('GET', self::room('JOIN22'), [], '');
 
-        self::assertSame([], $body['players']);
+        self::assertSame([], $response->payload['players']);
     }
 
     public function testPlayerBeyondTheLimitIsRefused(): void
@@ -219,13 +220,13 @@ final class ApiTest extends DataDirTestCase
             $this->join("q$i", "P$i");
         }
 
-        self::assertSame(409, $this->join('late', 'Late')[0]);
+        self::assertSame(409, $this->join('late', 'Late')->status);
     }
 
     public function testRoomCreationsWithinTheLimitSucceed(): void
     {
         for ($i = 0; $i < Config::ROOM_CREATIONS_PER_IP_PER_WINDOW; $i++) {
-            self::assertSame(200, $this->postMoveFrom("R$i", 0, '2.2.2.2')[0]);
+            self::assertSame(200, $this->postMoveFrom("R$i", 0, '2.2.2.2')->status);
         }
     }
 
@@ -233,21 +234,21 @@ final class ApiTest extends DataDirTestCase
     {
         $this->createRooms(Config::ROOM_CREATIONS_PER_IP_PER_WINDOW, '2.2.2.2');
 
-        self::assertSame(429, $this->postMoveFrom('RX', 0, '2.2.2.2')[0]);
+        self::assertSame(429, $this->postMoveFrom('RX', 0, '2.2.2.2')->status);
     }
 
     public function testOtherIpsMayStillCreateRooms(): void
     {
         $this->createRooms(Config::ROOM_CREATIONS_PER_IP_PER_WINDOW, '2.2.2.2');
 
-        self::assertSame(200, $this->postMoveFrom('RY', 0, '3.3.3.3')[0]);
+        self::assertSame(200, $this->postMoveFrom('RY', 0, '3.3.3.3')->status);
     }
 
     public function testExistingRoomsAreNotLimited(): void
     {
         $this->createRooms(Config::ROOM_CREATIONS_PER_IP_PER_WINDOW, '2.2.2.2');
 
-        self::assertSame(200, $this->postMoveFrom('R0', 1, '2.2.2.2')[0]);
+        self::assertSame(200, $this->postMoveFrom('R0', 1, '2.2.2.2')->status);
     }
 
     public function testIpIsNotStoredInClearText(): void
@@ -265,28 +266,26 @@ final class ApiTest extends DataDirTestCase
         $this->createRooms(Config::ROOM_CREATIONS_PER_IP_PER_WINDOW, '2.2.2.2');
         $this->now += Config::ROOM_CREATION_WINDOW_SECONDS + 1;
 
-        self::assertSame(200, $this->postMoveFrom('RX', 0, '2.2.2.2')[0]);
+        self::assertSame(200, $this->postMoveFrom('RX', 0, '2.2.2.2')->status);
     }
 
     public function testRequestRateLimitTriggers(): void
     {
         $status = 200;
         for ($i = 0; $i <= Config::REQUESTS_PER_IP_PER_WINDOW; $i++) {
-            [$status] = $this->call('GET', self::room(), [], '', '4.4.4.4');
+            $response = $this->call('GET', self::room(), [], '', '4.4.4.4');
         }
 
-        self::assertSame(429, $status);
+        self::assertSame(429, $response->status);
     }
 
     /**
      * @param array<string, string> $server
      * @param array<string, string> $query
-     * @return array{int, array<string, mixed>}
      */
-    private function call(string $method, array $server, array $query, string $body, string $ip = '1.1.1.1'): array
+    private function call(string $method, array $server, array $query, string $body, string $ip = '1.1.1.1'): Response
     {
-        $response = $this->api->handle($method, $server, $query, $body, $ip);
-        return [$response->status, $response->payload];
+        return $this->api->handle($method, $server, $query, $body, $ip);
     }
 
     /** @return array<string, string> */
@@ -300,14 +299,12 @@ final class ApiTest extends DataDirTestCase
         return json_encode(['sequence' => $sequence, 'move' => ['type' => $type, 'playerId' => 'p1']]);
     }
 
-    /** @return array{int, array<string, mixed>} */
-    private function postMove(int $sequence, string $type = 'drawFromDeck'): array
+    private function postMove(int $sequence, string $type = 'drawFromDeck'): Response
     {
         return $this->call('POST', self::room(), ['action' => 'move'], self::moveBody($sequence, $type));
     }
 
-    /** @return array{int, array<string, mixed>} */
-    private function postMoveFrom(string $roomCode, int $sequence, string $ip): array
+    private function postMoveFrom(string $roomCode, int $sequence, string $ip): Response
     {
         return $this->call('POST', self::room($roomCode), ['action' => 'move'], self::moveBody($sequence), $ip);
     }
@@ -319,8 +316,7 @@ final class ApiTest extends DataDirTestCase
         }
     }
 
-    /** @return array{int, array<string, mixed>} */
-    private function join(string $playerId, string $name): array
+    private function join(string $playerId, string $name): Response
     {
         $body = json_encode(['playerId' => $playerId, 'name' => $name]);
         return $this->call('POST', self::room('JOIN22'), ['action' => 'join'], $body);
