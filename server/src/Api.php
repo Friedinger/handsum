@@ -45,13 +45,13 @@ final class Api
         if (preg_match(Config::SINCE_PATTERN, $since) !== 1) {
             return Response::error(400, 'invalidSince');
         }
-        $moves = array_map(
-            static fn(string $line): mixed => json_decode($line),
-            $this->rooms->movesSince($roomId, (int) $since),
-        );
+        $log = $this->rooms->moves($roomId);
         return Response::ok([
-            'length' => $this->rooms->length($roomId),
-            'moves' => $moves,
+            'length' => count($log),
+            'moves' => array_map(
+                static fn(string $line): mixed => json_decode($line),
+                array_slice($log, (int) $since),
+            ),
             'players' => $this->rooms->activePlayers($roomId),
         ]);
     }

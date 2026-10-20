@@ -31,15 +31,11 @@ final class RoomStore
         return count(array_unique($ids));
     }
 
-    /** @return list<string> JSON-encoded moves from index $since on */
-    public function movesSince(string $roomId, int $since): array
+    /** @return list<string> the whole move log as JSON-encoded moves, the index in the list being the sequence number */
+    public function moves(string $roomId): array
     {
-        return array_slice($this->readLines($roomId), $since);
-    }
-
-    public function length(string $roomId): int
-    {
-        return count($this->readLines($roomId));
+        $raw = @file_get_contents($this->logPath($roomId));
+        return $raw === false || $raw === '' ? [] : explode("\n", rtrim($raw, "\n"));
     }
 
     /** Appends only if $sequence is the next free index, so duplicates and gaps are rejected. */
@@ -130,13 +126,6 @@ final class RoomStore
             static fn(array $entry): array => ['playerId' => $entry['playerId'], 'name' => $entry['name']],
             $entries,
         );
-    }
-
-    /** @return list<string> */
-    private function readLines(string $roomId): array
-    {
-        $raw = @file_get_contents($this->logPath($roomId));
-        return $raw === false || $raw === '' ? [] : explode("\n", rtrim($raw, "\n"));
     }
 
     private function logPath(string $roomId): string

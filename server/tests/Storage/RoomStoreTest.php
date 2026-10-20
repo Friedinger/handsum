@@ -25,6 +25,23 @@ final class RoomStoreTest extends DataDirTestCase
         self::assertSame([], glob($this->dataDir . '/rooms/*'));
     }
 
+    public function testUnknownRoomHasAnEmptyLog(): void
+    {
+        $store = new RoomStore($this->dataDir, $this->clock());
+
+        self::assertSame([], $store->moves(hash('sha256', 'NONE22')));
+    }
+
+    public function testMovesAreReturnedInAppendOrder(): void
+    {
+        $store = new RoomStore($this->dataDir, $this->clock());
+        $roomId = hash('sha256', 'ABC234');
+        $store->append($roomId, 0, '{"type":"a"}');
+        $store->append($roomId, 1, '{"type":"b"}');
+
+        self::assertSame(['{"type":"a"}', '{"type":"b"}'], $store->moves($roomId));
+    }
+
     public function testRoomSizeIsCapped(): void
     {
         $store = new RoomStore($this->dataDir, $this->clock());
