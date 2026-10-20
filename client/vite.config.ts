@@ -6,7 +6,6 @@ import type { Plugin } from "vite";
 import { defineConfig } from "vitest/config";
 
 const SERVER_DIR = fileURLToPath(new URL("../server", import.meta.url));
-// Everything else in server/ (vendor/, tests/, Composer files) is for development only.
 const SERVER_DEPLOY_ENTRIES = [".htaccess", "index.php", "src"];
 
 function bundleServer(): Plugin {
@@ -29,7 +28,6 @@ function bundleServer(): Plugin {
 
 export default defineConfig({
   plugins: [vue(), bundleServer()],
-  // Relative base keeps the build working under any sub-folder and locally.
   base: "./",
   resolve: {
     alias: {
@@ -38,7 +36,6 @@ export default defineConfig({
     },
   },
   server: {
-    // `npm run server:dev` runs the PHP API; in production it lives next to the build as api/.
     proxy: {
       "/api": {
         target: "http://127.0.0.1:8080",
