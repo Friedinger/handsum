@@ -43,6 +43,20 @@ final class RoomStoreTest extends DataDirTestCase
         self::assertSame(['{"type":"a"}', '{"type":"b"}'], $store->moves($roomId));
     }
 
+    public function testRoomWithActivePlayersKeepsItsOldLog(): void
+    {
+        $store = new RoomStore($this->dataDir, $this->clock());
+        $roomId = self::roomId();
+        $store->append($roomId, 0, '{"type":"a"}');
+        $this->now += Config::ROOM_IDLE_SECONDS - 1;
+        $store->joinPlayer($roomId, new Player('p1', 'Anna'));
+        $this->now += 2;
+
+        $store->deleteIdleRooms();
+
+        self::assertSame(['{"type":"a"}'], $store->moves($roomId));
+    }
+
     public function testRoomSizeIsCapped(): void
     {
         $store = new RoomStore($this->dataDir, $this->clock());

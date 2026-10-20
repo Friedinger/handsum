@@ -24,11 +24,7 @@ final class RoomStore
 
     public function roomCount(): int
     {
-        $ids = array_map(
-            static fn(string $path): string => pathinfo($path, PATHINFO_FILENAME),
-            glob($this->roomsDir . '/*') ?: [],
-        );
-        return count(array_unique($ids));
+        return count($this->roomFiles());
     }
 
     /** @return list<string> the whole move log as JSON-encoded moves, the index in the list being the sequence number */
@@ -102,10 +98,28 @@ final class RoomStore
         return $this->players($this->stillActive($stored, ($this->clock)()));
     }
 
+    /** A room is idle only when all of its files are, so waiting players keep their room alive. */
     public function deleteIdleRooms(): void
     {
         $threshold = ($this->clock)() - Config::ROOM_IDLE_SECONDS;
-        Filesystem::deleteFilesOlderThan($this->roomsDir, $threshold);
+        foreach ($this->roomFiles() as $paths) {
+            $lastChange = max(array_map(filemtime(...), $paths));
+            if ($lastChange < $threshold) {
+                array_map(unlink(...), $paths);
+            }
+        }
+    }
+
+    /** @return array<string, non-empty-list<string>> file paths per room ID */
+    private function roomFiles(): array
+    {
+        $files = [];
+        foreach (glob($this->roomsDir . '/*') ?: [] as $path) {
+            if (is_file($path)) {
+                $files[pathinfo($path, PATHINFO_FILENAME)][] = $path;
+            }
+        }
+        return $files;
     }
 
     /** @return list<PlayerPresence> */
