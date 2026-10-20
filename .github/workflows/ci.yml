@@ -50,6 +50,7 @@ jobs:
         with:
           name: site
           path: ./site/
+          include-hidden-files: true
 
   server:
     name: Test server
