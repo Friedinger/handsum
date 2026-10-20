@@ -36,7 +36,7 @@ To try it alone, open the room link in two browser windows. The PHP commands run
 
 ## Repository layout
 
-```
+```text
 client/            Vue 3 app (own package.json, Vite, Vitest, ESLint)
   src/engine/      pure game logic
   src/net/         move log sync and player identity
@@ -80,7 +80,7 @@ IP addresses are never stored in clear text. Limits (rooms, moves, sizes, reques
 
 The app runs in a sub-folder (for example `https://example.com/apps/handsum/`), needs PHP with Apache and no database. The result on the host looks like this:
 
-```
+```text
 handsum/                  contents of client/dist/ (index.html, assets/)
   .htaccess               optional password protection, see below
   api/                    only the files below, not vendor/, tests/ or Composer files
