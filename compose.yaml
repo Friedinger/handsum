@@ -1,5 +1,5 @@
 x-php: &php
-  image: php:8.5-cli@sha256:01a109229f4465bc9ef042d9198f09a4d9da7775a825dbd8572dcdbd8756c4d3
+  image: php:8.5.11-cli-alpine@sha256:6527fa5ae0609f30a5ae5c0f66c76ba353aaf1e81d10ec1511a029855f0a5c3f
   volumes:
     - ./server:/server:Z
 
@@ -33,7 +33,7 @@ services:
 
   composer:
     profiles: [tools]
-    image: composer:2@sha256:af98f42dfff7c68ba8d53c2164fd9fde1087b7d449514baa38c418b1f6bc4bac
+    image: composer:2.10.3@sha256:af98f42dfff7c68ba8d53c2164fd9fde1087b7d449514baa38c418b1f6bc4bac
     working_dir: /server
     environment:
       COMPOSER_CACHE_DIR: /cache
