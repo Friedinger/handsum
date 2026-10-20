@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
+
 import type { Move } from "@/engine";
+import {
+  isRevealed,
+  revealsAfterMove,
+  STARTING_VIEW_REVEAL_MS,
+  VIEW_REVEAL_MS,
+} from "@/utils/reveals";
+
 import {
   applyToStarted,
   holding,
@@ -8,12 +16,6 @@ import {
   startedGame,
   withLayouts,
 } from "@test/support/gameFixtures";
-import {
-  isRevealed,
-  revealsAfterMove,
-  STARTING_VIEW_REVEAL_MS,
-  VIEW_REVEAL_MS,
-} from "@/utils/reveals";
 
 describe("revealsAfterMove", () => {
   it("shows the own starting cards to the viewing player only", () => {

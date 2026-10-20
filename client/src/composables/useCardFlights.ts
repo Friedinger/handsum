@@ -2,21 +2,22 @@ import {
   nextTick,
   onMounted,
   onUnmounted,
+  type Ref,
   ref,
   shallowRef,
   watch,
-  type Ref,
 } from "vue";
+
 import type { PlayerId } from "@/engine";
 import type { SyncedLog } from "@/net/moveLog";
 import {
-  anchorKey,
-  planDeal,
-  planMove,
   type Anchor,
+  anchorKey,
   type DiscardTopOverride,
   type Flight,
   type MovePlan,
+  planDeal,
+  planMove,
 } from "@/utils/cardFlights";
 
 export const FLIGHT_MS = 450;

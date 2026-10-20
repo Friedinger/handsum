@@ -1,15 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { holding, makeCard, playingGame } from "@test/support/gameFixtures";
+
 import {
   canToggleSeveral,
+  type Intent,
   isSlotMarked,
   isSwappingSeveral,
   noIntent,
   selectedOwnSlots,
   situationOf,
   toggleSeveral,
-  type Intent,
 } from "@/utils/tableIntent";
+
+import { holding, makeCard, playingGame } from "@test/support/gameFixtures";
 
 const self = "player-1";
 const takingDiscard: Intent = {

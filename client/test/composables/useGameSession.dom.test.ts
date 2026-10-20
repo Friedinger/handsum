@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
+
 import { useGameSession } from "@/composables/useGameSession";
 import type { HelloMessage } from "@/net/protocol";
 import type { Transport, TransportHandlers } from "@/net/transport";
+
 import { mountComposable } from "@test/support/mountComposable";
 
 const self: HelloMessage = { playerId: "alice", name: "Alice" };

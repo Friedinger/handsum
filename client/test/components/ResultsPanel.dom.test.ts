@@ -1,8 +1,10 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
+
 import ResultsPanel from "@/components/ResultsPanel.vue";
 import { strings } from "@/data/strings";
 import type { PlayerResult } from "@/engine";
+
 import { startedGame } from "@test/support/gameFixtures";
 
 const state = startedGame(3);

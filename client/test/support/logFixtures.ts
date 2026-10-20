@@ -1,5 +1,5 @@
-import { appendMove, emptyLog, type SyncedLog } from "@/net/moveLog";
 import type { Move } from "@/engine";
+import { appendMove, emptyLog, type SyncedLog } from "@/net/moveLog";
 
 export function replayLog(moves: readonly Move[]): SyncedLog | null {
   let log = emptyLog;

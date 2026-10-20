@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+
 import { strings } from "@/data/strings";
 import type { PlayerId, PlayerResult, StartedGame } from "@/engine";
 import { displayName } from "@/utils/displayName";

@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
+
 import {
   applyMove,
   IllegalMoveError,
   initialGameState,
 } from "@/engine/applyMove";
 import type { Move } from "@/engine/moves/types";
+
 import { startedGame, startGameMove } from "@test/support/gameFixtures";
 
 describe("applyMove", () => {

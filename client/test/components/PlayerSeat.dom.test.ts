@@ -1,7 +1,9 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
+
 import PlayerSeat from "@/components/PlayerSeat.vue";
 import type { SlotView } from "@/utils/slotView";
+
 import { makeCard } from "@test/support/gameFixtures";
 
 function slot(slotIndex: number, overrides: Partial<SlotView> = {}): SlotView {

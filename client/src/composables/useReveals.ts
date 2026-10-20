@@ -1,7 +1,8 @@
-import { onUnmounted, shallowRef, watch, type ShallowRef } from "vue";
+import { onUnmounted, type ShallowRef, shallowRef, watch } from "vue";
+
 import type { PlayerId } from "@/engine";
 import type { SyncedLog } from "@/net/moveLog";
-import { revealsAfterMove, type Reveal } from "@/utils/reveals";
+import { type Reveal, revealsAfterMove } from "@/utils/reveals";
 
 export function useReveals(
   log: () => SyncedLog,

@@ -1,5 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it } from "vitest";
+
 import { strings } from "@/data/strings";
 import HomeView from "@/views/HomeView.vue";
 

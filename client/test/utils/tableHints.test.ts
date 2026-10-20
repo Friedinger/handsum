@@ -1,13 +1,15 @@
 import { describe, expect, it } from "vitest";
+
 import { strings } from "@/data/strings";
+import { hintFor } from "@/utils/tableHints";
+import { noIntent, toggleSeveral } from "@/utils/tableIntent";
+
 import {
   holding,
   makeCard,
   playingGame,
   startedGame,
 } from "@test/support/gameFixtures";
-import { hintFor } from "@/utils/tableHints";
-import { noIntent, toggleSeveral } from "@/utils/tableIntent";
 
 const self = "player-1";
 

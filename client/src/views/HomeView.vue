@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
+
 import { strings } from "@/data/strings";
 import { normalizeRoomCode, randomRoomCode } from "@/net/roomCode";
 import { openRoom } from "@/utils/roomNavigation";

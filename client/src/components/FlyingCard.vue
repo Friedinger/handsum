@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from "vue";
-import { FLIGHT_MS, type ActiveFlight } from "@/composables/useCardFlights";
+
 import PlayingCard from "@/components/PlayingCard.vue";
+import { type ActiveFlight, FLIGHT_MS } from "@/composables/useCardFlights";
 
 const props = defineProps<{ active: ActiveFlight }>();
 const emit = defineEmits<{ land: [] }>();

@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+
 import { copyText } from "@/utils/clipboard";
 
 describe("copyText", () => {

@@ -1,4 +1,3 @@
-import type { Move } from "@/engine/moves/types";
 import { applyCallEnd } from "@/engine/moves/callEnd";
 import {
   applyExchangeBlind,
@@ -9,6 +8,7 @@ import { applyDiscardDrawnCard, applyDrawFromDeck } from "@/engine/moves/draw";
 import { applyStartGame } from "@/engine/moves/startGame";
 import { applyViewStartingCards } from "@/engine/moves/startingView";
 import { applySwapDiscardCard, applySwapDrawnCard } from "@/engine/moves/swap";
+import type { Move } from "@/engine/moves/types";
 import { accept, type MoveRejection, type Result } from "@/engine/outcome";
 import type { GameState, StartedGame } from "@/engine/types";
 

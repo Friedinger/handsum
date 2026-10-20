@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PlayingCard from "@/components/PlayingCard.vue";
 import { strings } from "@/data/strings";
 import type { Card } from "@/engine";
 import {
@@ -7,7 +8,6 @@ import {
   DRAW_PILE_ANCHOR,
   HELD_ANCHOR,
 } from "@/utils/cardFlights";
-import PlayingCard from "@/components/PlayingCard.vue";
 
 defineProps<{
   drawPileCount: number;

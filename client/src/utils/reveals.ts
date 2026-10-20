@@ -1,6 +1,6 @@
 import {
-  cardAt,
   type Card,
+  cardAt,
   type GameEvent,
   type Move,
   type PlayerId,

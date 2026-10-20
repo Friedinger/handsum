@@ -1,17 +1,19 @@
 import { describe, expect, it } from "vitest";
+
 import type { Move } from "@/engine";
-import { expectStarted } from "@test/support/gameFixtures";
 import {
   createGameSession,
-  lobbyPlayers,
   type GameSession,
+  lobbyPlayers,
   type SessionSnapshot,
 } from "@/net/gameSession";
+import type { HelloMessage } from "@/net/protocol";
+
+import { expectStarted } from "@test/support/gameFixtures";
 import {
   createMemoryNetwork,
   type MemoryNetwork,
 } from "@test/support/memoryNetwork";
-import type { HelloMessage } from "@/net/protocol";
 
 const ROOM = "ABCDEF";
 const SEED = 7;

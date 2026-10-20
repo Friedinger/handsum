@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed } from "vue";
+
 import { strings } from "@/data/strings";
 import type { Card } from "@/engine";
-import { valueTier, type CardSize } from "@/utils/slotView";
+import { type CardSize, valueTier } from "@/utils/slotView";
 
 const props = withDefaults(
   defineProps<{

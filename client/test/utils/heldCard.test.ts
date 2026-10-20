@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
+
 import { strings } from "@/data/strings";
-import { holding, makeCard, playingGame } from "@test/support/gameFixtures";
 import {
   currentHeldCard,
   heldCardLabel,
   shownHeldCard,
 } from "@/utils/heldCard";
+
+import { holding, makeCard, playingGame } from "@test/support/gameFixtures";
 
 const self = "player-1";
 const drawn = makeCard(4);

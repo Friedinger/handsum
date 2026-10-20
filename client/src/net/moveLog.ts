@@ -1,9 +1,9 @@
 import {
-  initialGameState,
-  tryApplyMove,
   type GameState,
+  initialGameState,
   type Move,
   type MoveRejection,
+  tryApplyMove,
 } from "@/engine";
 
 export interface SyncedLog {

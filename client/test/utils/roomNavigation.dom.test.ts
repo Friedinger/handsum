@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+
 import { leaveRoom, openRoom } from "@/utils/roomNavigation";
 
 describe("room navigation", () => {

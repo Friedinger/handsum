@@ -1,7 +1,7 @@
+import { endTurn, requireAwaitingChoice } from "@/engine/moves/turn";
 import type { CallEndMove } from "@/engine/moves/types";
 import { accept, reject, type Result } from "@/engine/outcome";
 import type { GameState, StartedGame } from "@/engine/types";
-import { endTurn, requireAwaitingChoice } from "@/engine/moves/turn";
 
 export function applyCallEnd(
   state: GameState,

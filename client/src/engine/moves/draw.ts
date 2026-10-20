@@ -1,3 +1,9 @@
+import {
+  discardHeldCard,
+  requireAwaitingChoice,
+  requireHeldCard,
+  withEvent,
+} from "@/engine/moves/turn";
 import type {
   DiscardDrawnCardMove,
   DrawFromDeckMove,
@@ -5,12 +11,6 @@ import type {
 import { accept, reject, type Result } from "@/engine/outcome";
 import { deriveSeed, shuffle } from "@/engine/random";
 import type { GameState, StartedGame } from "@/engine/types";
-import {
-  discardHeldCard,
-  requireAwaitingChoice,
-  requireHeldCard,
-  withEvent,
-} from "@/engine/moves/turn";
 
 /**
  * The reshuffle seed depends on the move number so repeated reshuffles differ but stay replayable.

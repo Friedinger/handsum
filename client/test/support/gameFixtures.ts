@@ -1,6 +1,6 @@
 import { applyMove, initialGameState, tryApplyMove } from "@/engine/applyMove";
-import type { MoveRejection } from "@/engine/outcome";
 import type { Move, StartGameMove } from "@/engine/moves/types";
+import type { MoveRejection } from "@/engine/outcome";
 import type {
   Card,
   CardAction,

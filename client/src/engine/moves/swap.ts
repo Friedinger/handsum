@@ -1,3 +1,10 @@
+import {
+  type ActiveTurn,
+  endTurn,
+  requireAwaitingChoice,
+  requireHeldCard,
+  withEvent,
+} from "@/engine/moves/turn";
 import type {
   SwapDiscardCardMove,
   SwapDrawnCardMove,
@@ -5,13 +12,6 @@ import type {
 import { accept, reject, type Result } from "@/engine/outcome";
 import { findSlotSelectionProblem, withLayout } from "@/engine/state";
 import type { Card, GameState, Slot, StartedGame } from "@/engine/types";
-import {
-  endTurn,
-  requireAwaitingChoice,
-  requireHeldCard,
-  withEvent,
-  type ActiveTurn,
-} from "@/engine/moves/turn";
 
 const MULTI_SWAP_MIN_CARDS = 2;
 

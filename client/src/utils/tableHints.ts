@@ -2,10 +2,10 @@ import { strings } from "@/data/strings";
 import type { PlayerId, StartedGame } from "@/engine";
 import { displayName } from "@/utils/displayName";
 import {
+  type Intent,
   isSwappingSeveral,
   selectedOwnSlots,
   situationOf,
-  type Intent,
 } from "@/utils/tableIntent";
 
 function waitingHint(state: StartedGame): string {

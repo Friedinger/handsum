@@ -1,9 +1,9 @@
 import {
+  type CardAction,
   MAX_PLAYERS,
   MIN_PLAYERS,
-  STARTING_VIEW_CARD_COUNT,
-  type CardAction,
   type MoveRejection,
+  STARTING_VIEW_CARD_COUNT,
 } from "@/engine";
 
 const cardActionNames = {

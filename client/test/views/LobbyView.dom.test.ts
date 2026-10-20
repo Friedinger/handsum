@@ -1,7 +1,8 @@
 import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { MAX_PLAYERS, MIN_PLAYERS, type MoveRejection } from "@/engine";
+
 import { strings } from "@/data/strings";
+import { MAX_PLAYERS, MIN_PLAYERS, type MoveRejection } from "@/engine";
 import { initialSnapshot, type SessionSnapshot } from "@/net/gameSession";
 import type { HelloMessage } from "@/net/protocol";
 import LobbyView from "@/views/LobbyView.vue";

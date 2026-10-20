@@ -1,12 +1,14 @@
 import { describe, expect, it } from "vitest";
+
 import { legalMoves } from "@/engine/legalMoves";
+import type { StartedGame } from "@/engine/types";
+
 import {
   applyToStarted,
   currentPlayerId,
   playingGame,
   validateMove,
 } from "@test/support/gameFixtures";
-import type { StartedGame } from "@/engine/types";
 
 function playQuietTurn(state: StartedGame): StartedGame {
   return applyToStarted(state, {

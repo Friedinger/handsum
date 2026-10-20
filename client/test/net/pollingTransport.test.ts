@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { parseMove, type Move } from "@/engine";
+
+import { type Move, parseMove } from "@/engine";
 import { isRecord } from "@/engine/guards";
 import {
   createPollingTransport,

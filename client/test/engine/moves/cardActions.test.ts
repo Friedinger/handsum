@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
+
 import type { Move } from "@/engine/moves/types";
+import type { Card, StartedGame } from "@/engine/types";
+
 import {
   applyToStarted,
   currentPlayerId,
@@ -10,7 +13,6 @@ import {
   validateMove,
   withLayouts,
 } from "@test/support/gameFixtures";
-import type { Card, StartedGame } from "@/engine/types";
 
 const ownLayout = [
   makeCard(1, null, 1),

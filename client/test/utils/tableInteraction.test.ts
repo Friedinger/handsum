@@ -1,19 +1,21 @@
 import { describe, expect, it } from "vitest";
+
 import type { StartedGame } from "@/engine";
+import {
+  type ClickTarget,
+  type Intent,
+  noIntent,
+  type SlotRef,
+  toggleSeveral,
+} from "@/utils/tableIntent";
+import { handleClick, isClickable } from "@/utils/tableInteraction";
+
 import {
   holding,
   makeCard,
   playingGame,
   startedGame,
 } from "@test/support/gameFixtures";
-import { handleClick, isClickable } from "@/utils/tableInteraction";
-import {
-  noIntent,
-  toggleSeveral,
-  type ClickTarget,
-  type Intent,
-  type SlotRef,
-} from "@/utils/tableIntent";
 
 const self = "player-1";
 const own = (slotIndex: number): ClickTarget => ({

@@ -1,12 +1,13 @@
 import { onUnmounted, ref, shallowRef, watch } from "vue";
+
+import type { Move, MoveRejection } from "@/engine";
 import {
   createGameSession,
   initialSnapshot,
   type SessionSnapshot,
 } from "@/net/gameSession";
-import type { Move, MoveRejection } from "@/engine";
-import type { HelloMessage } from "@/net/protocol";
 import { connectPolling } from "@/net/pollingTransport";
+import type { HelloMessage } from "@/net/protocol";
 import { randomSeed } from "@/utils/randomSeed";
 
 export function useGameSession(roomCode: string, self: HelloMessage) {

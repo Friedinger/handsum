@@ -1,4 +1,4 @@
-import { isNumber, isRecord, isString, type Fields } from "@/engine/guards";
+import { type Fields, isNumber, isRecord, isString } from "@/engine/guards";
 import type { Move, MoveType } from "@/engine/moves/types";
 import type { Player } from "@/engine/types";
 

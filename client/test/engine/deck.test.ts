@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { buildDeck, parseCardTypes, standardDeck } from "@/engine/deck";
 
 const STANDARD_DECK_SIZE = 52;

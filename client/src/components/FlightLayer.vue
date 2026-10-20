@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { ActiveFlight } from "@/composables/useCardFlights";
 import FlyingCard from "@/components/FlyingCard.vue";
+import type { ActiveFlight } from "@/composables/useCardFlights";
 
 defineProps<{ flights: readonly ActiveFlight[] }>();
 const emit = defineEmits<{ land: [id: number] }>();

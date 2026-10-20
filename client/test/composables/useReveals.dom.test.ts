@@ -1,7 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ref } from "vue";
+
 import { useReveals } from "@/composables/useReveals";
 import { STARTING_VIEW_REVEAL_MS } from "@/utils/reveals";
+
 import { startGameMove } from "@test/support/gameFixtures";
 import { logOf } from "@test/support/logFixtures";
 import { mountComposable } from "@test/support/mountComposable";

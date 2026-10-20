@@ -1,16 +1,18 @@
 import { describe, expect, it } from "vitest";
+
 import { applyMove, initialGameState } from "@/engine/applyMove";
 import { standardDeck } from "@/engine/deck";
 import { LAYOUT_SIZE, MAX_PLAYERS, MIN_PLAYERS } from "@/engine/rules";
+import type { StartedGame } from "@/engine/types";
+
 import {
   allCards,
   createPlayers,
   expectStarted,
-  startGameMove,
   startedGame,
+  startGameMove,
   validateMove,
 } from "@test/support/gameFixtures";
-import type { StartedGame } from "@/engine/types";
 
 describe("startGame", () => {
   it.each([MIN_PLAYERS, 5, MAX_PLAYERS])(

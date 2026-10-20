@@ -1,10 +1,12 @@
 import { mount } from "@vue/test-utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
+
 import { strings } from "@/data/strings";
 import type { HelloMessage } from "@/net/protocol";
 import type { Transport, TransportHandlers } from "@/net/transport";
 import SessionView from "@/views/SessionView.vue";
+
 import { startGameMove } from "@test/support/gameFixtures";
 
 const self: HelloMessage = { playerId: "alice", name: "Alice" };

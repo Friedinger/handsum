@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
+
 import { applyMove, initialGameState } from "@/engine/applyMove";
 import type { Move } from "@/engine/moves/types";
+
 import {
   expectStarted,
   startedGame,

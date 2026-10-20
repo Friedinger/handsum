@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { makeCard } from "@test/support/gameFixtures";
+
 import { valueTier } from "@/utils/slotView";
+
+import { makeCard } from "@test/support/gameFixtures";
 
 describe("valueTier", () => {
   it.each([

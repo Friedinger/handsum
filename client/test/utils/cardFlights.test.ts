@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
+
 import { applyMove, type Move, type StartedGame } from "@/engine";
+import {
+  anchorKey,
+  type MovePlan,
+  planDeal,
+  planMove,
+} from "@/utils/cardFlights";
+
 import {
   expectStarted,
   holding,
@@ -7,12 +15,6 @@ import {
   playingGame,
   withLayouts,
 } from "@test/support/gameFixtures";
-import {
-  anchorKey,
-  planDeal,
-  planMove,
-  type MovePlan,
-} from "@/utils/cardFlights";
 
 const self = "player-1";
 

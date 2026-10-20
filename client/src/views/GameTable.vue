@@ -1,40 +1,41 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import { strings } from "@/data/strings";
-import {
-  findSeat,
-  type Move,
-  type MoveRejection,
-  type Seat,
-  tryApplyMove,
-  type StartedGame,
-} from "@/engine";
-import { onlinePlayerIds, type SessionSnapshot } from "@/net/gameSession";
+
 import FlightLayer from "@/components/FlightLayer.vue";
 import PlayerSeat from "@/components/PlayerSeat.vue";
 import ResultsPanel from "@/components/ResultsPanel.vue";
 import TableCenter from "@/components/TableCenter.vue";
 import { useCardFlights } from "@/composables/useCardFlights";
 import { useReveals } from "@/composables/useReveals";
-import { leaveRoom } from "@/utils/roomNavigation";
+import { strings } from "@/data/strings";
+import {
+  findSeat,
+  type Move,
+  type MoveRejection,
+  type Seat,
+  type StartedGame,
+  tryApplyMove,
+} from "@/engine";
+import { onlinePlayerIds, type SessionSnapshot } from "@/net/gameSession";
 import { anchorKey, HELD_ANCHOR } from "@/utils/cardFlights";
 import { displayName } from "@/utils/displayName";
+import { heldCardLabel, shownHeldCard } from "@/utils/heldCard";
 import { isRevealed } from "@/utils/reveals";
+import { leaveRoom } from "@/utils/roomNavigation";
 import type { SlotView } from "@/utils/slotView";
 import { hintFor } from "@/utils/tableHints";
-import { handleClick, isClickable } from "@/utils/tableInteraction";
 import {
   canToggleSeveral,
+  type ClickTarget,
+  type Intent,
   isSlotMarked,
   isSwappingSeveral,
   noIntent,
   situationOf,
   toggleSeveral,
-  type ClickTarget,
-  type Intent,
 } from "@/utils/tableIntent";
+import { handleClick, isClickable } from "@/utils/tableInteraction";
 import { arrangeOpponents } from "@/utils/tableLayout";
-import { heldCardLabel, shownHeldCard } from "@/utils/heldCard";
 
 const props = defineProps<{
   snapshot: SessionSnapshot;

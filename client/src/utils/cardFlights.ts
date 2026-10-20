@@ -1,10 +1,10 @@
 import {
-  cardAt,
-  SLOT_INDICES,
   type Card,
+  cardAt,
   type ExchangeBlindMove,
   type Move,
   type PlayerId,
+  SLOT_INDICES,
   type StartedGame,
   type SwapDiscardCardMove,
   type SwapDrawnCardMove,

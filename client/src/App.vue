@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { strings } from "@/data/strings";
 import { useRoomCode } from "@/composables/useRoomCode";
+import { strings } from "@/data/strings";
 import HomeView from "@/views/HomeView.vue";
 import RoomView from "@/views/RoomView.vue";
 

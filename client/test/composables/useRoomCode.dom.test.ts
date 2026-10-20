@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
+
 import { useRoomCode } from "@/composables/useRoomCode";
+
 import { mountComposable } from "@test/support/mountComposable";
 
 function changeHash(hash: string): void {

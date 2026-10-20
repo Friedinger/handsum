@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
+
 import { legalMoves } from "@/engine/legalMoves";
 import type { Move } from "@/engine/moves/types";
+
 import {
   applyToStarted,
   currentPlayerId,

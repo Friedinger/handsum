@@ -1,4 +1,5 @@
-import { onUnmounted, ref, type Ref } from "vue";
+import { onUnmounted, type Ref, ref } from "vue";
+
 import { normalizeRoomCode } from "@/net/roomCode";
 
 export function useRoomCode(): Ref<string | null> {

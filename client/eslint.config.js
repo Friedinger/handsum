@@ -1,8 +1,9 @@
 import jsEslintConfig from "@eslint/js";
 import { vueTsConfigs, withVueTs } from "@vue/eslint-config-typescript";
 import { ESLint } from "eslint";
-import eslintConfigPrettier from "eslint-config-prettier/flat";
 import { globalIgnores } from "eslint/config";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
+import simpleImportSort from "eslint-plugin-simple-import-sort";
 import pluginVue from "eslint-plugin-vue";
 import globals from "globals";
 
@@ -72,7 +73,23 @@ export default withVueTs(
     languageOptions: { globals: globals.node },
   },
   {
-    rules: { "no-duplicate-imports": "error" },
+    plugins: { "simple-import-sort": simpleImportSort },
+    rules: {
+      "no-duplicate-imports": "error",
+      "simple-import-sort/imports": [
+        "error",
+        {
+          groups: [
+            ["^\\u0000"],
+            ["^node:"],
+            ["^(?!@test/)@?\\w"],
+            ["^@/"],
+            ["^@test/"],
+          ],
+        },
+      ],
+      "simple-import-sort/exports": "error",
+    },
   },
   layer(
     "engine",

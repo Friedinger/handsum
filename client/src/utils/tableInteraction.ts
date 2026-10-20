@@ -1,17 +1,17 @@
 import {
-  STARTING_VIEW_CARD_COUNT,
   type Card,
   type Move,
   type PlayerId,
   type StartedGame,
+  STARTING_VIEW_CARD_COUNT,
 } from "@/engine";
 import {
-  noIntent,
-  selectedOwnSlots,
-  situationOf,
   type ActionIntent,
   type ClickTarget,
   type Intent,
+  noIntent,
+  selectedOwnSlots,
+  situationOf,
   type SwappingSeveralIntent,
   type TakingDiscardIntent,
 } from "@/utils/tableIntent";

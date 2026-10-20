@@ -1,7 +1,9 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
+
 import PlayingCard from "@/components/PlayingCard.vue";
 import { strings } from "@/data/strings";
+
 import { makeCard } from "@test/support/gameFixtures";
 
 describe("PlayingCard", () => {

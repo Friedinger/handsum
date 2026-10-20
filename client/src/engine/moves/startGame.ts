@@ -2,8 +2,8 @@ import { standardDeck } from "@/engine/deck";
 import type { StartGameMove } from "@/engine/moves/types";
 import {
   accept,
-  reject,
   type MoveRejection,
+  reject,
   type Result,
 } from "@/engine/outcome";
 import { isValidSeed, shuffle } from "@/engine/random";

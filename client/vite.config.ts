@@ -1,7 +1,8 @@
-import vue from "@vitejs/plugin-vue";
 import { cpSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+
+import vue from "@vitejs/plugin-vue";
 import type { Plugin } from "vite";
 import { defineConfig } from "vitest/config";
 

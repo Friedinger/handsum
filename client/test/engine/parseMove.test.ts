@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
+
 import type { Move } from "@/engine/moves/types";
 import { parseMove } from "@/engine/parseMove";
+
 import { startGameMove } from "@test/support/gameFixtures";
 
 const validMoves: Move[] = [

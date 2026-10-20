@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { parseHello, parsePlayers, parseRoomSnapshot } from "@/net/protocol";
 
 const alice = { playerId: "a", name: "Alice" };

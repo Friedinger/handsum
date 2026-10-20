@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { startedGame } from "@test/support/gameFixtures";
+
 import { displayName } from "@/utils/displayName";
+
+import { startedGame } from "@test/support/gameFixtures";
 
 describe("displayName", () => {
   const state = startedGame(2);

@@ -1,8 +1,8 @@
 import type { Move } from "@/engine";
 import {
+  type HelloMessage,
   parsePlayers,
   parseRoomSnapshot,
-  type HelloMessage,
   type RoomSnapshot,
 } from "@/net/protocol";
 import { hashRoomCode } from "@/net/roomCode";
