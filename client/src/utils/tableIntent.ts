@@ -11,27 +11,39 @@ export type ClickTarget =
   | { readonly kind: "discardPile" }
   | { readonly kind: "heldCard" };
 
+export interface NoIntent {
+  readonly kind: "none";
+}
+
+export interface PickStartingCardsIntent {
+  readonly kind: "pickStartingCards";
+  readonly slotIndices: readonly number[];
+}
+
+export interface TakingDiscardIntent {
+  readonly kind: "takingDiscard";
+  readonly severalCards: boolean;
+  readonly slotIndices: readonly number[];
+}
+
+export interface SwappingSeveralIntent {
+  readonly kind: "swappingSeveral";
+  readonly slotIndices: readonly number[];
+}
+
+export interface ActionIntent {
+  readonly kind: "action";
+  readonly action: CardAction;
+  readonly ownSlotIndex: number | null;
+  readonly target: SlotRef | null;
+}
+
 export type Intent =
-  | { readonly kind: "none" }
-  | {
-      readonly kind: "pickStartingCards";
-      readonly slotIndices: readonly number[];
-    }
-  | {
-      readonly kind: "takingDiscard";
-      readonly severalCards: boolean;
-      readonly slotIndices: readonly number[];
-    }
-  | {
-      readonly kind: "swappingSeveral";
-      readonly slotIndices: readonly number[];
-    }
-  | {
-      readonly kind: "action";
-      readonly action: CardAction;
-      readonly ownSlotIndex: number | null;
-      readonly target: SlotRef | null;
-    };
+  | NoIntent
+  | PickStartingCardsIntent
+  | TakingDiscardIntent
+  | SwappingSeveralIntent
+  | ActionIntent;
 
 export type Situation =
   | { readonly kind: "startingView" }

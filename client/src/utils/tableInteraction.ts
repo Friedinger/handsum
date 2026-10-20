@@ -9,8 +9,11 @@ import {
   noIntent,
   selectedOwnSlots,
   situationOf,
+  type ActionIntent,
   type ClickTarget,
   type Intent,
+  type SwappingSeveralIntent,
+  type TakingDiscardIntent,
 } from "./tableIntent";
 
 export interface ClickOutcome {
@@ -42,7 +45,7 @@ function clickDuringStartingView(
   intent: Intent,
   target: ClickTarget,
   selfId: PlayerId,
-) {
+): ClickOutcome {
   const slotIndex = ownSlotIndex(target, selfId);
   if (slotIndex === null) {
     return unchanged(intent);
@@ -55,7 +58,7 @@ function clickDuringStartingView(
 
 function swapSelection(
   type: "swapDrawnCard" | "swapDiscardCard",
-  intent: Intent & { slotIndices: readonly number[] },
+  intent: TakingDiscardIntent | SwappingSeveralIntent,
   selfId: PlayerId,
 ): ClickOutcome {
   return intent.slotIndices.length > 0
@@ -64,7 +67,7 @@ function swapSelection(
 }
 
 function clickWhileTakingDiscard(
-  intent: Intent & { kind: "takingDiscard" },
+  intent: TakingDiscardIntent,
   target: ClickTarget,
   selfId: PlayerId,
 ): ClickOutcome {
@@ -97,7 +100,7 @@ function clickWhileChoosing(
   intent: Intent,
   target: ClickTarget,
   selfId: PlayerId,
-) {
+): ClickOutcome {
   if (intent.kind === "takingDiscard") {
     return clickWhileTakingDiscard(intent, target, selfId);
   }
@@ -116,10 +119,7 @@ function clickWhileChoosing(
   }
 }
 
-function actionMove(
-  intent: Intent & { kind: "action" },
-  selfId: PlayerId,
-): Move | null {
+function actionMove(intent: ActionIntent, selfId: PlayerId): Move | null {
   const { action, ownSlotIndex: ownSlot, target } = intent;
   switch (action) {
     case "viewOwn":
@@ -149,7 +149,7 @@ function actionMove(
 }
 
 function clickDuringAction(
-  intent: Intent & { kind: "action" },
+  intent: ActionIntent,
   target: ClickTarget,
   selfId: PlayerId,
 ): ClickOutcome {
@@ -173,7 +173,7 @@ function clickDuringAction(
 }
 
 function clickWhileSwappingSeveral(
-  intent: Intent & { kind: "swappingSeveral" },
+  intent: SwappingSeveralIntent,
   target: ClickTarget,
   selfId: PlayerId,
 ): ClickOutcome {
@@ -200,7 +200,7 @@ function clickWhileHolding(
   target: ClickTarget,
   card: Card,
   selfId: PlayerId,
-) {
+): ClickOutcome {
   if (intent.kind === "action") {
     return clickDuringAction(intent, target, selfId);
   }

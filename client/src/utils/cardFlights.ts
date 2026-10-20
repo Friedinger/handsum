@@ -2,9 +2,12 @@ import {
   cardAt,
   SLOT_INDICES,
   type Card,
+  type ExchangeBlindMove,
   type Move,
   type PlayerId,
   type StartedGame,
+  type SwapDiscardCardMove,
+  type SwapDrawnCardMove,
 } from "@/engine";
 import { currentHeldCard } from "./heldCard";
 import type { SlotRef } from "./tableIntent";
@@ -116,7 +119,7 @@ function discardHeldCard(
 function planSwap(
   previous: StartedGame,
   next: StartedGame,
-  move: Move & { type: "swapDrawnCard" | "swapDiscardCard" },
+  move: SwapDrawnCardMove | SwapDiscardCardMove,
   selfId: PlayerId,
 ): MovePlan {
   const fromDiscard = move.type === "swapDiscardCard";
@@ -161,7 +164,7 @@ function planCardAction(
 
 function planExchange(
   previous: StartedGame,
-  move: Move & { type: "exchangeBlind" },
+  move: ExchangeBlindMove,
   holderIsViewer: boolean,
 ): MovePlan {
   const own = slotAnchor(move.playerId, move.ownSlotIndex);
