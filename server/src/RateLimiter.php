@@ -21,7 +21,7 @@ final class RateLimiter
         $path = $this->dir . '/' . $this->key($ip, $bucket);
         $now = ($this->clock)();
         $window = LockedJsonFile::update(
-            $this->dir . '/' . $this->key($ip, $bucket),
+            $path,
             $now,
             static function (mixed $stored) use ($now, $windowSeconds): array {
                 $inWindow = is_array($stored) && $stored['start'] > $now - $windowSeconds;

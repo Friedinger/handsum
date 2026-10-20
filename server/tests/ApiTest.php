@@ -285,7 +285,8 @@ final class ApiTest extends DataDirTestCase
      */
     private function call(string $method, array $server, array $query, string $body, string $ip = '1.1.1.1'): array
     {
-        return $this->api->handle($method, $server, $query, $body, $ip);
+        $response = $this->api->handle($method, $server, $query, $body, $ip);
+        return [$response->status, $response->payload];
     }
 
     /** @return array<string, string> */

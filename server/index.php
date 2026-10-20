@@ -18,12 +18,12 @@ function failOnPhpErrors(): void
     });
 }
 
-function respond(int $status, array $payload): void
+function respond(Response $response): void
 {
-    http_response_code($status);
+    http_response_code($response->status);
     header('Content-Type: application/json');
     header('Cache-Control: no-store');
-    echo json_encode($payload, JSON_THROW_ON_ERROR);
+    echo json_encode($response->payload, JSON_THROW_ON_ERROR);
 }
 
 failOnPhpErrors();
@@ -33,7 +33,7 @@ try {
     $clock = static fn(): int => time();
     $api = new Api(new RoomStore($dataDir, $clock), new RateLimiter($dataDir, $clock));
     $body = (string) stream_get_contents(fopen('php://input', 'r'), Config::MAX_REQUEST_BYTES + 1);
-    [$status, $payload] = $api->handle(
+    $response = $api->handle(
         $_SERVER['REQUEST_METHOD'] ?? 'GET',
         array_filter($_SERVER, 'is_string'),
         array_filter($_GET, 'is_string'),
@@ -42,8 +42,7 @@ try {
     );
 } catch (\Throwable $error) {
     ErrorLog::write($error, $dataDir);
-    $status = 500;
-    $payload = ['error' => $error instanceof StorageException ? 'storageNotWritable' : 'serverError'];
+    $response = Response::error(500, $error instanceof StorageException ? 'storageNotWritable' : 'serverError');
 }
 ob_end_clean();
-respond($status, $payload);
+respond($response);

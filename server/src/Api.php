@@ -17,97 +17,92 @@ final class Api
     /**
      * @param array<string, string> $server request meta data keyed like $_SERVER
      * @param array<string, string> $query
-     * @return array{int, array<string, mixed>} status code and JSON body
      */
-    public function handle(string $method, array $server, array $query, string $body, string $ip): array
+    public function handle(string $method, array $server, array $query, string $body, string $ip): Response
     {
         $this->maybeCleanUp();
         if (!$this->limiter->allow($ip, self::REQUEST_BUCKET, Config::REQUESTS_PER_IP_PER_WINDOW, Config::REQUEST_WINDOW_SECONDS)) {
-            return [429, ['error' => 'rateLimited']];
+            return Response::error(429, 'rateLimited');
         }
         $roomId = $server[Config::ROOM_ID_HEADER] ?? '';
         if (preg_match(Config::ROOM_ID_PATTERN, $roomId) !== 1) {
-            return [400, ['error' => 'invalidRoom']];
+            return Response::error(400, 'invalidRoom');
         }
         $action = $query['action'] ?? 'read';
         return match (true) {
             $method === 'GET' && $action === 'read' => $this->read($roomId, $query['since'] ?? '0'),
             $method === 'POST' && $action === 'move' => $this->appendMove($roomId, $body, $ip),
             $method === 'POST' && $action === 'join' => $this->join($roomId, $body, $ip),
-            default => [405, ['error' => 'methodNotAllowed']],
+            default => Response::error(405, 'methodNotAllowed'),
         };
     }
 
-    /** @return array{int, array<string, mixed>} */
-    private function read(string $roomId, string $since): array
+    private function read(string $roomId, string $since): Response
     {
         if (preg_match(Config::SINCE_PATTERN, $since) !== 1) {
-            return [400, ['error' => 'invalidSince']];
+            return Response::error(400, 'invalidSince');
         }
         $moves = array_map(
             static fn(string $line): mixed => json_decode($line),
             $this->rooms->movesSince($roomId, (int) $since),
         );
-        return [200, [
+        return Response::ok([
             'length' => $this->rooms->length($roomId),
             'moves' => $moves,
             'players' => $this->rooms->activePlayers($roomId),
-        ]];
+        ]);
     }
 
-    /** @return array{int, array<string, mixed>} */
-    private function appendMove(string $roomId, string $body, string $ip): array
+    private function appendMove(string $roomId, string $body, string $ip): Response
     {
         $request = $this->decodeObject($body);
         $sequence = $request['sequence'] ?? null;
         $move = $request['move'] ?? null;
         if (!is_int($sequence) || $sequence < 0 || !$this->isMoveShaped($move)) {
-            return [400, ['error' => 'invalidMove']];
+            return Response::error(400, 'invalidMove');
         }
         $moveJson = json_encode($move, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         if (strlen($moveJson) > Config::MAX_BYTES_PER_MOVE) {
-            return [413, ['error' => 'moveTooLarge']];
+            return Response::error(413, 'moveTooLarge');
         }
         $denied = $this->denyIfCreationLimited($roomId, $ip);
-        if ($denied) {
+        if ($denied !== null) {
             return $denied;
         }
         $result = $this->rooms->append($roomId, $sequence, $moveJson);
         return match ($result->status) {
-            AppendStatus::Appended => [200, ['length' => $result->length]],
-            AppendStatus::Conflict => [409, ['error' => 'conflict', 'length' => $result->length]],
-            AppendStatus::RoomFull => [413, ['error' => 'roomFull']],
+            AppendStatus::Appended => Response::ok(['length' => $result->length]),
+            AppendStatus::Conflict => Response::error(409, 'conflict', ['length' => $result->length]),
+            AppendStatus::RoomFull => Response::error(413, 'roomFull'),
         };
     }
 
-    /** @return array{int, array<string, mixed>} */
-    private function join(string $roomId, string $body, string $ip): array
+    private function join(string $roomId, string $body, string $ip): Response
     {
         $player = $this->decodeObject($body);
         $playerId = $player['playerId'] ?? null;
         $name = $player['name'] ?? null;
         if (!$this->isPlayerShaped($playerId, $name)) {
-            return [400, ['error' => 'invalidPlayer']];
+            return Response::error(400, 'invalidPlayer');
         }
         $denied = $this->denyIfCreationLimited($roomId, $ip);
-        if ($denied) {
+        if ($denied !== null) {
             return $denied;
         }
         $players = $this->rooms->joinPlayer($roomId, ['playerId' => $playerId, 'name' => $name]);
-        return $players === null ? [409, ['error' => 'roomFull']] : [200, ['players' => $players]];
+        return $players === null ? Response::error(409, 'roomFull') : Response::ok(['players' => $players]);
     }
 
-    /** @return array{int, array<string, mixed>}|null */
-    private function denyIfCreationLimited(string $roomId, string $ip): ?array
+    private function denyIfCreationLimited(string $roomId, string $ip): ?Response
     {
         if ($this->rooms->exists($roomId)) {
             return null;
         }
         if ($this->rooms->roomCount() >= Config::MAX_ROOMS) {
-            return [503, ['error' => 'tooManyRooms']];
+            return Response::error(503, 'tooManyRooms');
         }
         $allowed = $this->limiter->allow($ip, self::CREATION_BUCKET, Config::ROOM_CREATIONS_PER_IP_PER_WINDOW, Config::ROOM_CREATION_WINDOW_SECONDS);
-        return $allowed ? null : [429, ['error' => 'rateLimited']];
+        return $allowed ? null : Response::error(429, 'rateLimited');
     }
 
     /** @return array<string, mixed> */
