@@ -11,6 +11,8 @@ import {
 import type { HelloMessage } from "@/net/protocol";
 import SessionView from "./SessionView.vue";
 
+const PLAYER_NAME_MAX_LENGTH = 24;
+
 const props = defineProps<{ roomCode: string }>();
 
 const nameInput = ref(loadPlayerName());
@@ -46,7 +48,7 @@ if (hasJoinedRoom(props.roomCode) && nameInput.value.trim().length > 0) {
       <input
         id="player-name"
         v-model="nameInput"
-        maxlength="24"
+        :maxlength="PLAYER_NAME_MAX_LENGTH"
         autocomplete="nickname"
         required
       />

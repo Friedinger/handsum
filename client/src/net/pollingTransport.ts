@@ -24,7 +24,13 @@ const MAX_RETRY_MS = 30_000;
 const PRESENCE_INTERVAL_MS = 30_000;
 const FAILURES_BEFORE_OFFLINE = 2;
 
+const STATUS_OK = 200;
 const STATUS_CONFLICT = 409;
+const STATUS_TOO_MANY_REQUESTS = 429;
+const STATUS_SERVER_ERROR_FROM = 500;
+const ROOM_HEADER = "X-Room";
+const JOIN_QUERY = "?action=join";
+const MOVE_QUERY = "?action=move";
 
 export interface PageVisibility {
   readonly hidden: boolean;
@@ -92,11 +98,14 @@ export function createPollingTransport(
         const response = await options.fetch(`${apiUrl}${query}`, {
           method,
           cache: "no-store",
-          headers: { "X-Room": await roomId },
+          headers: { [ROOM_HEADER]: await roomId },
           ...(body === undefined ? {} : { body: JSON.stringify(body) }),
         });
         const parsed: unknown = await response.json().catch(() => null);
-        if (response.status >= 500 || response.status === 429) {
+        if (
+          response.status >= STATUS_SERVER_ERROR_FROM ||
+          response.status === STATUS_TOO_MANY_REQUESTS
+        ) {
           throw new Error("Server unavailable");
         }
         failures = 0;
@@ -131,7 +140,7 @@ export function createPollingTransport(
 
     const announce = async () => {
       lastPresenceAt = Date.now();
-      const reply = await send("?action=join", "POST", self);
+      const reply = await send(JOIN_QUERY, "POST", self);
       const players = parsePlayers(reply.body);
       if (players) {
         deliver(null, players);
@@ -196,12 +205,12 @@ export function createPollingTransport(
       move: Move,
     ): Promise<AppendResult> => {
       const reply = await enqueue(() =>
-        send("?action=move", "POST", { sequence, move }),
+        send(MOVE_QUERY, "POST", { sequence, move }),
       ).catch(() => null);
       if (reply?.status === STATUS_CONFLICT) {
         return { kind: "conflict" };
       }
-      if (reply?.status !== 200) {
+      if (reply?.status !== STATUS_OK) {
         return { kind: "failed" };
       }
       if (sequence === knownLength) {
