@@ -4,6 +4,7 @@ import { strings } from "@/data/strings";
 import { MAX_PLAYERS, MIN_PLAYERS, type MoveRejection } from "@/engine";
 import { lobbyPlayers, type SessionSnapshot } from "@/net/gameSession";
 import { roomLink } from "@/net/roomCode";
+import { copyText } from "@/utils/clipboard";
 import { leaveRoom } from "@/utils/roomNavigation";
 
 const props = defineProps<{
@@ -20,13 +21,12 @@ const canStart = computed(
   () =>
     players.value.length >= MIN_PLAYERS && players.value.length <= MAX_PLAYERS,
 );
-const copied = ref(false);
+const copyResult = ref<"idle" | "copied" | "failed">("idle");
 
 async function copyLink(): Promise<void> {
-  await navigator.clipboard.writeText(link.value);
-  copied.value = true;
+  copyResult.value = (await copyText(link.value)) ? "copied" : "failed";
   setTimeout(() => {
-    copied.value = false;
+    copyResult.value = "idle";
   }, COPIED_NOTICE_MS);
 }
 </script>
@@ -39,9 +39,16 @@ async function copyLink(): Promise<void> {
       <div class="inline-form">
         <input :value="link" readonly :aria-label="strings.lobby.shareHint" />
         <button type="button" class="button-secondary" @click="copyLink">
-          {{ copied ? strings.lobby.copied : strings.lobby.copyLink }}
+          {{
+            copyResult === "copied"
+              ? strings.lobby.copied
+              : strings.lobby.copyLink
+          }}
         </button>
       </div>
+      <p v-if="copyResult === 'failed'" class="error">
+        {{ strings.lobby.copyFailed }}
+      </p>
     </div>
     <div class="stack">
       <span class="muted">{{ strings.lobby.players }}</span>

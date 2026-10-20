@@ -64,6 +64,7 @@ export const strings = {
     shareHint: "Share this link with the other players:",
     copyLink: "Copy link",
     copied: "Copied!",
+    copyFailed: "Copying failed. Select the link and copy it by hand.",
     players: "Players",
     start: "Start game",
     playerLimits: (min: number, max: number) =>
