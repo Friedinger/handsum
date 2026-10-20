@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Move, StartGameMove } from "@/engine";
-import { appendMove, emptyLog, extendLog, replayLog } from "@/net/moveLog";
+import { appendMove, emptyLog, extendLog } from "@/net/moveLog";
+import { replayLog } from "@test/support/logFixtures";
 
 const players = [
   { id: "alice", name: "Alice" },

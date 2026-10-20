@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyMove, replayMoves } from "@/engine/applyMove";
+import { applyMove } from "@/engine/applyMove";
 import { standardDeck } from "@/engine/deck";
 import { legalMoves } from "@/engine/legalMoves";
 import type { Move } from "@/engine/moves/types";
@@ -7,9 +7,10 @@ import { createMulberry32 } from "@/engine/random";
 import {
   allCards,
   expectStarted,
-  startingViewMoves,
-  startedGame,
+  replayMoves,
   startGameMove,
+  startedGame,
+  startingViewMoves,
 } from "@test/support/gameFixtures";
 import type { StartedGame } from "@/engine/types";
 

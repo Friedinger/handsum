@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { applyMove, initialGameState, validateMove } from "@/engine/applyMove";
+import { applyMove, initialGameState } from "@/engine/applyMove";
 import type { Move } from "@/engine/moves/types";
 import {
   expectStarted,
   startedGame,
   startingViewMoves,
+  validateMove,
 } from "@test/support/gameFixtures";
 
 function viewMove(playerId: string, slotIndices: number[]): Move {

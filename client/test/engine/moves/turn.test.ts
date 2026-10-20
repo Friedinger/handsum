@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { validateMove } from "@/engine/applyMove";
 import { legalMoves } from "@/engine/legalMoves";
 import type { Move } from "@/engine/moves/types";
 import {
-  currentPlayerId,
   applyToStarted,
+  currentPlayerId,
   layoutOf,
   playingGame,
   startedGame,
+  validateMove,
 } from "@test/support/gameFixtures";
 
 const ALL_SLOT_SELECTIONS = 15;

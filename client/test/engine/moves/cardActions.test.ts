@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { validateMove } from "@/engine/applyMove";
 import type { Move } from "@/engine/moves/types";
 import {
-  currentPlayerId,
   applyToStarted,
+  currentPlayerId,
   holding,
   layoutOf,
   makeCard,
   playingGame,
+  validateMove,
   withLayouts,
 } from "@test/support/gameFixtures";
 import type { Card, StartedGame } from "@/engine/types";

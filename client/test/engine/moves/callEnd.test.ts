@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { validateMove } from "@/engine/applyMove";
 import { legalMoves } from "@/engine/legalMoves";
 import {
-  currentPlayerId,
   applyToStarted,
+  currentPlayerId,
   playingGame,
+  validateMove,
 } from "@test/support/gameFixtures";
 import type { StartedGame } from "@/engine/types";
 

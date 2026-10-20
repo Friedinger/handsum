@@ -28,18 +28,6 @@ export function appendMove(log: SyncedLog, move: Move): AppendOutcome {
   };
 }
 
-export function replayLog(moves: readonly Move[]): SyncedLog | null {
-  let log = emptyLog;
-  for (const move of moves) {
-    const outcome = appendMove(log, move);
-    if (outcome.kind !== "accepted") {
-      return null;
-    }
-    log = outcome.log;
-  }
-  return log;
-}
-
 // The server orders all moves, so a batch only has to be applied after the moves already known.
 // It stops at the first illegal move, because everything after it would build on a broken log.
 export function extendLog(

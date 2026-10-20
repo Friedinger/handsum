@@ -1,4 +1,5 @@
-import { applyMove, initialGameState } from "@/engine/applyMove";
+import { applyMove, initialGameState, tryApplyMove } from "@/engine/applyMove";
+import type { MoveRejection } from "@/engine/outcome";
 import type { Move, StartGameMove } from "@/engine/moves/types";
 import type {
   Card,
@@ -32,6 +33,18 @@ export function startingViewMoves(state: StartedGame): Move[] {
     playerId: seat.player.id,
     slotIndices: [0, 1],
   }));
+}
+
+export function validateMove(
+  state: GameState,
+  move: Move,
+): MoveRejection | null {
+  const outcome = tryApplyMove(state, move);
+  return outcome.ok ? null : outcome.reason;
+}
+
+export function replayMoves(moves: readonly Move[]): GameState {
+  return moves.reduce(applyMove, initialGameState);
 }
 
 export function expectStarted(state: GameState): StartedGame {

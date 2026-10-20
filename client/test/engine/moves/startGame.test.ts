@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { applyMove, initialGameState, validateMove } from "@/engine/applyMove";
+import { applyMove, initialGameState } from "@/engine/applyMove";
 import { standardDeck } from "@/engine/deck";
 import { LAYOUT_SIZE, MAX_PLAYERS, MIN_PLAYERS } from "@/engine/rules";
 import {
   allCards,
   createPlayers,
   expectStarted,
-  startedGame,
   startGameMove,
+  startedGame,
+  validateMove,
 } from "@test/support/gameFixtures";
 import type { StartedGame } from "@/engine/types";
 

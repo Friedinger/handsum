@@ -67,22 +67,10 @@ export function tryApplyMove(
   return accept({ ...outcome.value, moveCount: previousMoveCount + 1 });
 }
 
-export function validateMove(
-  state: GameState,
-  move: Move,
-): MoveRejection | null {
-  const outcome = tryApplyMove(state, move);
-  return outcome.ok ? null : outcome.reason;
-}
-
 export function applyMove(state: GameState, move: Move): GameState {
   const outcome = tryApplyMove(state, move);
   if (!outcome.ok) {
     throw new IllegalMoveError(outcome.reason, move);
   }
   return outcome.value;
-}
-
-export function replayMoves(moves: readonly Move[]): GameState {
-  return moves.reduce(applyMove, initialGameState);
 }
