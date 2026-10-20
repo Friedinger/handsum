@@ -132,10 +132,10 @@ final class RoomStore
      */
     private function publicPlayers(array $entries): array
     {
-        return array_values(array_map(
+        return array_map(
             static fn(array $entry): array => ['playerId' => $entry['playerId'], 'name' => $entry['name']],
             $entries,
-        ));
+        );
     }
 
     /** @return list<string> */
@@ -165,14 +165,10 @@ enum AppendStatus
 
 final class AppendResult
 {
-    public function __construct(public readonly AppendStatus $status, public readonly int $length)
-    {
-    }
+    public function __construct(public readonly AppendStatus $status, public readonly int $length) {}
 }
 
-final class StorageException extends \RuntimeException
-{
-}
+final class StorageException extends \RuntimeException {}
 
 function ensureDirectory(string $path): void
 {

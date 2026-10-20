@@ -25,3 +25,5 @@ dist-ssr
 .vite
 vendor
 .phpunit.cache
+.php-cs-fixer.cache
+.phpstan.cache

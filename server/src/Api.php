@@ -12,8 +12,7 @@ final class Api
     public function __construct(
         private readonly RoomStore $rooms,
         private readonly RateLimiter $limiter,
-    ) {
-    }
+    ) {}
 
     /**
      * @param array<string, string> $server request meta data keyed like $_SERVER

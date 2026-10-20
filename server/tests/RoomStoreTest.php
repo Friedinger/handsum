@@ -39,7 +39,6 @@ final class RoomStoreTest extends DataDirTestCase
             }
         }
 
-        self::assertNotNull($result);
         self::assertSame(AppendStatus::RoomFull, $result->status);
         self::assertLessThanOrEqual(Config::MAX_BYTES_PER_ROOM, $result->length * strlen($filler));
     }

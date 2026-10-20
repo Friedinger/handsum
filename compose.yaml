@@ -19,6 +19,18 @@ services:
     working_dir: /server
     command: vendor/bin/phpunit
 
+  php-lint:
+    <<: *php
+    profiles: [test]
+    working_dir: /server
+    command: sh -c 'vendor/bin/php-cs-fixer fix --dry-run --diff && vendor/bin/phpstan analyse --memory-limit=512M'
+
+  php-fix:
+    <<: *php
+    profiles: [tools]
+    working_dir: /server
+    command: vendor/bin/php-cs-fixer fix
+
   composer:
     profiles: [tools]
     image: composer:2
