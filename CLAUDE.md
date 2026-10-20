@@ -38,7 +38,7 @@ Browser-based multiplayer card game prototype (2–8 players, join via link). No
 - Everything bundled locally: no CDNs, no external fonts, no tracking, no accounts. The server needs no ini settings, no mod_rewrite and no database.
 - Vite `base` is relative (`./`) and the API URL is relative to the page, so the build works in any sub-folder.
 - The server has no dependencies in production and must stay that way: Composer, PHPUnit, PHP-CS-Fixer (PER-CS) and PHPStan (exact versions, `server/composer.lock`) are for development only and run in containers (`compose.yaml`); `vendor/`, `tests/` and Composer files are never deployed. Server tests are in `server/tests/`, mirroring `server/src/`.
-- `ci.yml` lints, tests and builds on every push; production is deployed by manually starting `ci.yml` on `main` (the deploy job runs only after all checks pass) or by hand via SFTP (see README).
+- `ci.yml` lints, tests and builds on every push; production is deployed by manually starting `ci.yml` on `main` (the deploy job runs only after all checks pass) or by hand via SFTP (see `docs/deployment.md`).
 
 ## Workflow
 
