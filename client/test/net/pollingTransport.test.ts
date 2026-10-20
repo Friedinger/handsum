@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Move } from "@/engine";
+import { parseMove, type Move } from "@/engine";
+import { isRecord } from "@/engine/guards";
 import {
   createPollingTransport,
   type PageVisibility,
@@ -61,11 +62,15 @@ function createFakeServer() {
         : respond(200, { players });
     }
     if (query === "?action=move") {
-      const request = body as { sequence: number; move: Move };
+      const request = isRecord(body) ? body : {};
+      const parsedMove = parseMove(request.move);
+      if (!parsedMove) {
+        return respond(400, { error: "invalidMove" });
+      }
       if (request.sequence !== moves.length) {
         return respond(409, { error: "conflict", length: moves.length });
       }
-      moves.push(request.move);
+      moves.push(parsedMove);
       return respond(200, { length: moves.length });
     }
     const since = Number(new URLSearchParams(query).get("since"));
