@@ -91,6 +91,7 @@ final class RoomStoreTest extends DataDirTestCase
         $roomId = self::roomId(self::PLAYERS_ROOM_CODE);
         $store->joinPlayer($roomId, new Player('p1', 'Anna'));
         $valid = json_decode((string) file_get_contents($this->dataDir . '/rooms/' . $roomId . '.players'), true, flags: JSON_THROW_ON_ERROR);
+        self::assertIsArray($valid);
         file_put_contents(
             $this->dataDir . '/rooms/' . $roomId . '.players',
             json_encode(['garbage', ['playerId' => 7], ...$valid], JSON_THROW_ON_ERROR),

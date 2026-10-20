@@ -27,7 +27,7 @@ final class LockedJsonFileTest extends DataDirTestCase
         LockedJsonFile::update($this->path(), $this->now, static fn(): array => ['count' => 1]);
 
         $stored = LockedJsonFile::update($this->path(), $this->now, static fn(mixed $current): array => [
-            'count' => $current['count'] + 1,
+            'count' => is_array($current) && is_int($current['count'] ?? null) ? $current['count'] + 1 : 1,
         ]);
 
         self::assertSame(['count' => 2], $stored);

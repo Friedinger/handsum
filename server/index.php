@@ -30,12 +30,13 @@ failOnPhpErrors();
 ob_start();
 $application = new Application(Config::dataDir(), static fn(): int => time());
 $body = (string) file_get_contents('php://input', length: Config::MAX_REQUEST_BYTES + 1);
+$server = array_filter($_SERVER, 'is_string');
 $response = $application->handle(
-    $_SERVER['REQUEST_METHOD'] ?? 'GET',
-    array_filter($_SERVER, 'is_string'),
+    $server['REQUEST_METHOD'] ?? 'GET',
+    $server,
     array_filter($_GET, 'is_string'),
     $body,
-    $_SERVER['REMOTE_ADDR'] ?? '',
+    $server['REMOTE_ADDR'] ?? '',
 );
 ob_end_clean();
 respond($response);
