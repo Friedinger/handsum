@@ -16,8 +16,8 @@ final class Response
     }
 
     /** @param array<string, mixed> $details */
-    public static function error(int $status, string $error, array $details = []): self
+    public static function error(int $status, ErrorCode $error, array $details = []): self
     {
-        return new self($status, ['error' => $error, ...$details]);
+        return new self($status, ['error' => $error->value, ...$details]);
     }
 }

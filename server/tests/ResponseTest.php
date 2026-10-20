@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Handsum\Tests;
 
+use Handsum\ErrorCode;
 use Handsum\Response;
 use PHPUnit\Framework\TestCase;
 
@@ -19,7 +20,7 @@ final class ResponseTest extends TestCase
 
     public function testErrorNamesTheErrorAndKeepsDetails(): void
     {
-        $response = Response::error(409, 'conflict', ['length' => 3]);
+        $response = Response::error(409, ErrorCode::Conflict, ['length' => 3]);
 
         self::assertSame(409, $response->status);
         self::assertSame(['error' => 'conflict', 'length' => 3], $response->payload);

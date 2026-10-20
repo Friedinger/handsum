@@ -45,7 +45,7 @@ try {
     );
 } catch (\Throwable $error) {
     ErrorLog::write($error, $dataDir);
-    $response = Response::error(500, $error instanceof StorageException ? 'storageNotWritable' : 'serverError');
+    $response = Response::error(500, $error instanceof StorageException ? ErrorCode::StorageNotWritable : ErrorCode::ServerError);
 }
 ob_end_clean();
 respond($response);
