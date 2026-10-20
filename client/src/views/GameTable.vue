@@ -3,10 +3,10 @@ import { computed, ref, watch } from "vue";
 import { strings } from "@/data/strings";
 import {
   findSeat,
-  legalMoves,
   type Move,
   type MoveRejection,
   type Seat,
+  tryApplyMove,
   type StartedGame,
 } from "@/engine";
 import { onlinePlayerIds, type SessionSnapshot } from "@/net/gameSession";
@@ -155,6 +155,10 @@ function selectOwnSlot(slotIndex: number): void {
   click({ kind: "slot", slot: { playerId: selfId.value, slotIndex } });
 }
 
+const showRememberNotice = computed(() =>
+  reveals.value.some((reveal) => reveal.reason === "startingView"),
+);
+
 const hint = computed(() => hintFor(props.state, selfId.value, intent.value));
 
 // One line for errors, reminders and hints, so the hand below never moves when the text changes.
@@ -169,17 +173,11 @@ const showSeveralToggle = computed(() =>
   canToggleSeveral(situation.value, intent.value),
 );
 
-const showRememberNotice = computed(() =>
-  reveals.value.some((reveal) => reveal.reason === "startingView"),
-);
-
 const canCallEnd = computed(
   () =>
     situation.value.kind === "choosing" &&
     intent.value.kind === "none" &&
-    legalMoves(props.state, selfId.value).some(
-      (move) => move.type === "callEnd",
-    ),
+    tryApplyMove(props.state, { type: "callEnd", playerId: selfId.value }).ok,
 );
 
 const results = computed(() =>

@@ -1,4 +1,10 @@
-import type { CardAction, MoveRejection } from "@/engine";
+import {
+  MAX_PLAYERS,
+  MIN_PLAYERS,
+  STARTING_VIEW_CARD_COUNT,
+  type CardAction,
+  type MoveRejection,
+} from "@/engine";
 
 const cardActionNames = {
   viewOwn: "View own card",
@@ -9,7 +15,7 @@ const cardActionNames = {
 const rejectionMessages = {
   gameNotStarted: "The game has not started yet.",
   gameAlreadyStarted: "The game has already started.",
-  invalidPlayerCount: "A game needs 2 to 8 players.",
+  invalidPlayerCount: `A game needs ${String(MIN_PLAYERS)} to ${String(MAX_PLAYERS)} players.`,
   invalidPlayerId: "Every player needs an ID.",
   duplicatePlayerId: "Player IDs must be unique.",
   emptyPlayerName: "Every player needs a name.",
@@ -17,7 +23,7 @@ const rejectionMessages = {
   unknownPlayer: "This player is not part of the game.",
   wrongPhase: "This move is not possible in the current phase.",
   alreadyViewed: "You have already viewed your starting cards.",
-  wrongCardCount: "Select exactly two cards.",
+  wrongCardCount: `Select exactly ${String(STARTING_VIEW_CARD_COUNT)} cards.`,
   notYourTurn: "It is not your turn.",
   wrongTurnStep: "This move is not possible at this point of your turn.",
   drawPileEmpty: "There are no cards left to draw.",
@@ -40,7 +46,7 @@ export const strings = {
   },
   cardSymbol: "◆",
   home: {
-    tagline: "A card game for 2 to 8 players in the browser.",
+    tagline: `A card game for ${String(MIN_PLAYERS)} to ${String(MAX_PLAYERS)} players in the browser.`,
     createRoom: "Create a room",
     roomCode: "Room code",
     joinRoom: "Join",

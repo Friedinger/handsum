@@ -23,22 +23,24 @@ function isCardAction(value: unknown): value is CardAction {
   return typeof value === "string" && Object.hasOwn(CARD_ACTIONS, value);
 }
 
+function invalidCardType(index: number, problem: string): Error {
+  return new Error(`Card type #${String(index)} ${problem}`);
+}
+
 function parseCardType(entry: unknown, index: number): CardType {
   if (!isRecord(entry)) {
-    throw new Error(`Card type #${String(index)} must be an object`);
+    throw invalidCardType(index, "must be an object");
   }
   const { value, count, action } = entry;
   const points = entry.points ?? value;
   if (!isNonNegativeInteger(value) || !isNonNegativeInteger(count)) {
-    throw new Error(
-      `Card type #${String(index)} needs non-negative integer value and count`,
-    );
+    throw invalidCardType(index, "needs non-negative integer value and count");
   }
   if (!isNonNegativeInteger(points)) {
-    throw new Error(`Card type #${String(index)} has invalid points`);
+    throw invalidCardType(index, "has invalid points");
   }
   if (action !== null && !isCardAction(action)) {
-    throw new Error(`Card type #${String(index)} has unknown action`);
+    throw invalidCardType(index, "has unknown action");
   }
   return { value, count, points, action };
 }
