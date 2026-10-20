@@ -43,7 +43,7 @@ final class RoomStore
     /** Appends only if $sequence is the next free index, so duplicates and gaps are rejected. */
     public function append(string $roomId, int $sequence, string $moveJson): AppendResult
     {
-        $handle = fopen($this->logPath($roomId), 'c+');
+        $handle = @fopen($this->logPath($roomId), 'c+');
         if ($handle === false) {
             throw new StorageException('Cannot open room log');
         }
@@ -78,30 +78,22 @@ final class RoomStore
      */
     public function joinPlayer(string $roomId, array $player): ?array
     {
-        $handle = fopen($this->playersPath($roomId), 'c+');
-        if ($handle === false) {
-            throw new StorageException('Cannot open player list');
-        }
-        flock($handle, LOCK_EX);
         $now = ($this->clock)();
-        $stored = json_decode((string) stream_get_contents($handle), true);
-        $others = array_filter(
-            is_array($stored) ? $stored : [],
-            static fn(array $entry): bool => $entry['playerId'] !== $player['playerId']
-                && $entry['seen'] > $now - Config::PLAYER_ACTIVE_SECONDS,
+        $stored = LockedJsonFile::update(
+            $this->playersPath($roomId),
+            $now,
+            function (mixed $stored) use ($player, $now): ?array {
+                $others = array_filter(
+                    is_array($stored) ? $stored : [],
+                    static fn(array $entry): bool => $entry['playerId'] !== $player['playerId']
+                        && $entry['seen'] > $now - Config::PLAYER_ACTIVE_SECONDS,
+                );
+                return count($others) < Config::MAX_PLAYERS_PER_ROOM
+                    ? [...$others, [...$player, 'seen' => $now]]
+                    : null;
+            },
         );
-        $players = null;
-        if (count($others) < Config::MAX_PLAYERS_PER_ROOM) {
-            $players = [...$others, [...$player, 'seen' => $now]];
-            ftruncate($handle, 0);
-            rewind($handle);
-            fwrite($handle, json_encode($players, JSON_THROW_ON_ERROR));
-            fflush($handle);
-            touch($this->playersPath($roomId), $now);
-        }
-        flock($handle, LOCK_UN);
-        fclose($handle);
-        return $players === null ? null : $this->publicPlayers($players);
+        return $stored === null ? null : $this->publicPlayers($stored);
     }
 
     /** @return list<array{playerId: string, name: string}> */

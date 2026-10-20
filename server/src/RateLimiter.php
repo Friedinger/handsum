@@ -19,25 +19,18 @@ final class RateLimiter
     public function allow(string $ip, string $bucket, int $limit, int $windowSeconds): bool
     {
         $path = $this->dir . '/' . $this->key($ip, $bucket);
-        $handle = fopen($path, 'c+');
-        if ($handle === false) {
-            return false;
-        }
-        flock($handle, LOCK_EX);
         $now = ($this->clock)();
-        $stored = json_decode((string) stream_get_contents($handle), true);
-        $inWindow = is_array($stored) && $stored['start'] > $now - $windowSeconds;
-        $windowStart = $inWindow ? $stored['start'] : $now;
-        $count = $inWindow ? $stored['count'] : 0;
-        $count++;
-        ftruncate($handle, 0);
-        rewind($handle);
-        fwrite($handle, json_encode(['start' => $windowStart, 'count' => $count], JSON_THROW_ON_ERROR));
-        fflush($handle);
-        touch($path, $now);
-        flock($handle, LOCK_UN);
-        fclose($handle);
-        return $count <= $limit;
+        $window = LockedJsonFile::update(
+            $this->dir . '/' . $this->key($ip, $bucket),
+            $now,
+            static function (mixed $stored) use ($now, $windowSeconds): array {
+                $inWindow = is_array($stored) && $stored['start'] > $now - $windowSeconds;
+                return $inWindow
+                    ? ['start' => $stored['start'], 'count' => $stored['count'] + 1]
+                    : ['start' => $now, 'count' => 1];
+            },
+        );
+        return $window['count'] <= $limit;
     }
 
     public function deleteExpired(): void
