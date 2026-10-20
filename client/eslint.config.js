@@ -77,7 +77,7 @@ export default withVueTs(
     rules: {
       "no-duplicate-imports": "error",
       "simple-import-sort/imports": [
-        "error",
+        "warn",
         {
           groups: [
             ["^\\u0000"],
@@ -88,7 +88,7 @@ export default withVueTs(
           ],
         },
       ],
-      "simple-import-sort/exports": "error",
+      "simple-import-sort/exports": "warn",
     },
   },
   layer(

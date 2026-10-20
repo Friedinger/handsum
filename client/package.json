@@ -8,7 +8,7 @@
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "lint": "vue-tsc && prettier . ../README.md ../CLAUDE.md ../.github ../compose.yaml ../package.json --check && eslint .",
+    "lint": "vue-tsc && prettier . ../README.md ../CLAUDE.md ../.github ../compose.yaml ../package.json --check && eslint . --max-warnings 0",
     "fix": "prettier . ../README.md ../CLAUDE.md ../.github ../compose.yaml ../package.json --write && eslint . --fix && vue-tsc"
   },
   "dependencies": {
