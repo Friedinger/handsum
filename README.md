@@ -33,8 +33,10 @@ To try it alone, open the room link in two browser windows. The PHP commands run
 | `npm run server:fix`     | Fix the PHP code style (Compose)                            |
 | `npm run server:test`    | Run the PHP server tests (PHPUnit, Compose)                 |
 | `npm test`               | Run client and server tests                                 |
-| `npm run lint`           | Run `client:lint` and `server:lint`                         |
-| `npm run fix`            | Run `client:fix` and `server:fix`                           |
+| `npm run root:lint`      | Check the formatting of the files outside `client/`         |
+| `npm run root:fix`       | Format the files outside `client/`                          |
+| `npm run lint`           | Run all lint checks (client, other files, server)           |
+| `npm run fix`            | Run all fixes (client, other files, server)                 |
 
 ## Repository layout
 

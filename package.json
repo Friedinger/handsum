@@ -24,8 +24,10 @@
     "server:lint": "npm run server:install && docker compose run --rm php-lint",
     "server:fix": "npm run server:install && docker compose run --rm php-fix",
     "server:test": "npm run server:install && docker compose run --rm php-test",
-    "lint": "npm run client:lint && npm run server:lint",
-    "fix": "npm run client:fix && npm run server:fix",
+    "root:lint": "npm --prefix client exec -- prettier . --check",
+    "root:fix": "npm --prefix client exec -- prettier . --write",
+    "lint": "npm run client:lint && npm run root:lint && npm run server:lint",
+    "fix": "npm run client:fix && npm run root:fix && npm run server:fix",
     "test": "npm run client:test && npm run server:test"
   }
 }
