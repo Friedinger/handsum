@@ -70,6 +70,26 @@ function completeAction(turn: HeldCardTurn, state: StartedGame): StartedGame {
   );
 }
 
+function viewCard(
+  turn: HeldCardTurn,
+  ownerId: PlayerId,
+  layout: readonly Slot[],
+  slotIndex: number,
+): Result<StartedGame> {
+  const card = requireCardAt(layout, slotIndex);
+  if (!card.ok) {
+    return card;
+  }
+  const viewed = withEvent(turn.state, {
+    type: "cardViewed",
+    viewerId: turn.playerId,
+    ownerId,
+    slotIndex,
+    card: card.value,
+  });
+  return accept(completeAction(turn, viewed));
+}
+
 export function applyViewOwnCard(
   state: GameState,
   move: ViewOwnCardMove,
@@ -78,18 +98,7 @@ export function applyViewOwnCard(
   if (!turn.ok) {
     return turn;
   }
-  const card = requireCardAt(turn.value.layout, move.slotIndex);
-  if (!card.ok) {
-    return card;
-  }
-  const viewed = withEvent(turn.value.state, {
-    type: "cardViewed",
-    viewerId: move.playerId,
-    ownerId: move.playerId,
-    slotIndex: move.slotIndex,
-    card: card.value,
-  });
-  return accept(completeAction(turn.value, viewed));
+  return viewCard(turn.value, move.playerId, turn.value.layout, move.slotIndex);
 }
 
 export function applyViewOtherCard(
@@ -104,18 +113,12 @@ export function applyViewOtherCard(
   if (!target.ok) {
     return target;
   }
-  const card = requireCardAt(target.value.layout, move.slotIndex);
-  if (!card.ok) {
-    return card;
-  }
-  const viewed = withEvent(turn.value.state, {
-    type: "cardViewed",
-    viewerId: move.playerId,
-    ownerId: move.targetPlayerId,
-    slotIndex: move.slotIndex,
-    card: card.value,
-  });
-  return accept(completeAction(turn.value, viewed));
+  return viewCard(
+    turn.value,
+    move.targetPlayerId,
+    target.value.layout,
+    move.slotIndex,
+  );
 }
 
 export function applyExchangeBlind(
