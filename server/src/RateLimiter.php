@@ -36,11 +36,7 @@ final class RateLimiter
     public function deleteExpired(): void
     {
         $threshold = ($this->clock)() - max(Config::REQUEST_WINDOW_SECONDS, Config::ROOM_CREATION_WINDOW_SECONDS);
-        foreach (glob($this->dir . '/*') ?: [] as $path) {
-            if (is_file($path) && filemtime($path) < $threshold) {
-                unlink($path);
-            }
-        }
+        Filesystem::deleteFilesOlderThan($this->dir, $threshold);
     }
 
     /** The day is part of the hash so stored keys cannot be linked across days. */

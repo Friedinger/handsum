@@ -84,9 +84,8 @@ final class RoomStore
             $now,
             function (mixed $stored) use ($player, $now): ?array {
                 $others = array_filter(
-                    is_array($stored) ? $stored : [],
-                    static fn(array $entry): bool => $entry['playerId'] !== $player['playerId']
-                        && $entry['seen'] > $now - Config::PLAYER_ACTIVE_SECONDS,
+                    $this->stillActive($stored, $now),
+                    static fn(array $entry): bool => $entry['playerId'] !== $player['playerId'],
                 );
                 return count($others) < Config::MAX_PLAYERS_PER_ROOM
                     ? [...$others, [...$player, 'seen' => $now]]
@@ -101,21 +100,22 @@ final class RoomStore
     {
         $raw = @file_get_contents($this->playersPath($roomId));
         $stored = json_decode($raw === false ? '' : $raw, true);
-        $now = ($this->clock)();
-        return $this->publicPlayers(array_filter(
-            is_array($stored) ? $stored : [],
-            static fn(array $entry): bool => $entry['seen'] > $now - Config::PLAYER_ACTIVE_SECONDS,
-        ));
+        return $this->publicPlayers($this->stillActive($stored, ($this->clock)()));
     }
 
     public function deleteIdleRooms(): void
     {
         $threshold = ($this->clock)() - Config::ROOM_IDLE_SECONDS;
-        foreach (glob($this->roomsDir . '/*') ?: [] as $path) {
-            if (is_file($path) && filemtime($path) < $threshold) {
-                unlink($path);
-            }
-        }
+        Filesystem::deleteFilesOlderThan($this->roomsDir, $threshold);
+    }
+
+    /** @return list<array{playerId: string, name: string, seen: int}> */
+    private function stillActive(mixed $stored, int $now): array
+    {
+        return array_values(array_filter(
+            is_array($stored) ? $stored : [],
+            static fn(array $entry): bool => $entry['seen'] > $now - Config::PLAYER_ACTIVE_SECONDS,
+        ));
     }
 
     /**

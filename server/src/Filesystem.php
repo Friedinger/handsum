@@ -15,4 +15,13 @@ final class Filesystem
             throw new StorageException("Directory $path is not writable");
         }
     }
+
+    public static function deleteFilesOlderThan(string $directory, int $threshold): void
+    {
+        foreach (glob($directory . '/*') ?: [] as $path) {
+            if (is_file($path) && filemtime($path) < $threshold) {
+                unlink($path);
+            }
+        }
+    }
 }

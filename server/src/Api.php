@@ -41,7 +41,7 @@ final class Api
     /** @return array{int, array<string, mixed>} */
     private function read(string $roomId, string $since): array
     {
-        if (preg_match('/^\d{1,9}$/', $since) !== 1) {
+        if (preg_match(Config::SINCE_PATTERN, $since) !== 1) {
             return [400, ['error' => 'invalidSince']];
         }
         $moves = array_map(
@@ -128,7 +128,7 @@ final class Api
     private function isPlayerShaped(mixed $playerId, mixed $name): bool
     {
         return is_string($playerId)
-            && preg_match('/^[A-Za-z0-9-]{1,' . Config::MAX_PLAYER_ID_LENGTH . '}$/', $playerId) === 1
+            && preg_match(Config::PLAYER_ID_PATTERN, $playerId) === 1
             && is_string($name)
             && mb_strlen(trim($name)) >= 1
             && mb_strlen($name) <= Config::MAX_PLAYER_NAME_LENGTH;
