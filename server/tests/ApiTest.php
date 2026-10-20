@@ -6,6 +6,7 @@ namespace Handsum\Tests;
 
 use Handsum\Api;
 use Handsum\Config;
+use Handsum\ErrorCode;
 use Handsum\RateLimiter;
 use Handsum\Response;
 use Handsum\Storage\RoomStore;
@@ -267,6 +268,35 @@ final class ApiTest extends DataDirTestCase
         $this->now += Config::ROOM_CREATION_WINDOW_SECONDS + 1;
 
         self::assertSame(200, $this->postMoveFrom('RX', 0, '2.2.2.2')->status);
+    }
+
+    public function testNoNewRoomIsCreatedOnceTheServerIsFull(): void
+    {
+        for ($i = 0; $i < Config::MAX_ROOMS; $i++) {
+            $this->postMoveFrom("R$i", 0, "10.0.0.$i");
+        }
+
+        $response = $this->postMoveFrom('RX', 0, '10.1.0.1');
+
+        self::assertSame(503, $response->status);
+        self::assertSame(ErrorCode::TooManyRooms->value, $response->payload['error']);
+    }
+
+    public function testExistingRoomsStillWorkOnceTheServerIsFull(): void
+    {
+        for ($i = 0; $i < Config::MAX_ROOMS; $i++) {
+            $this->postMoveFrom("R$i", 0, "10.0.0.$i");
+        }
+
+        self::assertSame(200, $this->postMoveFrom('R0', 1, '10.1.0.1')->status);
+    }
+
+    public function testJoinWithANonJsonBodyIsRejected(): void
+    {
+        $response = $this->call('POST', self::room('JOIN22'), ['action' => 'join'], 'garbage');
+
+        self::assertSame(400, $response->status);
+        self::assertSame(ErrorCode::InvalidPlayer->value, $response->payload['error']);
     }
 
     public function testRequestRateLimitTriggers(): void

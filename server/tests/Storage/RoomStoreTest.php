@@ -60,6 +60,30 @@ final class RoomStoreTest extends DataDirTestCase
         self::assertLessThanOrEqual(Config::MAX_BYTES_PER_ROOM, $result->length * strlen($filler));
     }
 
+    public function testSilentPlayersAreNotListed(): void
+    {
+        $store = new RoomStore($this->dataDir, $this->clock());
+        $roomId = hash('sha256', 'JOIN22');
+        $store->joinPlayer($roomId, ['playerId' => 'p1', 'name' => 'Anna']);
+        $this->now += Config::PLAYER_ACTIVE_SECONDS - 1;
+        $store->joinPlayer($roomId, ['playerId' => 'p2', 'name' => 'Ben']);
+        $this->now += 2;
+
+        self::assertSame([['playerId' => 'p2', 'name' => 'Ben']], $store->activePlayers($roomId));
+    }
+
+    public function testSilentPlayersDoNotCountTowardsTheRoomLimit(): void
+    {
+        $store = new RoomStore($this->dataDir, $this->clock());
+        $roomId = hash('sha256', 'JOIN22');
+        for ($i = 0; $i < Config::MAX_PLAYERS_PER_ROOM; $i++) {
+            $store->joinPlayer($roomId, ['playerId' => "p$i", 'name' => "P$i"]);
+        }
+        $this->now += Config::PLAYER_ACTIVE_SECONDS + 1;
+
+        self::assertNotNull($store->joinPlayer($roomId, ['playerId' => 'late', 'name' => 'Late']));
+    }
+
     public function testUnwritableDataDirectoryRaisesAClearError(): void
     {
         $this->expectException(StorageException::class);
