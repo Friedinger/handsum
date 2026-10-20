@@ -7,7 +7,7 @@ import {
   startedGame,
 } from "@test/support/gameFixtures";
 import { hintFor } from "@/utils/tableHints";
-import { noIntent, toggleSeveral } from "@/utils/tableInteraction";
+import { noIntent, toggleSeveral } from "@/utils/tableIntent";
 
 const self = "player-1";
 

@@ -22,10 +22,9 @@ import { displayName } from "@/utils/displayName";
 import { isRevealed } from "@/utils/reveals";
 import type { SlotView } from "@/utils/slotView";
 import { hintFor } from "@/utils/tableHints";
+import { handleClick, isClickable } from "@/utils/tableInteraction";
 import {
   canToggleSeveral,
-  handleClick,
-  isClickable,
   isSlotMarked,
   isSwappingSeveral,
   noIntent,
@@ -33,7 +32,7 @@ import {
   toggleSeveral,
   type ClickTarget,
   type Intent,
-} from "@/utils/tableInteraction";
+} from "@/utils/tableIntent";
 import { arrangeOpponents } from "@/utils/tableLayout";
 import { currentHeldCard } from "@/utils/heldCard";
 

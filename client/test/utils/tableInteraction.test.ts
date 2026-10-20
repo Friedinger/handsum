@@ -6,15 +6,14 @@ import {
   playingGame,
   startedGame,
 } from "@test/support/gameFixtures";
+import { handleClick, isClickable } from "@/utils/tableInteraction";
 import {
-  handleClick,
-  isClickable,
   noIntent,
   toggleSeveral,
   type ClickTarget,
   type Intent,
   type SlotRef,
-} from "@/utils/tableInteraction";
+} from "@/utils/tableIntent";
 
 const self = "player-1";
 const own = (slotIndex: number): ClickTarget => ({

@@ -6,7 +6,7 @@ import {
   selectedOwnSlots,
   situationOf,
   type Intent,
-} from "./tableInteraction";
+} from "./tableIntent";
 
 function waitingHint(state: StartedGame): string {
   const { phase } = state;

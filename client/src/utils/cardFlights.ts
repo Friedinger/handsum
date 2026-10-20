@@ -7,7 +7,7 @@ import {
   type StartedGame,
 } from "@/engine";
 import { currentHeldCard } from "./heldCard";
-import type { SlotRef } from "./tableInteraction";
+import type { SlotRef } from "./tableIntent";
 
 export type Anchor =
   | { readonly kind: "drawPile" }
