@@ -18,7 +18,12 @@ import type {
   Slot,
   StartedGame,
 } from "@/engine/types";
-import { endTurn, requireHeldCard, withEvent, type HeldCardTurn } from "./turn";
+import {
+  discardHeldCard,
+  requireHeldCard,
+  withEvent,
+  type HeldCardTurn,
+} from "./turn";
 
 interface TargetSeat {
   readonly playerId: PlayerId;
@@ -63,13 +68,6 @@ function requireCardAt(
   return card ? accept(card) : reject("emptySlot");
 }
 
-function completeAction(turn: HeldCardTurn, state: StartedGame): StartedGame {
-  return endTurn(
-    { ...state, discardPile: [turn.heldCard, ...state.discardPile] },
-    turn.playerId,
-  );
-}
-
 function viewCard(
   turn: HeldCardTurn,
   ownerId: PlayerId,
@@ -87,7 +85,7 @@ function viewCard(
     slotIndex,
     card: card.value,
   });
-  return accept(completeAction(turn, viewed));
+  return accept(discardHeldCard(turn, viewed));
 }
 
 export function applyViewOwnCard(
@@ -156,5 +154,5 @@ export function applyExchangeBlind(
     target.value.seatIndex,
     targetLayout,
   );
-  return accept(completeAction(turn.value, { ...turn.value.state, seats }));
+  return accept(discardHeldCard(turn.value, { ...turn.value.state, seats }));
 }

@@ -78,6 +78,16 @@ export function requireHeldCard(
   return accept({ ...turn.value, heldCard: step.card });
 }
 
+export function discardHeldCard(
+  turn: HeldCardTurn,
+  state: StartedGame = turn.state,
+): StartedGame {
+  return endTurn(
+    { ...state, discardPile: [turn.heldCard, ...state.discardPile] },
+    turn.playerId,
+  );
+}
+
 export function withEvent(state: StartedGame, event: GameEvent): StartedGame {
   return { ...state, lastMoveEvents: [...state.lastMoveEvents, event] };
 }

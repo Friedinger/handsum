@@ -6,7 +6,7 @@ import { accept, reject, type Result } from "@/engine/outcome";
 import { deriveSeed, shuffle } from "@/engine/random";
 import type { GameState, StartedGame } from "@/engine/types";
 import {
-  endTurn,
+  discardHeldCard,
   requireAwaitingChoice,
   requireHeldCard,
   withEvent,
@@ -61,11 +61,5 @@ export function applyDiscardDrawnCard(
   if (!turn.ok) {
     return turn;
   }
-  const { state: current, heldCard } = turn.value;
-  return accept(
-    endTurn(
-      { ...current, discardPile: [heldCard, ...current.discardPile] },
-      move.playerId,
-    ),
-  );
+  return accept(discardHeldCard(turn.value));
 }
