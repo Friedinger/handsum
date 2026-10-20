@@ -48,6 +48,23 @@ export default defineConfig({
     assetsDir: "assets",
   },
   test: {
-    include: ["test/**/*.test.ts"],
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: "logic",
+          include: ["test/**/*.test.ts"],
+          exclude: ["test/**/*.dom.test.ts"],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: "ui",
+          environment: "happy-dom",
+          include: ["test/**/*.dom.test.ts"],
+        },
+      },
+    ],
   },
 });
