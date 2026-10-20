@@ -1,5 +1,6 @@
 import {
-  LAYOUT_SIZE,
+  cardAt,
+  SLOT_INDICES,
   type Card,
   type Move,
   type PlayerId,
@@ -53,18 +54,6 @@ export function anchorKey(anchor: Anchor): string {
 
 function slotAnchor(playerId: PlayerId, slotIndex: number): Anchor {
   return { kind: "slot", slot: { playerId, slotIndex } };
-}
-
-function cardAt(
-  state: StartedGame,
-  playerId: PlayerId,
-  slotIndex: number,
-): Card | null {
-  return (
-    state.seats.find((seat) => seat.player.id === playerId)?.layout[
-      slotIndex
-    ] ?? null
-  );
 }
 
 function heldCardOf(state: StartedGame): Card | null {
@@ -186,11 +175,7 @@ function planExchange(
 
 // Dealt round by round like at a real table, then the first discard is turned over.
 export function planDeal(dealt: StartedGame): MovePlan {
-  const rounds = Array.from(
-    { length: LAYOUT_SIZE },
-    (_, slotIndex) => slotIndex,
-  );
-  const dealing = rounds.flatMap((slotIndex) =>
+  const dealing = SLOT_INDICES.flatMap((slotIndex) =>
     dealt.seats.map((seat, seatIndex) => ({
       from: drawPile,
       to: slotAnchor(seat.player.id, slotIndex),

@@ -1,8 +1,23 @@
 import type { MoveRejection } from "./outcome";
-import type { PlayerId, Seat, Slot, StartedGame } from "./types";
+import type { Card, PlayerId, Seat, Slot, StartedGame } from "./types";
 
 export function seatIndexOf(state: StartedGame, playerId: PlayerId): number {
   return state.seats.findIndex((seat) => seat.player.id === playerId);
+}
+
+export function findSeat(
+  state: StartedGame,
+  playerId: PlayerId,
+): Seat | undefined {
+  return state.seats.find((seat) => seat.player.id === playerId);
+}
+
+export function cardAt(
+  state: StartedGame,
+  playerId: PlayerId,
+  slotIndex: number,
+): Card | null {
+  return findSeat(state, playerId)?.layout[slotIndex] ?? null;
 }
 
 export function nextPlayerId(state: StartedGame, playerId: PlayerId): PlayerId {

@@ -5,3 +5,8 @@ export const MAX_PLAYERS = 8;
 export const CALLER_PENALTY = 5;
 export const SPECIAL_LAYOUT_VALUES: readonly number[] = [12, 12, 13, 13];
 export const SPECIAL_LAYOUT_PENALTY = 50;
+
+export const SLOT_INDICES: readonly number[] = Array.from(
+  { length: LAYOUT_SIZE },
+  (_, slotIndex) => slotIndex,
+);

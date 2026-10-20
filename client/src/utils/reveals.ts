@@ -1,4 +1,10 @@
-import type { Card, Move, PlayerId, StartedGame } from "@/engine";
+import {
+  cardAt,
+  type Card,
+  type Move,
+  type PlayerId,
+  type StartedGame,
+} from "@/engine";
 
 export const STARTING_VIEW_REVEAL_MS = 8000;
 export const VIEW_REVEAL_MS = 5000;
@@ -22,10 +28,8 @@ function startingViewReveals(
   if (move.type !== "viewStartingCards" || move.playerId !== selfId) {
     return [];
   }
-  const layout =
-    state.seats.find((seat) => seat.player.id === selfId)?.layout ?? [];
   return move.slotIndices.flatMap((slotIndex) => {
-    const card = layout[slotIndex];
+    const card = cardAt(state, selfId, slotIndex);
     return card
       ? [
           {
@@ -59,13 +63,20 @@ function eventReveals(state: StartedGame, selfId: PlayerId): Reveal[] {
         // Matching cards went to the discard pile; only a failed attempt leaves them in place.
         return event.matched
           ? []
-          : event.cards.map((card, index) => ({
-              reason: "failedSwap",
-              ownerId: event.playerId,
-              slotIndex: event.slotIndices[index] ?? -1,
-              card,
-              durationMs: FAILED_SWAP_REVEAL_MS,
-            }));
+          : event.cards.flatMap((card, index) => {
+              const slotIndex = event.slotIndices[index];
+              return slotIndex === undefined
+                ? []
+                : [
+                    {
+                      reason: "failedSwap",
+                      ownerId: event.playerId,
+                      slotIndex,
+                      card,
+                      durationMs: FAILED_SWAP_REVEAL_MS,
+                    },
+                  ];
+            });
       case "drawPileReshuffled":
         return [];
     }
@@ -90,8 +101,7 @@ export function isRevealed(
   ownerId: PlayerId,
   slotIndex: number,
 ): boolean {
-  const currentCard = state.seats.find((seat) => seat.player.id === ownerId)
-    ?.layout[slotIndex];
+  const currentCard = cardAt(state, ownerId, slotIndex);
   return reveals.some(
     (reveal) =>
       reveal.ownerId === ownerId &&

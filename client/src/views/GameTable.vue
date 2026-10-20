@@ -2,6 +2,7 @@
 import { computed, ref, watch } from "vue";
 import { strings } from "@/data/strings";
 import {
+  findSeat,
   legalMoves,
   type Move,
   type MoveRejection,
@@ -79,9 +80,7 @@ const opponentAreas = computed(() => {
     { area: "area-right", seats: right },
   ];
 });
-const ownSeat = computed(() =>
-  props.state.seats.find((seat) => seat.player.id === selfId.value),
-);
+const ownSeat = computed(() => findSeat(props.state, selfId.value));
 const isFinished = computed(() => props.state.phase.kind === "finished");
 const currentPlayerId = computed(() =>
   props.state.phase.kind === "playing"

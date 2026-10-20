@@ -1,12 +1,7 @@
 import { tryApplyMove } from "./applyMove";
 import type { Move } from "@/engine/moves/types";
-import { LAYOUT_SIZE, STARTING_VIEW_CARD_COUNT } from "./rules";
+import { SLOT_INDICES, STARTING_VIEW_CARD_COUNT } from "./rules";
 import type { GameState, PlayerId } from "./types";
-
-const SLOT_INDICES = Array.from(
-  { length: LAYOUT_SIZE },
-  (_, slotIndex) => slotIndex,
-);
 
 function nonEmptySubsets(items: readonly number[]): number[][] {
   return items.reduce<number[][]>(
