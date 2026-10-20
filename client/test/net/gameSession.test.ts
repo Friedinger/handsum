@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { GameState, Move, StartedGame } from "@/engine";
+import type { Move } from "@/engine";
+import { expectStarted } from "@test/support/gameFixtures";
 import {
   createGameSession,
   lobbyPlayers,
@@ -54,13 +55,6 @@ async function startedRoom() {
   return { network, host, guest };
 }
 
-function expectStartedState(state: GameState): StartedGame {
-  if (state.status !== "started") {
-    throw new Error("Expected a started game");
-  }
-  return state;
-}
-
 // Moves reach the server asynchronously, so give pending requests time to finish first.
 async function settle(network: MemoryNetwork): Promise<void> {
   await Promise.resolve();
@@ -68,7 +62,7 @@ async function settle(network: MemoryNetwork): Promise<void> {
 }
 
 function currentPlayer(client: Client): string {
-  const { phase } = expectStartedState(client.latest().log.state);
+  const { phase } = expectStarted(client.latest().log.state);
   if (phase.kind !== "playing") {
     throw new Error("Expected a running game");
   }
@@ -193,7 +187,7 @@ describe("game session", () => {
     await playUntilFinished(network, [host, guest]);
     guest.session.startGame(SEED + 2);
     await settle(network);
-    const rematch = expectStartedState(host.latest().log.state);
+    const rematch = expectStarted(host.latest().log.state);
     expect(rematch.phase.kind).toBe("startingView");
     expect(rematch.seats.map((seat) => seat.player.id)).toEqual([
       "alice",

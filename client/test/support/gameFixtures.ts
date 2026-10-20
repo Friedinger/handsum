@@ -41,6 +41,10 @@ export function expectStarted(state: GameState): StartedGame {
   return state;
 }
 
+export function applyToStarted(state: GameState, move: Move): StartedGame {
+  return expectStarted(applyMove(state, move));
+}
+
 export function startedGame(playerCount = 3, seed = TEST_SEED): StartedGame {
   return expectStarted(
     applyMove(initialGameState, startGameMove(playerCount, seed)),

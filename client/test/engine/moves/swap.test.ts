@@ -1,16 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { applyMove, validateMove } from "@/engine/applyMove";
+import { validateMove } from "@/engine/applyMove";
 import type { Move } from "@/engine/moves/types";
 import {
   currentPlayerId,
-  expectStarted,
+  applyToStarted,
   holding,
   layoutOf,
   makeCard,
   playingGame,
   withLayouts,
 } from "@test/support/gameFixtures";
-import type { StartedGame } from "@/engine/types";
 
 const fives = [
   makeCard(5, null, 1),
@@ -26,10 +25,6 @@ const mixedLayout = [
   makeCard(9, "viewOther", 4),
 ];
 
-function apply(state: StartedGame, move: Move): StartedGame {
-  return expectStarted(applyMove(state, move));
-}
-
 function swapDrawn(slotIndices: number[]): Move {
   return { type: "swapDrawnCard", playerId: "player-1", slotIndices };
 }
@@ -41,7 +36,7 @@ function swapDiscard(slotIndices: number[]): Move {
 describe("multi-swap with matching values", () => {
   it("discards all selected cards and places the new card on the lowest selected slot", () => {
     const state = holding(withLayouts(playingGame(), [mixedLayout]), drawnCard);
-    const afterSwap = apply(state, swapDrawn([2, 0]));
+    const afterSwap = applyToStarted(state, swapDrawn([2, 0]));
     expect(layoutOf(afterSwap, 0)).toEqual([
       drawnCard,
       mixedLayout[1],
@@ -66,14 +61,14 @@ describe("multi-swap with matching values", () => {
 
   it("can replace all four cards with a single one", () => {
     const state = holding(withLayouts(playingGame(), [fives]), drawnCard);
-    const afterSwap = apply(state, swapDrawn([0, 1, 2, 3]));
+    const afterSwap = applyToStarted(state, swapDrawn([0, 1, 2, 3]));
     expect(layoutOf(afterSwap, 0)).toEqual([drawnCard, null, null, null]);
   });
 
   it("works with the top card of the discard pile", () => {
     const state = withLayouts(playingGame(), [fives]);
     const takenCard = state.discardPile[0];
-    const afterSwap = apply(state, swapDiscard([1, 3]));
+    const afterSwap = applyToStarted(state, swapDiscard([1, 3]));
     expect(layoutOf(afterSwap, 0)).toEqual([
       fives[0],
       takenCard,
@@ -91,7 +86,7 @@ describe("multi-swap with matching values", () => {
 describe("multi-swap with differing values", () => {
   it("keeps the layout, discards the drawn card and ends the turn", () => {
     const state = holding(withLayouts(playingGame(), [mixedLayout]), drawnCard);
-    const afterSwap = apply(state, swapDrawn([0, 1]));
+    const afterSwap = applyToStarted(state, swapDrawn([0, 1]));
     expect(layoutOf(afterSwap, 0)).toEqual(mixedLayout);
     expect(afterSwap.discardPile[0]).toEqual(drawnCard);
     expect(afterSwap.lastMoveEvents).toEqual([
@@ -108,7 +103,7 @@ describe("multi-swap with differing values", () => {
 
   it("returns a taken discard card to the discard pile", () => {
     const state = withLayouts(playingGame(), [mixedLayout]);
-    const afterSwap = apply(state, swapDiscard([0, 1, 2]));
+    const afterSwap = applyToStarted(state, swapDiscard([0, 1, 2]));
     expect(layoutOf(afterSwap, 0)).toEqual(mixedLayout);
     expect(afterSwap.discardPile).toEqual(state.discardPile);
   });
@@ -117,7 +112,7 @@ describe("multi-swap with differing values", () => {
 describe("swap selection", () => {
   it("does not reveal anything for a single-card swap", () => {
     const state = holding(withLayouts(playingGame(), [mixedLayout]), drawnCard);
-    expect(apply(state, swapDrawn([1])).lastMoveEvents).toEqual([]);
+    expect(applyToStarted(state, swapDrawn([1])).lastMoveEvents).toEqual([]);
   });
 
   it("rejects empty, duplicate and empty-slot selections", () => {

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { applyMove, validateMove } from "@/engine/applyMove";
+import { validateMove } from "@/engine/applyMove";
 import type { Move } from "@/engine/moves/types";
 import {
   currentPlayerId,
-  expectStarted,
+  applyToStarted,
   holding,
   layoutOf,
   makeCard,
@@ -32,10 +32,6 @@ function stateHolding(card: Card): StartedGame {
   return holding(withLayouts(playingGame(3), [ownLayout, otherLayout]), card);
 }
 
-function apply(state: StartedGame, move: Move): StartedGame {
-  return expectStarted(applyMove(state, move));
-}
-
 describe("viewOwnCard", () => {
   const move: Move = {
     type: "viewOwnCard",
@@ -45,7 +41,7 @@ describe("viewOwnCard", () => {
 
   it("reveals one own card to the player, discards the action card and ends the turn", () => {
     const state = stateHolding(viewOwnCard);
-    const afterView = apply(state, move);
+    const afterView = applyToStarted(state, move);
     expect(afterView.lastMoveEvents).toEqual([
       {
         type: "cardViewed",
@@ -88,7 +84,7 @@ describe("viewOtherCard", () => {
   };
 
   it("reveals one card of another player to the viewer only", () => {
-    const afterView = apply(stateHolding(viewOtherCard), move);
+    const afterView = applyToStarted(stateHolding(viewOtherCard), move);
     expect(afterView.lastMoveEvents).toEqual([
       {
         type: "cardViewed",
@@ -123,7 +119,7 @@ describe("exchangeBlind", () => {
   };
 
   it("exchanges one own card with one card of another player without revealing them", () => {
-    const afterExchange = apply(stateHolding(exchangeCard), move);
+    const afterExchange = applyToStarted(stateHolding(exchangeCard), move);
     expect(layoutOf(afterExchange, 0)).toEqual([
       otherLayout[1],
       ownLayout[1],

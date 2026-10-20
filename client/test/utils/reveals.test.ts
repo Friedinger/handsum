@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { applyMove, type Move, type StartedGame } from "@/engine";
+import type { Move } from "@/engine";
 import {
-  expectStarted,
+  applyToStarted,
   holding,
   makeCard,
   playingGame,
@@ -15,10 +15,6 @@ import {
   VIEW_REVEAL_MS,
 } from "@/utils/reveals";
 
-function afterMove(state: StartedGame, move: Move): StartedGame {
-  return expectStarted(applyMove(state, move));
-}
-
 describe("revealsAfterMove", () => {
   it("shows the own starting cards to the viewing player only", () => {
     const move: Move = {
@@ -26,7 +22,7 @@ describe("revealsAfterMove", () => {
       playerId: "player-1",
       slotIndices: [1, 3],
     };
-    const state = afterMove(startedGame(2), move);
+    const state = applyToStarted(startedGame(2), move);
     const reveals = revealsAfterMove(state, move, "player-1");
     expect(
       reveals.map((reveal) => [reveal.slotIndex, reveal.durationMs]),
@@ -44,7 +40,7 @@ describe("revealsAfterMove", () => {
       targetPlayerId: "player-2",
       slotIndex: 0,
     };
-    const state = afterMove(
+    const state = applyToStarted(
       holding(playingGame(3), makeCard(9, "viewOther")),
       move,
     );
@@ -70,7 +66,7 @@ describe("revealsAfterMove", () => {
       playerId: "player-1",
       slotIndices: [0, 1],
     };
-    const state = afterMove(withLayouts(playingGame(2), [layout]), move);
+    const state = applyToStarted(withLayouts(playingGame(2), [layout]), move);
     const reveals = revealsAfterMove(state, move, "player-2");
     expect(reveals.map((reveal) => reveal.slotIndex)).toEqual([0, 1]);
     expect(isRevealed(reveals, state, "player-1", 0)).toBe(true);
@@ -85,7 +81,7 @@ describe("isRevealed", () => {
       playerId: "player-1",
       slotIndices: [0, 1],
     };
-    const state = afterMove(startedGame(2), move);
+    const state = applyToStarted(startedGame(2), move);
     const reveals = revealsAfterMove(state, move, "player-1");
     const swapped = withLayouts(state, [[makeCard(13), null, null, null]]);
     expect(isRevealed(reveals, state, "player-1", 0)).toBe(true);

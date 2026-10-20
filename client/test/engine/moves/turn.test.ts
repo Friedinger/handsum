@@ -1,19 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { applyMove, validateMove } from "@/engine/applyMove";
+import { validateMove } from "@/engine/applyMove";
 import { legalMoves } from "@/engine/legalMoves";
 import type { Move } from "@/engine/moves/types";
 import {
   currentPlayerId,
-  expectStarted,
+  applyToStarted,
   layoutOf,
   playingGame,
   startedGame,
 } from "@test/support/gameFixtures";
-import type { StartedGame } from "@/engine/types";
-
-function apply(state: StartedGame, move: Move): StartedGame {
-  return expectStarted(applyMove(state, move));
-}
 
 const ALL_SLOT_SELECTIONS = 15;
 
@@ -30,7 +25,7 @@ function countByType(
 describe("drawFromDeck", () => {
   it("moves the top card of the draw pile into the current player's hand", () => {
     const state = playingGame();
-    const afterDraw = apply(state, {
+    const afterDraw = applyToStarted(state, {
       type: "drawFromDeck",
       playerId: "player-1",
     });
@@ -53,7 +48,7 @@ describe("drawFromDeck", () => {
         playerId: "player-1",
       }),
     ).toBe("wrongPhase");
-    const afterDraw = apply(state, {
+    const afterDraw = applyToStarted(state, {
       type: "drawFromDeck",
       playerId: "player-1",
     });
@@ -65,11 +60,11 @@ describe("drawFromDeck", () => {
 
 describe("discardDrawnCard", () => {
   it("puts the drawn card on the discard pile and passes the turn", () => {
-    const state = apply(playingGame(), {
+    const state = applyToStarted(playingGame(), {
       type: "drawFromDeck",
       playerId: "player-1",
     });
-    const afterDiscard = apply(state, {
+    const afterDiscard = applyToStarted(state, {
       type: "discardDrawnCard",
       playerId: "player-1",
     });
@@ -89,13 +84,13 @@ describe("discardDrawnCard", () => {
 
 describe("swapDrawnCard", () => {
   it("replaces a layout card and discards the replaced one", () => {
-    const state = apply(playingGame(), {
+    const state = applyToStarted(playingGame(), {
       type: "drawFromDeck",
       playerId: "player-1",
     });
     const drawnCard = playingGame().drawPile[0];
     const replacedCard = layoutOf(state, 0)[2];
-    const afterSwap = apply(state, {
+    const afterSwap = applyToStarted(state, {
       type: "swapDrawnCard",
       playerId: "player-1",
       slotIndices: [2],
@@ -106,7 +101,7 @@ describe("swapDrawnCard", () => {
   });
 
   it("rejects slots outside the layout", () => {
-    const state = apply(playingGame(), {
+    const state = applyToStarted(playingGame(), {
       type: "drawFromDeck",
       playerId: "player-1",
     });
@@ -127,7 +122,7 @@ describe("swapDiscardCard", () => {
     const state = playingGame();
     const takenCard = state.discardPile[0];
     const replacedCard = layoutOf(state, 0)[1];
-    const afterSwap = apply(state, {
+    const afterSwap = applyToStarted(state, {
       type: "swapDiscardCard",
       playerId: "player-1",
       slotIndices: [1],
@@ -138,7 +133,7 @@ describe("swapDiscardCard", () => {
   });
 
   it("is not allowed after drawing", () => {
-    const state = apply(playingGame(), {
+    const state = applyToStarted(playingGame(), {
       type: "drawFromDeck",
       playerId: "player-1",
     });
@@ -159,7 +154,7 @@ describe("turn order", () => {
     for (let turn = 0; turn < 4; turn++) {
       const playerId = currentPlayerId(state);
       order.push(playerId);
-      state = apply(state, {
+      state = applyToStarted(state, {
         type: "swapDiscardCard",
         playerId,
         slotIndices: [0],
@@ -175,7 +170,7 @@ describe("legalMoves", () => {
     expect(countByType(legalMoves(state, "player-1"))).toEqual({
       viewStartingCards: 6,
     });
-    const afterViewing = apply(state, {
+    const afterViewing = applyToStarted(state, {
       type: "viewStartingCards",
       playerId: "player-1",
       slotIndices: [0, 3],
@@ -194,7 +189,7 @@ describe("legalMoves", () => {
   });
 
   it("lists discarding and every swap selection while holding a drawn card", () => {
-    const state = apply(playingGame(), {
+    const state = applyToStarted(playingGame(), {
       type: "drawFromDeck",
       playerId: "player-1",
     });
