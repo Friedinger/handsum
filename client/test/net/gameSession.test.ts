@@ -55,7 +55,9 @@ async function startedRoom() {
   return { network, host, guest };
 }
 
-// Moves reach the server asynchronously, so give pending requests time to finish first.
+/**
+ * Moves reach the server asynchronously, so give pending requests time to finish first.
+ */
 async function settle(network: MemoryNetwork): Promise<void> {
   await Promise.resolve();
   await network.deliverAll();

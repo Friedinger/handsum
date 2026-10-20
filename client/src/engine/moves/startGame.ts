@@ -51,7 +51,9 @@ function dealGame(players: readonly Player[], seed: number): StartedGame {
   };
 }
 
-// A finished game can be followed by a new one in the same log, which is how a rematch works.
+/**
+ * A finished game can be followed by a new one in the same log, which is how a rematch works.
+ */
 function isRunning(state: GameState): boolean {
   return state.status === "started" && state.phase.kind !== "finished";
 }

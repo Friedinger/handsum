@@ -95,7 +95,9 @@ function clickWhileTakingDiscard(
   }
 }
 
-// A turn starts by picking a pile; the discard card is only taken for real once it is swapped.
+/**
+ * A turn starts by picking a pile; the discard card is only taken for real once it is swapped.
+ */
 function clickWhileChoosing(
   intent: Intent,
   target: ClickTarget,

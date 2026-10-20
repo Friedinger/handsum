@@ -100,8 +100,10 @@ export function canToggleSeveral(
   );
 }
 
-// Swapping several equal cards at once needs an explicit switch, so a single click on an own
-// card can swap right away in the common case.
+/**
+ * Swapping several equal cards at once needs an explicit switch, so a single click on an own
+ * card can swap right away in the common case.
+ */
 export function toggleSeveral(intent: Intent): Intent {
   switch (intent.kind) {
     case "takingDiscard":

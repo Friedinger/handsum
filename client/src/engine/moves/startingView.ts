@@ -5,7 +5,9 @@ import { STARTING_VIEW_CARD_COUNT } from "@/engine/rules";
 import { findSlotSelectionProblem, seatIndexOf } from "@/engine/state";
 import type { GameState, Phase, PlayerId, StartedGame } from "@/engine/types";
 
-// Reshuffles salt with the move count, which is never negative, so this seed stays distinct.
+/**
+ * Reshuffles salt with the move count, which is never negative, so this seed stays distinct.
+ */
 const STARTING_PLAYER_SALT = -1;
 
 function firstPlayerId(state: StartedGame): PlayerId {
@@ -31,15 +33,19 @@ function phaseAfterViewing(
       step: { kind: "awaitingChoice" },
     };
   }
-  // Seat order instead of arrival order keeps the state independent of who finished first.
+  /**
+   * Seat order instead of arrival order keeps the state independent of who finished first.
+   */
   const viewedInSeatOrder = state.seats
     .map((seat) => seat.player.id)
     .filter((playerId) => viewedPlayerIds.has(playerId));
   return { kind: "startingView", viewedPlayerIds: viewedInSeatOrder };
 }
 
-// The chosen slots stay in the move only: the engine does not track what players know,
-// and recording no event keeps the state independent of the order players view in.
+/**
+ * The chosen slots stay in the move only: the engine does not track what players know,
+ * and recording no event keeps the state independent of the order players view in.
+ */
 export function applyViewStartingCards(
   state: GameState,
   move: ViewStartingCardsMove,

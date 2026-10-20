@@ -28,7 +28,9 @@ function haveSameValue(cards: readonly Card[]): boolean {
   return cards.every((card) => card.value === cards[0]?.value);
 }
 
-// The incoming card takes the lowest selected slot; the remaining selected slots stay empty.
+/**
+ * The incoming card takes the lowest selected slot; the remaining selected slots stay empty.
+ */
 function layoutAfterSwap(
   layout: readonly Slot[],
   slotIndices: readonly number[],

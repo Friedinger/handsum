@@ -92,7 +92,9 @@ export function withEvent(state: StartedGame, event: GameEvent): StartedGame {
   return { ...state, lastMoveEvents: [...state.lastMoveEvents, event] };
 }
 
-// The caller does not play again: reaching the caller's seat means everyone else had their last turn.
+/**
+ * The caller does not play again: reaching the caller's seat means everyone else had their last turn.
+ */
 export function endTurn(state: StartedGame, playerId: PlayerId): StartedGame {
   const nextId = nextPlayerId(state, playerId);
   if (nextId === state.endCallerId) {

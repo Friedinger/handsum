@@ -1,5 +1,7 @@
 const ROOM_CODE_LENGTH = 6;
-// Without 0/O and 1/I/L so codes can be read out loud and typed without confusion.
+/**
+ * Without 0/O and 1/I/L so codes can be read out loud and typed without confusion.
+ */
 const ROOM_CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 const ROOM_CODE_PATTERN = new RegExp(
   `^[${ROOM_CODE_ALPHABET}]{${String(ROOM_CODE_LENGTH)}}$`,
@@ -30,7 +32,9 @@ export function roomLink(
   return `${location.origin}${location.pathname}#${roomCode}`;
 }
 
-// The server only ever sees this hash, so the room code stays out of its logs.
+/**
+ * The server only ever sees this hash, so the room code stays out of its logs.
+ */
 export async function hashRoomCode(roomCode: string): Promise<string> {
   const digest = await crypto.subtle.digest(
     "SHA-256",

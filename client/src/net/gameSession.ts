@@ -53,7 +53,9 @@ export function lobbyPlayers(snapshot: SessionSnapshot): Player[] {
   return everyone.map(({ playerId, name }) => ({ id: playerId, name }));
 }
 
-// A rematch keeps the players of the finished game; a first start takes everyone in the lobby.
+/**
+ * A rematch keeps the players of the finished game; a first start takes everyone in the lobby.
+ */
 function playersForStart(snapshot: SessionSnapshot): Player[] {
   const { state } = snapshot.log;
   return state.status === "started"
@@ -92,8 +94,10 @@ export function createGameSession(options: SessionOptions): GameSession {
     },
   };
 
-  // Moves are only applied once the server has accepted them. If another player got in first,
-  // the move is checked again against the newer log and dropped if it is no longer legal.
+  /**
+   * Moves are only applied once the server has accepted them. If another player got in first,
+   * the move is checked again against the newer log and dropped if it is no longer legal.
+   */
   const deliver = async (
     transport: Transport,
     move: Move,

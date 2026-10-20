@@ -14,6 +14,13 @@ const move = (playerId: string): Move => ({
   playerId,
 });
 
+/** Hashing the room code is truly asynchronous, so fake timers cannot advance it. */
+async function firstReadDone(server: { reads: () => readonly Call[] }) {
+  await vi.waitFor(() => {
+    expect(server.reads()).toHaveLength(1);
+  });
+}
+
 interface Call {
   readonly method: string;
   readonly query: string;
@@ -116,10 +123,7 @@ async function connect(
     onUpdate: (update) => updates.push(update),
     onConnectionChange: (state) => states.push(state),
   });
-  // Hashing the room code is truly asynchronous, so fake timers cannot advance it.
-  await vi.waitFor(() => {
-    expect(server.reads()).toHaveLength(1);
-  });
+  await firstReadDone(server);
   return { transport, updates, states, page };
 }
 

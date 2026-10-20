@@ -60,7 +60,9 @@ function cardActionCandidates(state: GameState, playerId: PlayerId): Move[] {
   ];
 }
 
-// startGame is never listed: its player list and seed come from the lobby, not from the rules.
+/**
+ * startGame is never listed: its player list and seed come from the lobby, not from the rules.
+ */
 function candidateMoves(state: GameState, playerId: PlayerId): Move[] {
   return [
     ...STARTING_VIEW_SELECTIONS.map((slotIndices): Move => ({

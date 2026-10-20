@@ -64,7 +64,9 @@ export function startedGame(playerCount = 3, seed = TEST_SEED): StartedGame {
   );
 }
 
-// Fixes player-1 as the starting player so tests do not depend on the seed-based choice.
+/**
+ * Fixes player-1 as the starting player so tests do not depend on the seed-based choice.
+ */
 export function playingGame(playerCount = 3, seed = TEST_SEED): StartedGame {
   const started = startedGame(playerCount, seed);
   const playing = expectStarted(

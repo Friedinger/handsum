@@ -19,8 +19,10 @@ export function opponentsInTurnOrder(
   ];
 }
 
-// Turns pass clockwise: the next player sits on the left (listed bottom to top), then across
-// the top (left to right), then down the right side (top to bottom).
+/**
+ * Turns pass clockwise: the next player sits on the left (listed bottom to top), then across
+ * the top (left to right), then down the right side (top to bottom).
+ */
 export function arrangeOpponents(
   seats: readonly Seat[],
   selfId: PlayerId,

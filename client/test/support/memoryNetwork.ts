@@ -13,7 +13,9 @@ interface Room {
   readonly refreshes: Set<() => Promise<void>>;
 }
 
-// In-memory stand-in for the polling transport plus server: moves reach clients on deliverAll.
+/**
+ * In-memory stand-in for the polling transport plus server: moves reach clients on deliverAll.
+ */
 export function createMemoryNetwork(): MemoryNetwork {
   const rooms = new Map<string, Room>();
 

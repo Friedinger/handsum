@@ -30,14 +30,14 @@ export interface Flight {
 const MOVE_STAGGER_MS = 140;
 const DEAL_STAGGER_MS = 70;
 
-// undefined: show the real top card; null: show an empty pile.
+/** undefined: show the real top card; null: show an empty pile. */
 export type DiscardTopOverride = Card | null | undefined;
 
 export interface MovePlan {
   readonly flights: readonly Flight[];
   readonly staggerMs: number;
   readonly peekedSlot: SlotRef | null;
-  // What the discard pile shows until the cards flying onto it have landed.
+  /** What the discard pile shows until the cards flying onto it have landed. */
   readonly discardTopWhileFlying: DiscardTopOverride;
 }
 
@@ -101,7 +101,9 @@ function outgoingFlights(
   }));
 }
 
-// Only the holder has seen the drawn card; everyone else watches it turn over.
+/**
+ * Only the holder has seen the drawn card; everyone else watches it turn over.
+ */
 function discardHeldCard(
   previous: StartedGame,
   holderIsViewer: boolean,
@@ -185,7 +187,9 @@ function planExchange(
   );
 }
 
-// Dealt round by round like at a real table, then the first discard is turned over.
+/**
+ * Dealt round by round like at a real table, then the first discard is turned over.
+ */
 export function planDeal(dealt: StartedGame): MovePlan {
   const dealing = SLOT_INDICES.flatMap((slotIndex) =>
     dealt.seats.map((seat, seatIndex) => ({

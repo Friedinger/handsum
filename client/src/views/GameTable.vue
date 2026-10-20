@@ -58,7 +58,9 @@ const cardFlights = useCardFlights(
 const situation = computed(() => situationOf(props.state, selfId.value));
 
 const intent = ref<Intent>(noIntent);
-// Only a change of the own situation drops a half-made selection, not moves by others.
+/**
+ * Only a change of the own situation drops a half-made selection, not moves by others.
+ */
 const intentContext = computed(() =>
   situation.value.kind === "startingView"
     ? situation.value.kind
@@ -161,7 +163,9 @@ const showRememberNotice = computed(() =>
 
 const hint = computed(() => hintFor(props.state, selfId.value, intent.value));
 
-// One line for errors, reminders and hints, so the hand below never moves when the text changes.
+/**
+ * One line for errors, reminders and hints, so the hand below never moves when the text changes.
+ */
 const message = computed(() => {
   if (props.rejection) {
     return strings.rejectionMessages[props.rejection];

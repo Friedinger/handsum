@@ -12,7 +12,9 @@ import {
   withEvent,
 } from "@/engine/moves/turn";
 
-// The reshuffle seed depends on the move number so repeated reshuffles differ but stay replayable.
+/**
+ * The reshuffle seed depends on the move number so repeated reshuffles differ but stay replayable.
+ */
 function replenishDrawPile(state: StartedGame): StartedGame {
   const [topDiscard, ...reusableCards] = state.discardPile;
   if (state.drawPile.length > 0 || !topDiscard || reusableCards.length === 0) {

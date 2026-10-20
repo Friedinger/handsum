@@ -28,8 +28,10 @@ export function appendMove(log: SyncedLog, move: Move): AppendOutcome {
   };
 }
 
-// The server orders all moves, so a batch only has to be applied after the moves already known.
-// It stops at the first illegal move, because everything after it would build on a broken log.
+/**
+ * The server orders all moves, so a batch only has to be applied after the moves already known.
+ * It stops at the first illegal move, because everything after it would build on a broken log.
+ */
 export function extendLog(
   log: SyncedLog,
   firstIndex: number,

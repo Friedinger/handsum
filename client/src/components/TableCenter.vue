@@ -54,7 +54,6 @@ const emit = defineEmits<{ draw: []; discard: []; held: [] }>();
       />
       <span class="pile-label">{{ strings.table.discardPile }}</span>
     </div>
-    <!-- The slot for a held card is always there so the piles do not shift when someone draws. -->
     <div class="pile pile-held" :class="{ 'pile-vacant': !heldCard }">
       <div
         v-if="!heldCard"

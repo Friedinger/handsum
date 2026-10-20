@@ -1,6 +1,7 @@
 import {
   cardAt,
   type Card,
+  type GameEvent,
   type Move,
   type PlayerId,
   type StartedGame,
@@ -9,6 +10,8 @@ import {
 export const STARTING_VIEW_REVEAL_MS = 8000;
 export const VIEW_REVEAL_MS = 5000;
 const FAILED_SWAP_REVEAL_MS = 4000;
+
+type CardsRevealedEvent = Extract<GameEvent, { type: "cardsRevealed" }>;
 
 export type RevealReason = "startingView" | "viewed" | "failedSwap";
 
@@ -44,6 +47,27 @@ function startingViewReveals(
   });
 }
 
+/** Matching cards went to the discard pile; only a failed attempt leaves them in place. */
+function failedSwapReveals(event: CardsRevealedEvent): Reveal[] {
+  if (event.matched) {
+    return [];
+  }
+  return event.cards.flatMap((card, index) => {
+    const slotIndex = event.slotIndices[index];
+    return slotIndex === undefined
+      ? []
+      : [
+          {
+            reason: "failedSwap",
+            ownerId: event.playerId,
+            slotIndex,
+            card,
+            durationMs: FAILED_SWAP_REVEAL_MS,
+          },
+        ];
+  });
+}
+
 function eventReveals(state: StartedGame, selfId: PlayerId): Reveal[] {
   return state.lastMoveEvents.flatMap((event): Reveal[] => {
     switch (event.type) {
@@ -60,23 +84,7 @@ function eventReveals(state: StartedGame, selfId: PlayerId): Reveal[] {
             ]
           : [];
       case "cardsRevealed":
-        // Matching cards went to the discard pile; only a failed attempt leaves them in place.
-        return event.matched
-          ? []
-          : event.cards.flatMap((card, index) => {
-              const slotIndex = event.slotIndices[index];
-              return slotIndex === undefined
-                ? []
-                : [
-                    {
-                      reason: "failedSwap",
-                      ownerId: event.playerId,
-                      slotIndex,
-                      card,
-                      durationMs: FAILED_SWAP_REVEAL_MS,
-                    },
-                  ];
-            });
+        return failedSwapReveals(event);
       case "drawPileReshuffled":
         return [];
     }
@@ -94,7 +102,9 @@ export function revealsAfterMove(
   ];
 }
 
-// Checking the card ID ends a reveal early when the card has left that slot in the meantime.
+/**
+ * Checking the card ID ends a reveal early when the card has left that slot in the meantime.
+ */
 export function isRevealed(
   reveals: readonly Reveal[],
   state: StartedGame,

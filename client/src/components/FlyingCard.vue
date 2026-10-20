@@ -27,8 +27,13 @@ function turnFor(faceUp: boolean): string {
   return faceUp ? FACE_UP_TURN : FACE_DOWN_TURN;
 }
 
-// The card sits at its target and is animated from the start position, so it lands exactly.
-onMounted(() => {
+/** A stalled animation must never leave a card hidden for good. */
+function scheduleFallbackLanding(delayMs: number): void {
+  landingTimer = setTimeout(land, FLIGHT_MS + delayMs + LANDING_GRACE_MS);
+}
+
+/** The card sits at its target and is animated from the start position, so it lands exactly. */
+function animateFlight(): void {
   const { from, to, delayMs, flight } = props.active;
   const timing: KeyframeAnimationOptions = {
     duration: FLIGHT_MS,
@@ -49,9 +54,10 @@ onMounted(() => {
     timing,
   );
   void movement?.finished.then(land);
-  // A stalled animation must never leave a card hidden for good.
-  landingTimer = setTimeout(land, FLIGHT_MS + delayMs + LANDING_GRACE_MS);
-});
+  scheduleFallbackLanding(delayMs);
+}
+
+onMounted(animateFlight);
 
 onUnmounted(() => {
   clearTimeout(landingTimer);

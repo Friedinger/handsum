@@ -15,7 +15,9 @@ export function currentHeldCard(state: StartedGame): HeldCard | null {
   return { holderId: phase.currentPlayerId, card: phase.step.card };
 }
 
-// While the discard card is taken it is shown like a drawn card, with the next one below it.
+/**
+ * While the discard card is taken it is shown like a drawn card, with the next one below it.
+ */
 export function shownHeldCard(
   state: StartedGame,
   selfId: PlayerId,
