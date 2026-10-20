@@ -1,4 +1,4 @@
-import { parseMove, type Move, type PlayerId } from "@/engine";
+import { isRecord, parseMove, type Move, type PlayerId } from "@/engine";
 
 export interface HelloMessage {
   readonly playerId: PlayerId;
@@ -9,12 +9,6 @@ export interface RoomSnapshot {
   readonly length: number;
   readonly moves: readonly Move[];
   readonly players: readonly HelloMessage[];
-}
-
-type Fields = Readonly<Record<string, unknown>>;
-
-function isRecord(value: unknown): value is Fields {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 export function parseHello(value: unknown): HelloMessage | null {
@@ -35,7 +29,7 @@ function parseAll<T>(
   if (!Array.isArray(values)) {
     return null;
   }
-  const parsed = (values as unknown[]).map(parse);
+  const parsed = values.map((item: unknown) => parse(item));
   return parsed.every((item) => item !== null) ? parsed : null;
 }
 

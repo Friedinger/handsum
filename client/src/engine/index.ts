@@ -1,4 +1,5 @@
 export { applyMove, initialGameState, tryApplyMove } from "./applyMove";
+export { isRecord } from "@/engine/guards";
 export { legalMoves } from "./legalMoves";
 export { parseMove } from "./parseMove";
 export type * from "@/engine/moves/types";

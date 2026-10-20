@@ -1,4 +1,5 @@
 import cardData from "@/data/cards.json";
+import { isRecord } from "@/engine/guards";
 import type { Card, CardAction } from "./types";
 
 export interface CardType {
@@ -8,22 +9,18 @@ export interface CardType {
   readonly action: CardAction | null;
 }
 
-const CARD_ACTIONS: readonly CardAction[] = [
-  "viewOwn",
-  "viewOther",
-  "exchangeBlind",
-];
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
+const CARD_ACTIONS: Readonly<Record<CardAction, true>> = {
+  viewOwn: true,
+  viewOther: true,
+  exchangeBlind: true,
+};
 
 function isNonNegativeInteger(value: unknown): value is number {
   return typeof value === "number" && Number.isInteger(value) && value >= 0;
 }
 
 function isCardAction(value: unknown): value is CardAction {
-  return CARD_ACTIONS.some((action) => action === value);
+  return typeof value === "string" && Object.hasOwn(CARD_ACTIONS, value);
 }
 
 function parseCardType(entry: unknown, index: number): CardType {

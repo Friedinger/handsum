@@ -1,19 +1,6 @@
+import { isNumber, isRecord, isString, type Fields } from "@/engine/guards";
 import type { Move, MoveType } from "@/engine/moves/types";
 import type { Player } from "./types";
-
-type Fields = Readonly<Record<string, unknown>>;
-
-function isRecord(value: unknown): value is Fields {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function isString(value: unknown): value is string {
-  return typeof value === "string";
-}
-
-function isNumber(value: unknown): value is number {
-  return typeof value === "number";
-}
 
 function isNumberArray(value: unknown): value is number[] {
   return Array.isArray(value) && value.every(isNumber);
@@ -80,21 +67,21 @@ function parseFields(
   }
 }
 
-const MOVE_TYPES: readonly MoveType[] = [
-  "startGame",
-  "viewStartingCards",
-  "drawFromDeck",
-  "discardDrawnCard",
-  "swapDrawnCard",
-  "swapDiscardCard",
-  "viewOwnCard",
-  "viewOtherCard",
-  "exchangeBlind",
-  "callEnd",
-];
+const MOVE_TYPES: Readonly<Record<MoveType, true>> = {
+  startGame: true,
+  viewStartingCards: true,
+  drawFromDeck: true,
+  discardDrawnCard: true,
+  swapDrawnCard: true,
+  swapDiscardCard: true,
+  viewOwnCard: true,
+  viewOtherCard: true,
+  exchangeBlind: true,
+  callEnd: true,
+};
 
 function isMoveType(value: unknown): value is MoveType {
-  return MOVE_TYPES.some((type) => type === value);
+  return isString(value) && Object.hasOwn(MOVE_TYPES, value);
 }
 
 export function parseMove(value: unknown): Move | null {
