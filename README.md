@@ -29,10 +29,12 @@ To try it alone, open the room link in two browser windows. The PHP commands run
 | `npm run client:fix`     | Format, fix lint issues and type-check                      |
 | `npm run server:dev`     | Start the PHP API on port 8080 (Compose)                    |
 | `npm run server:install` | Install the PHP test dependencies (Composer in a container) |
+| `npm run server:lint`    | Check the PHP code style and static analysis (Compose)      |
+| `npm run server:fix`     | Fix the PHP code style (Compose)                            |
 | `npm run server:test`    | Run the PHP server tests (PHPUnit, Compose)                 |
 | `npm test`               | Run client and server tests                                 |
-| `npm run lint`           | Same as `client:lint`                                       |
-| `npm run fix`            | Same as `client:fix`                                        |
+| `npm run lint`           | Run `client:lint` and `server:lint`                         |
+| `npm run fix`            | Run `client:fix` and `server:fix`                           |
 
 ## Repository layout
 
