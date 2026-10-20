@@ -151,7 +151,7 @@ final class ApiTest extends DataDirTestCase
 
     public function testOversizedMoveIsRejected(): void
     {
-        $body = json_encode(['sequence' => 2, 'move' => ['type' => 'a', 'pad' => str_repeat('x', Config::MAX_BYTES_PER_MOVE)]]);
+        $body = json_encode(['sequence' => 2, 'move' => ['type' => 'a', 'pad' => str_repeat('x', Config::MAX_BYTES_PER_MOVE)]], JSON_THROW_ON_ERROR);
 
         self::assertSame(413, $this->call('POST', self::roomHeader(), ['action' => 'move'], $body)->status);
     }
@@ -320,7 +320,7 @@ final class ApiTest extends DataDirTestCase
 
     private static function moveBody(int $sequence, string $type = 'drawFromDeck'): string
     {
-        return json_encode(['sequence' => $sequence, 'move' => ['type' => $type, 'playerId' => 'p1']]);
+        return json_encode(['sequence' => $sequence, 'move' => ['type' => $type, 'playerId' => 'p1']], JSON_THROW_ON_ERROR);
     }
 
     private function postMove(int $sequence, string $type = 'drawFromDeck'): Response
@@ -342,7 +342,7 @@ final class ApiTest extends DataDirTestCase
 
     private function join(string $playerId, string $name): Response
     {
-        $body = json_encode(['playerId' => $playerId, 'name' => $name]);
+        $body = json_encode(['playerId' => $playerId, 'name' => $name], JSON_THROW_ON_ERROR);
         return $this->call('POST', self::roomHeader(self::PLAYERS_ROOM_CODE), ['action' => 'join'], $body);
     }
 }

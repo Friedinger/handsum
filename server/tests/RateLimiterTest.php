@@ -55,7 +55,8 @@ final class RateLimiterTest extends DataDirTestCase
     {
         $limiter = new RateLimiter($this->dataDir, $this->clock());
         $limiter->allow('1.1.1.1', 'requests', 1, self::WINDOW_SECONDS);
-        file_put_contents(glob($this->dataDir . '/limits/*')[0], 'not json');
+        $counterFiles = glob($this->dataDir . '/limits/*') ?: [];
+        file_put_contents($counterFiles[0], 'not json');
 
         self::assertTrue($limiter->allow('1.1.1.1', 'requests', 1, self::WINDOW_SECONDS));
     }

@@ -29,7 +29,7 @@ function respond(Response $response): void
 failOnPhpErrors();
 ob_start();
 $application = new Application(Config::dataDir(), static fn(): int => time());
-$body = (string) stream_get_contents(fopen('php://input', 'r'), Config::MAX_REQUEST_BYTES + 1);
+$body = (string) file_get_contents('php://input', length: Config::MAX_REQUEST_BYTES + 1);
 $response = $application->handle(
     $_SERVER['REQUEST_METHOD'] ?? 'GET',
     array_filter($_SERVER, 'is_string'),

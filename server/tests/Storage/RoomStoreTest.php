@@ -46,7 +46,7 @@ final class RoomStoreTest extends DataDirTestCase
     {
         $store = new RoomStore($this->dataDir, $this->clock());
         $roomId = self::roomId('FULL22');
-        $filler = json_encode(['type' => 'a', 'pad' => str_repeat('x', Config::MAX_BYTES_PER_MOVE - 40)]);
+        $filler = json_encode(['type' => 'a', 'pad' => str_repeat('x', Config::MAX_BYTES_PER_MOVE - 40)], JSON_THROW_ON_ERROR);
 
         $result = null;
         for ($sequence = 0; $sequence < Config::MAX_MOVES_PER_ROOM + 1; $sequence++) {
