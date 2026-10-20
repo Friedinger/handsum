@@ -23,17 +23,19 @@ final class RateLimiter
     {
         $path = $this->dir . '/' . $this->key($ip, $bucket);
         $now = ($this->clock)();
-        $window = LockedJsonFile::update(
+        $stored = LockedJsonFile::update(
             $path,
             $now,
             static function (mixed $stored) use ($now, $windowSeconds): array {
-                $inWindow = is_array($stored) && $stored['start'] > $now - $windowSeconds;
-                return $inWindow
-                    ? ['start' => $stored['start'], 'count' => $stored['count'] + 1]
-                    : ['start' => $now, 'count' => 1];
+                $window = RateWindow::fromStored($stored);
+                $current = $window !== null && $window->isOpenAt($now, $windowSeconds)
+                    ? $window->withOneMoreHit()
+                    : new RateWindow($now, 1);
+                return $current->toStored();
             },
         );
-        return $window['count'] <= $limit;
+        $window = RateWindow::fromStored($stored);
+        return $window !== null && $window->count <= $limit;
     }
 
     public function deleteExpired(): void

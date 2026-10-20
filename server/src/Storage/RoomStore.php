@@ -70,11 +70,8 @@ final class RoomStore
         return new AppendResult(AppendStatus::Appended, $length + 1);
     }
 
-    /**
-     * @param array{playerId: string, name: string} $player
-     * @return list<array{playerId: string, name: string}>|null null when the room is full
-     */
-    public function joinPlayer(string $roomId, array $player): ?array
+    /** @return list<Player>|null null when the room is full */
+    public function joinPlayer(string $roomId, Player $player): ?array
     {
         $now = ($this->clock)();
         $stored = LockedJsonFile::update(
@@ -83,22 +80,26 @@ final class RoomStore
             function (mixed $stored) use ($player, $now): ?array {
                 $others = array_filter(
                     $this->stillActive($stored, $now),
-                    static fn(array $entry): bool => $entry['playerId'] !== $player['playerId'],
+                    static fn(PlayerPresence $presence): bool => $presence->player->playerId !== $player->playerId,
                 );
-                return count($others) < Config::MAX_PLAYERS_PER_ROOM
-                    ? [...$others, [...$player, 'seen' => $now]]
-                    : null;
+                if (count($others) >= Config::MAX_PLAYERS_PER_ROOM) {
+                    return null;
+                }
+                return array_map(
+                    static fn(PlayerPresence $presence): array => $presence->toStored(),
+                    [...$others, new PlayerPresence($player, $now)],
+                );
             },
         );
-        return $stored === null ? null : $this->publicPlayers($stored);
+        return $stored === null ? null : $this->players($this->stillActive($stored, $now));
     }
 
-    /** @return list<array{playerId: string, name: string}> */
+    /** @return list<Player> */
     public function activePlayers(string $roomId): array
     {
         $raw = @file_get_contents($this->playersPath($roomId));
         $stored = json_decode($raw === false ? '' : $raw, true);
-        return $this->publicPlayers($this->stillActive($stored, ($this->clock)()));
+        return $this->players($this->stillActive($stored, ($this->clock)()));
     }
 
     public function deleteIdleRooms(): void
@@ -107,25 +108,23 @@ final class RoomStore
         Filesystem::deleteFilesOlderThan($this->roomsDir, $threshold);
     }
 
-    /** @return list<array{playerId: string, name: string, seen: int}> */
+    /** @return list<PlayerPresence> */
     private function stillActive(mixed $stored, int $now): array
     {
+        $presences = array_map(PlayerPresence::fromStored(...), is_array($stored) ? $stored : []);
         return array_values(array_filter(
-            is_array($stored) ? $stored : [],
-            static fn(array $entry): bool => $entry['seen'] > $now - Config::PLAYER_ACTIVE_SECONDS,
+            $presences,
+            static fn(?PlayerPresence $presence): bool => $presence !== null && $presence->seen > $now - Config::PLAYER_ACTIVE_SECONDS,
         ));
     }
 
     /**
-     * @param list<array{playerId: string, name: string, seen: int}> $entries
-     * @return list<array{playerId: string, name: string}>
+     * @param list<PlayerPresence> $presences
+     * @return list<Player>
      */
-    private function publicPlayers(array $entries): array
+    private function players(array $presences): array
     {
-        return array_map(
-            static fn(array $entry): array => ['playerId' => $entry['playerId'], 'name' => $entry['name']],
-            $entries,
-        );
+        return array_map(static fn(PlayerPresence $presence): Player => $presence->player, $presences);
     }
 
     private function logPath(string $roomId): string

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Handsum;
 
 use Handsum\Storage\AppendStatus;
+use Handsum\Storage\Player;
 use Handsum\Storage\RoomStore;
 
 final class Api
@@ -82,17 +83,15 @@ final class Api
 
     private function join(string $roomId, string $body, string $ip): Response
     {
-        $player = $this->decodeObject($body);
-        $playerId = $player['playerId'] ?? null;
-        $name = $player['name'] ?? null;
-        if (!$this->isPlayerShaped($playerId, $name)) {
+        $player = $this->parsePlayer($this->decodeObject($body));
+        if ($player === null) {
             return Response::error(400, ErrorCode::InvalidPlayer);
         }
         $denied = $this->denyIfCreationLimited($roomId, $ip);
         if ($denied !== null) {
             return $denied;
         }
-        $players = $this->rooms->joinPlayer($roomId, ['playerId' => $playerId, 'name' => $name]);
+        $players = $this->rooms->joinPlayer($roomId, $player);
         return $players === null ? Response::error(409, ErrorCode::RoomFull) : Response::ok(['players' => $players]);
     }
 
@@ -123,13 +122,17 @@ final class Api
         return is_array($move) && !array_is_list($move) && is_string($move['type'] ?? null);
     }
 
-    private function isPlayerShaped(mixed $playerId, mixed $name): bool
+    /** @param array<string, mixed> $request */
+    private function parsePlayer(array $request): ?Player
     {
-        return is_string($playerId)
+        $playerId = $request['playerId'] ?? null;
+        $name = $request['name'] ?? null;
+        $valid = is_string($playerId)
             && preg_match(Config::PLAYER_ID_PATTERN, $playerId) === 1
             && is_string($name)
             && mb_strlen(trim($name)) >= 1
             && mb_strlen($name) <= Config::MAX_PLAYER_NAME_LENGTH;
+        return $valid ? new Player($playerId, $name) : null;
     }
 
     private function maybeCleanUp(): void

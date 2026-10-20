@@ -31,8 +31,8 @@ final class ApiTest extends DataDirTestCase
         $response = $this->call('GET', self::roomHeader(), [], '');
 
         self::assertSame(200, $response->status);
-        self::assertSame(0, $response->payload['length']);
-        self::assertSame([], $response->payload['moves']);
+        self::assertSame(0, self::wire($response)['length']);
+        self::assertSame([], self::wire($response)['moves']);
     }
 
     public function testReadingDoesNotCreateARoom(): void
@@ -47,7 +47,7 @@ final class ApiTest extends DataDirTestCase
         $response = $this->postMove(0, 'startGame');
 
         self::assertSame(200, $response->status);
-        self::assertSame(1, $response->payload['length']);
+        self::assertSame(1, self::wire($response)['length']);
     }
 
     public function testNextSequenceIsAppended(): void
@@ -67,7 +67,7 @@ final class ApiTest extends DataDirTestCase
         $response = $this->postMove(1);
 
         self::assertSame(409, $response->status);
-        self::assertSame(2, $response->payload['length']);
+        self::assertSame(2, self::wire($response)['length']);
     }
 
     public function testGapConflicts(): void
@@ -78,7 +78,7 @@ final class ApiTest extends DataDirTestCase
         $response = $this->postMove(5);
 
         self::assertSame(409, $response->status);
-        self::assertSame(2, $response->payload['length']);
+        self::assertSame(2, self::wire($response)['length']);
     }
 
     public function testSinceReturnsOnlyNewerMoves(): void
@@ -88,8 +88,7 @@ final class ApiTest extends DataDirTestCase
 
         $response = $this->call('GET', self::roomHeader(), ['since' => '1'], '');
 
-        self::assertCount(1, $response->payload['moves']);
-        self::assertSame('drawFromDeck', $response->payload['moves'][0]->type);
+        self::assertSame(['drawFromDeck'], array_column(self::wireList($response, 'moves'), 'type'));
     }
 
     public function testSinceAtTheEndReturnsNothing(): void
@@ -99,8 +98,8 @@ final class ApiTest extends DataDirTestCase
 
         $response = $this->call('GET', self::roomHeader(), ['since' => '2'], '');
 
-        self::assertSame([], $response->payload['moves']);
-        self::assertSame(2, $response->payload['length']);
+        self::assertSame([], self::wire($response)['moves']);
+        self::assertSame(2, self::wire($response)['length']);
     }
 
     public function testMissingRoomIdIsRejected(): void
@@ -168,7 +167,7 @@ final class ApiTest extends DataDirTestCase
         $response = $this->join('p1', 'Anna');
 
         self::assertSame(200, $response->status);
-        self::assertSame([['playerId' => 'p1', 'name' => 'Anna']], $response->payload['players']);
+        self::assertSame([['playerId' => 'p1', 'name' => 'Anna']], self::wire($response)['players']);
     }
 
     public function testRejoiningUpdatesTheName(): void
@@ -177,7 +176,7 @@ final class ApiTest extends DataDirTestCase
 
         $response = $this->join('p1', 'Anna B');
 
-        self::assertSame([['playerId' => 'p1', 'name' => 'Anna B']], $response->payload['players']);
+        self::assertSame([['playerId' => 'p1', 'name' => 'Anna B']], self::wire($response)['players']);
     }
 
     public function testPlayersAreListedOnRead(): void
@@ -186,7 +185,7 @@ final class ApiTest extends DataDirTestCase
 
         $response = $this->call('GET', self::roomHeader(self::PLAYERS_ROOM_CODE), [], '');
 
-        self::assertCount(1, $response->payload['players']);
+        self::assertCount(1, self::wireList($response, 'players'));
     }
 
     /** @return array<string, array{string, string}> */
@@ -212,7 +211,7 @@ final class ApiTest extends DataDirTestCase
 
         $response = $this->call('GET', self::roomHeader(self::PLAYERS_ROOM_CODE), [], '');
 
-        self::assertSame([], $response->payload['players']);
+        self::assertSame([], self::wire($response)['players']);
     }
 
     public function testPlayerBeyondTheLimitIsRefused(): void
@@ -279,7 +278,7 @@ final class ApiTest extends DataDirTestCase
         $response = $this->postMoveFrom('RX', 0, '10.1.0.1');
 
         self::assertSame(503, $response->status);
-        self::assertSame(ErrorCode::TooManyRooms->value, $response->payload['error']);
+        self::assertSame(ErrorCode::TooManyRooms->value, self::wire($response)['error']);
     }
 
     public function testExistingRoomsStillWorkOnceTheServerIsFull(): void
@@ -296,7 +295,7 @@ final class ApiTest extends DataDirTestCase
         $response = $this->call('POST', self::roomHeader(self::PLAYERS_ROOM_CODE), ['action' => 'join'], 'garbage');
 
         self::assertSame(400, $response->status);
-        self::assertSame(ErrorCode::InvalidPlayer->value, $response->payload['error']);
+        self::assertSame(ErrorCode::InvalidPlayer->value, self::wire($response)['error']);
     }
 
     public function testRequestRateLimitTriggers(): void
@@ -316,6 +315,24 @@ final class ApiTest extends DataDirTestCase
     private function call(string $method, array $server, array $query, string $body, string $ip = '1.1.1.1'): Response
     {
         return $this->api->handle($method, $server, $query, $body, $ip);
+    }
+
+    /**
+     * @return array<string, mixed> the response body as clients receive it
+     */
+    private static function wire(Response $response): array
+    {
+        $decoded = json_decode(json_encode($response->payload, JSON_THROW_ON_ERROR), true, flags: JSON_THROW_ON_ERROR);
+        self::assertIsArray($decoded);
+        return $decoded;
+    }
+
+    /** @return array<mixed> */
+    private static function wireList(Response $response, string $key): array
+    {
+        $list = self::wire($response)[$key] ?? null;
+        self::assertIsArray($list);
+        return $list;
     }
 
     private static function moveBody(int $sequence, string $type = 'drawFromDeck'): string

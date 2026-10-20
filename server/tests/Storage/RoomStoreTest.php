@@ -6,6 +6,7 @@ namespace Handsum\Tests\Storage;
 
 use Handsum\Config;
 use Handsum\Storage\AppendStatus;
+use Handsum\Storage\Player;
 use Handsum\Storage\RoomStore;
 use Handsum\Storage\StorageException;
 use Handsum\Tests\Support\DataDirTestCase;
@@ -16,7 +17,7 @@ final class RoomStoreTest extends DataDirTestCase
     {
         $store = new RoomStore($this->dataDir, $this->clock());
         $store->append(self::roomId(), 0, '{"type":"a"}');
-        $store->joinPlayer(self::roomId(self::PLAYERS_ROOM_CODE), ['playerId' => 'p1', 'name' => 'Anna']);
+        $store->joinPlayer(self::roomId(self::PLAYERS_ROOM_CODE), new Player('p1', 'Anna'));
         $this->now += Config::ROOM_IDLE_SECONDS + 1;
 
         $store->deleteIdleRooms();
@@ -64,12 +65,12 @@ final class RoomStoreTest extends DataDirTestCase
     {
         $store = new RoomStore($this->dataDir, $this->clock());
         $roomId = self::roomId(self::PLAYERS_ROOM_CODE);
-        $store->joinPlayer($roomId, ['playerId' => 'p1', 'name' => 'Anna']);
+        $store->joinPlayer($roomId, new Player('p1', 'Anna'));
         $this->now += Config::PLAYER_ACTIVE_SECONDS - 1;
-        $store->joinPlayer($roomId, ['playerId' => 'p2', 'name' => 'Ben']);
+        $store->joinPlayer($roomId, new Player('p2', 'Ben'));
         $this->now += 2;
 
-        self::assertSame([['playerId' => 'p2', 'name' => 'Ben']], $store->activePlayers($roomId));
+        self::assertEquals([new Player('p2', 'Ben')], $store->activePlayers($roomId));
     }
 
     public function testSilentPlayersDoNotCountTowardsTheRoomLimit(): void
@@ -77,11 +78,25 @@ final class RoomStoreTest extends DataDirTestCase
         $store = new RoomStore($this->dataDir, $this->clock());
         $roomId = self::roomId(self::PLAYERS_ROOM_CODE);
         for ($i = 0; $i < Config::MAX_PLAYERS_PER_ROOM; $i++) {
-            $store->joinPlayer($roomId, ['playerId' => "p$i", 'name' => "P$i"]);
+            $store->joinPlayer($roomId, new Player("p$i", "P$i"));
         }
         $this->now += Config::PLAYER_ACTIVE_SECONDS + 1;
 
-        self::assertNotNull($store->joinPlayer($roomId, ['playerId' => 'late', 'name' => 'Late']));
+        self::assertNotNull($store->joinPlayer($roomId, new Player('late', 'Late')));
+    }
+
+    public function testCorruptedPlayerEntriesAreIgnored(): void
+    {
+        $store = new RoomStore($this->dataDir, $this->clock());
+        $roomId = self::roomId(self::PLAYERS_ROOM_CODE);
+        $store->joinPlayer($roomId, new Player('p1', 'Anna'));
+        $valid = json_decode((string) file_get_contents($this->dataDir . '/rooms/' . $roomId . '.players'), true, flags: JSON_THROW_ON_ERROR);
+        file_put_contents(
+            $this->dataDir . '/rooms/' . $roomId . '.players',
+            json_encode(['garbage', ['playerId' => 7], ...$valid], JSON_THROW_ON_ERROR),
+        );
+
+        self::assertEquals([new Player('p1', 'Anna')], $store->activePlayers($roomId));
     }
 
     public function testUnwritableDataDirectoryRaisesAClearError(): void
