@@ -17,7 +17,7 @@ import TableCenter from "@/components/TableCenter.vue";
 import { useCardFlights } from "@/composables/useCardFlights";
 import { useReveals } from "@/composables/useReveals";
 import { leaveRoom } from "@/utils/roomNavigation";
-import { anchorKey } from "@/utils/cardFlights";
+import { anchorKey, HELD_ANCHOR } from "@/utils/cardFlights";
 import { displayName } from "@/utils/displayName";
 import { isRevealed } from "@/utils/reveals";
 import type { SlotView } from "@/utils/slotView";
@@ -254,7 +254,7 @@ const results = computed(() =>
         :discard-clickable="clickable({ kind: 'discardPile' })"
         :held-clickable="clickable({ kind: 'heldCard' })"
         :held-marked="intent.kind === 'action'"
-        :held-in-flight="cardFlights.hiddenAnchors.value.has('held')"
+        :held-in-flight="cardFlights.hiddenAnchors.value.has(HELD_ANCHOR)"
         :held-is-taken-discard="isTakingDiscard"
         @draw="click({ kind: 'drawPile' })"
         @discard="click({ kind: 'discardPile' })"

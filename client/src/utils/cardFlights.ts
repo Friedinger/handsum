@@ -27,24 +27,40 @@ export interface Flight {
 const MOVE_STAGGER_MS = 140;
 const DEAL_STAGGER_MS = 70;
 
+// undefined: show the real top card; null: show an empty pile.
+export type DiscardTopOverride = Card | null | undefined;
+
 export interface MovePlan {
   readonly flights: readonly Flight[];
   readonly staggerMs: number;
   readonly peekedSlot: SlotRef | null;
   // What the discard pile shows until the cards flying onto it have landed.
-  readonly discardTopWhileFlying: Card | null | undefined;
+  readonly discardTopWhileFlying: DiscardTopOverride;
 }
 
 const drawPile: Anchor = { kind: "drawPile" };
 const discardPile: Anchor = { kind: "discardPile" };
 const held: Anchor = { kind: "held" };
 
-const noAnimation: MovePlan = {
-  flights: [],
-  staggerMs: MOVE_STAGGER_MS,
-  peekedSlot: null,
-  discardTopWhileFlying: undefined,
-};
+export const DRAW_PILE_ANCHOR = anchorKey(drawPile);
+export const DISCARD_PILE_ANCHOR = anchorKey(discardPile);
+export const HELD_ANCHOR = anchorKey(held);
+export const DISCARD_BELOW_ANCHOR = "discardBelow";
+
+function movePlan(
+  flights: readonly Flight[],
+  overrides: Partial<Omit<MovePlan, "flights">> = {},
+): MovePlan {
+  return {
+    flights,
+    staggerMs: MOVE_STAGGER_MS,
+    peekedSlot: null,
+    discardTopWhileFlying: undefined,
+    ...overrides,
+  };
+}
+
+const noAnimation = movePlan([]);
 
 export function anchorKey(anchor: Anchor): string {
   return anchor.kind === "slot"
@@ -107,12 +123,9 @@ function planSwap(
   if (swapFailed(next)) {
     return fromDiscard
       ? noAnimation
-      : {
-          flights: [discardHeldCard(previous, move.playerId === selfId)],
-          staggerMs: MOVE_STAGGER_MS,
-          peekedSlot: null,
+      : movePlan([discardHeldCard(previous, move.playerId === selfId)], {
           discardTopWhileFlying: previous.discardPile[0] ?? null,
-        };
+        });
   }
   const incoming: Flight = {
     from: fromDiscard ? discardPile : held,
@@ -124,15 +137,15 @@ function planSwap(
     faceUpAtEnd: false,
     order: 0,
   };
-  return {
-    flights: [
+  return movePlan(
+    [
       incoming,
       ...outgoingFlights(previous, move.playerId, move.slotIndices, 1),
     ],
-    staggerMs: MOVE_STAGGER_MS,
-    peekedSlot: null,
-    discardTopWhileFlying: previous.discardPile[fromDiscard ? 1 : 0] ?? null,
-  };
+    {
+      discardTopWhileFlying: previous.discardPile[fromDiscard ? 1 : 0] ?? null,
+    },
+  );
 }
 
 function planCardAction(
@@ -140,12 +153,10 @@ function planCardAction(
   holderIsViewer: boolean,
   peekedSlot: SlotRef | null,
 ): MovePlan {
-  return {
-    flights: [discardHeldCard(previous, holderIsViewer)],
-    staggerMs: MOVE_STAGGER_MS,
+  return movePlan([discardHeldCard(previous, holderIsViewer)], {
     peekedSlot,
     discardTopWhileFlying: previous.discardPile[0] ?? null,
-  };
+  });
 }
 
 function planExchange(
@@ -161,16 +172,14 @@ function planExchange(
     faceUpAtEnd: false,
     order: 1,
   };
-  return {
-    flights: [
+  return movePlan(
+    [
       discardHeldCard(previous, holderIsViewer),
       { from: own, to: target, ...hidden },
       { from: target, to: own, ...hidden },
     ],
-    staggerMs: MOVE_STAGGER_MS,
-    peekedSlot: null,
-    discardTopWhileFlying: previous.discardPile[0] ?? null,
-  };
+    { discardTopWhileFlying: previous.discardPile[0] ?? null },
+  );
 }
 
 // Dealt round by round like at a real table, then the first discard is turned over.
@@ -193,12 +202,10 @@ export function planDeal(dealt: StartedGame): MovePlan {
     faceUpAtEnd: true,
     order: dealing.length,
   };
-  return {
-    flights: [...dealing, firstDiscard],
+  return movePlan([...dealing, firstDiscard], {
     staggerMs: DEAL_STAGGER_MS,
-    peekedSlot: null,
     discardTopWhileFlying: null,
-  };
+  });
 }
 
 export function planMove(
@@ -210,21 +217,16 @@ export function planMove(
   const moverIsViewer = move.playerId === selfId;
   switch (move.type) {
     case "drawFromDeck":
-      return {
-        flights: [
-          {
-            from: drawPile,
-            to: held,
-            card: heldCardOf(next),
-            faceUpAtStart: false,
-            faceUpAtEnd: moverIsViewer,
-            order: 0,
-          },
-        ],
-        staggerMs: MOVE_STAGGER_MS,
-        peekedSlot: null,
-        discardTopWhileFlying: undefined,
-      };
+      return movePlan([
+        {
+          from: drawPile,
+          to: held,
+          card: heldCardOf(next),
+          faceUpAtStart: false,
+          faceUpAtEnd: moverIsViewer,
+          order: 0,
+        },
+      ]);
     case "discardDrawnCard":
       return planCardAction(previous, moverIsViewer, null);
     case "swapDrawnCard":

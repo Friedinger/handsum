@@ -7,13 +7,14 @@ import {
   watch,
   type Ref,
 } from "vue";
-import type { Card, PlayerId } from "@/engine";
+import type { PlayerId } from "@/engine";
 import type { SyncedLog } from "@/net/moveLog";
 import {
   anchorKey,
   planDeal,
   planMove,
   type Anchor,
+  type DiscardTopOverride,
   type Flight,
   type MovePlan,
 } from "@/utils/cardFlights";
@@ -50,7 +51,7 @@ export function useCardFlights(
 ) {
   const flights = shallowRef<readonly ActiveFlight[]>([]);
   const hiddenAnchors = shallowRef<ReadonlySet<string>>(new Set());
-  const discardTopWhileFlying = shallowRef<Card | null | undefined>(undefined);
+  const discardTopWhileFlying = shallowRef<DiscardTopOverride>(undefined);
   const peekedAnchor = ref<string | null>(null);
   let nextFlightId = 0;
   let peekTimer: ReturnType<typeof setTimeout> | undefined;

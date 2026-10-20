@@ -13,12 +13,12 @@ export interface SlotView {
 
 export type CardSize = "large" | "medium" | "small";
 
+export type ValueTier = "low" | "middle" | "action" | "plain-high";
+
 const LOW_VALUE_LIMIT = 3;
 const MIDDLE_VALUE_LIMIT = 6;
 
-export function valueTier(
-  card: Card,
-): "low" | "middle" | "action" | "plain-high" {
+export function valueTier(card: Card): ValueTier {
   if (card.action) {
     return "action";
   }

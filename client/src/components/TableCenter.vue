@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { strings } from "@/data/strings";
 import type { Card } from "@/engine";
+import {
+  DISCARD_BELOW_ANCHOR,
+  DISCARD_PILE_ANCHOR,
+  DRAW_PILE_ANCHOR,
+  HELD_ANCHOR,
+} from "@/utils/cardFlights";
 import PlayingCard from "./PlayingCard.vue";
 
 defineProps<{
@@ -27,7 +33,7 @@ const emit = defineEmits<{ draw: []; discard: []; held: [] }>();
         :face-up="drawPileCount === 0"
         size="large"
         class="pile-stack"
-        data-anchor="drawPile"
+        :data-anchor="DRAW_PILE_ANCHOR"
         :clickable="drawClickable"
         @click="emit('draw')"
       />
@@ -40,7 +46,9 @@ const emit = defineEmits<{ draw: []; discard: []; held: [] }>();
         :card="discardTop"
         face-up
         size="large"
-        :data-anchor="heldIsTakenDiscard ? 'discardBelow' : 'discardPile'"
+        :data-anchor="
+          heldIsTakenDiscard ? DISCARD_BELOW_ANCHOR : DISCARD_PILE_ANCHOR
+        "
         :clickable="discardClickable"
         @click="emit('discard')"
       />
@@ -51,7 +59,7 @@ const emit = defineEmits<{ draw: []; discard: []; held: [] }>();
       <div
         v-if="!heldCard"
         class="card card-large"
-        data-anchor="held"
+        :data-anchor="HELD_ANCHOR"
         aria-hidden="true"
       />
       <PlayingCard
@@ -62,7 +70,7 @@ const emit = defineEmits<{ draw: []; discard: []; held: [] }>();
         :clickable="heldClickable"
         :marked="heldMarked"
         :in-flight="heldInFlight"
-        :data-anchor="heldIsTakenDiscard ? 'discardPile' : 'held'"
+        :data-anchor="heldIsTakenDiscard ? DISCARD_PILE_ANCHOR : HELD_ANCHOR"
         @click="emit('held')"
       />
       <span class="pile-label">{{ heldLabel ?? "" }}</span>
