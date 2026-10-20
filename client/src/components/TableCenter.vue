@@ -34,6 +34,7 @@ const emit = defineEmits<{ draw: []; discard: []; held: [] }>();
         size="large"
         class="pile-stack"
         :data-anchor="DRAW_PILE_ANCHOR"
+        :aria-label="strings.table.drawPile"
         :clickable="drawClickable"
         @click="emit('draw')"
       />

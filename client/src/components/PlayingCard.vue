@@ -31,6 +31,7 @@ const visibleCard = computed(() => (props.faceUp ? props.card : null));
   <component
     :is="clickable ? 'button' : 'div'"
     :type="clickable ? 'button' : undefined"
+    :aria-label="visibleCard ? undefined : strings.table.hiddenCard"
     class="card"
     :class="[
       `card-${size}`,
