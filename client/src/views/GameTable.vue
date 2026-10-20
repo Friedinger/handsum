@@ -34,7 +34,7 @@ import {
   type Intent,
 } from "@/utils/tableIntent";
 import { arrangeOpponents } from "@/utils/tableLayout";
-import { currentHeldCard } from "@/utils/heldCard";
+import { heldCardLabel, shownHeldCard } from "@/utils/heldCard";
 
 const props = defineProps<{
   snapshot: SessionSnapshot;
@@ -87,13 +87,9 @@ const currentPlayerId = computed(() =>
     : null,
 );
 const isTakingDiscard = computed(() => intent.value.kind === "takingDiscard");
-// While the discard card is taken it is shown like a drawn card, with the next one below it.
-const held = computed(() => {
-  const topDiscard = props.state.discardPile[0];
-  return isTakingDiscard.value && topDiscard
-    ? { holderId: selfId.value, card: topDiscard }
-    : currentHeldCard(props.state);
-});
+const held = computed(() =>
+  shownHeldCard(props.state, selfId.value, isTakingDiscard.value),
+);
 const discardTop = computed(() => {
   const whileFlying = cardFlights.discardTopWhileFlying.value;
   if (whileFlying !== undefined) {
@@ -101,17 +97,9 @@ const discardTop = computed(() => {
   }
   return props.state.discardPile[isTakingDiscard.value ? 1 : 0] ?? null;
 });
-const heldLabel = computed(() => {
-  if (!held.value) {
-    return null;
-  }
-  if (isTakingDiscard.value) {
-    return strings.table.takenCard;
-  }
-  return held.value.holderId === selfId.value
-    ? strings.table.yourCard
-    : strings.table.holdingCard(displayName(props.state, held.value.holderId));
-});
+const heldLabel = computed(() =>
+  heldCardLabel(props.state, selfId.value, held.value, isTakingDiscard.value),
+);
 const targetsOpponents = computed(
   () => intent.value.kind === "action" && intent.value.action !== "viewOwn",
 );
