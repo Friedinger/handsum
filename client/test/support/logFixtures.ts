@@ -12,3 +12,11 @@ export function replayLog(moves: readonly Move[]): SyncedLog | null {
   }
   return log;
 }
+
+export function logOf(moves: readonly Move[]): SyncedLog {
+  const log = replayLog(moves);
+  if (!log) {
+    throw new Error("The moves are not a legal log");
+  }
+  return log;
+}
