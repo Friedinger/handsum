@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Handsum\Tests;
+namespace Handsum\Tests\Storage;
 
-use Handsum\AppendStatus;
 use Handsum\Config;
-use Handsum\RoomStore;
-use Handsum\StorageException;
+use Handsum\Storage\AppendStatus;
+use Handsum\Storage\RoomStore;
+use Handsum\Storage\StorageException;
 use Handsum\Tests\Support\DataDirTestCase;
 
 final class RoomStoreTest extends DataDirTestCase

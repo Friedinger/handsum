@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Handsum;
 
+use Handsum\Storage\RoomStore;
+use Handsum\Storage\StorageException;
+
 require __DIR__ . '/src/autoload.php';
 
 function failOnPhpErrors(): void

@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Handsum;
+namespace Handsum\Storage;
+
+use Handsum\Config;
 
 final class RoomStore
 {

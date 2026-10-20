@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Handsum\Tests;
+namespace Handsum\Tests\Storage;
 
-use Handsum\LockedJsonFile;
-use Handsum\StorageException;
+use Handsum\Storage\LockedJsonFile;
+use Handsum\Storage\StorageException;
 use Handsum\Tests\Support\DataDirTestCase;
 
 final class LockedJsonFileTest extends DataDirTestCase

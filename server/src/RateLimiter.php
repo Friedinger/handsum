@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Handsum;
 
+use Handsum\Storage\Filesystem;
+use Handsum\Storage\LockedJsonFile;
+
 final class RateLimiter
 {
     private readonly string $dir;

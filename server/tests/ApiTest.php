@@ -7,7 +7,7 @@ namespace Handsum\Tests;
 use Handsum\Api;
 use Handsum\Config;
 use Handsum\RateLimiter;
-use Handsum\RoomStore;
+use Handsum\Storage\RoomStore;
 use Handsum\Tests\Support\DataDirTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Handsum;
 
+use Handsum\Storage\AppendStatus;
+use Handsum\Storage\RoomStore;
+
 final class Api
 {
     private const REQUEST_BUCKET = 'request';
