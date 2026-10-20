@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Handsum;
 
-use Handsum\Storage\RoomStore;
-use Handsum\Storage\StorageException;
-
 require __DIR__ . '/src/autoload.php';
 
 function failOnPhpErrors(): void
@@ -30,22 +27,15 @@ function respond(Response $response): void
 }
 
 failOnPhpErrors();
-$dataDir = Config::dataDir();
 ob_start();
-try {
-    $clock = static fn(): int => time();
-    $api = new Api(new RoomStore($dataDir, $clock), new RateLimiter($dataDir, $clock));
-    $body = (string) stream_get_contents(fopen('php://input', 'r'), Config::MAX_REQUEST_BYTES + 1);
-    $response = $api->handle(
-        $_SERVER['REQUEST_METHOD'] ?? 'GET',
-        array_filter($_SERVER, 'is_string'),
-        array_filter($_GET, 'is_string'),
-        $body,
-        $_SERVER['REMOTE_ADDR'] ?? '',
-    );
-} catch (\Throwable $error) {
-    ErrorLog::write($error, $dataDir);
-    $response = Response::error(500, $error instanceof StorageException ? ErrorCode::StorageNotWritable : ErrorCode::ServerError);
-}
+$application = new Application(Config::dataDir(), static fn(): int => time());
+$body = (string) stream_get_contents(fopen('php://input', 'r'), Config::MAX_REQUEST_BYTES + 1);
+$response = $application->handle(
+    $_SERVER['REQUEST_METHOD'] ?? 'GET',
+    array_filter($_SERVER, 'is_string'),
+    array_filter($_GET, 'is_string'),
+    $body,
+    $_SERVER['REMOTE_ADDR'] ?? '',
+);
 ob_end_clean();
 respond($response);
