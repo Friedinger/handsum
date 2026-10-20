@@ -12,6 +12,7 @@ export interface RoomUpdate {
 export interface TransportHandlers {
   readonly onUpdate: (update: RoomUpdate) => void;
   readonly onConnectionChange: (state: ConnectionState) => void;
+  readonly onJoinRefusedChange: (refused: boolean) => void;
 }
 
 export type AppendResult =

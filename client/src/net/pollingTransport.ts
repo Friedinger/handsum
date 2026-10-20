@@ -78,6 +78,7 @@ export function createPollingTransport(
     let lastPresenceAt = Number.NEGATIVE_INFINITY;
     let failures = 0;
     let connection: ConnectionState = "connecting";
+    let joinRefused = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
     let stopped = false;
     let queue: Promise<unknown> = Promise.resolve();
@@ -86,6 +87,13 @@ export function createPollingTransport(
       if (next !== connection) {
         connection = next;
         handlers.onConnectionChange(next);
+      }
+    };
+
+    const setJoinRefused = (next: boolean) => {
+      if (next !== joinRefused) {
+        joinRefused = next;
+        handlers.onJoinRefusedChange(next);
       }
     };
 
@@ -141,6 +149,7 @@ export function createPollingTransport(
     const announce = async () => {
       lastPresenceAt = Date.now();
       const reply = await send(JOIN_QUERY, "POST", self);
+      setJoinRefused(reply.status === STATUS_CONFLICT);
       const players = parsePlayers(reply.body);
       if (players) {
         deliver(null, players);

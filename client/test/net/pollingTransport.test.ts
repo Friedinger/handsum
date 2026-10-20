@@ -32,6 +32,7 @@ function createFakeServer() {
   const moves: Move[] = [];
   const calls: Call[] = [];
   let failing = false;
+  let roomFull = false;
   let players = [self];
 
   const respond = (status: number, body: unknown) =>
@@ -55,7 +56,9 @@ function createFakeServer() {
       return respond(503, { error: "down" });
     }
     if (query === "?action=join") {
-      return respond(200, { players });
+      return roomFull
+        ? respond(409, { error: "roomFull" })
+        : respond(200, { players });
     }
     if (query === "?action=move") {
       const request = body as { sequence: number; move: Move };
@@ -83,6 +86,12 @@ function createFakeServer() {
     },
     recover: () => {
       failing = false;
+    },
+    fillRoom: () => {
+      roomFull = true;
+    },
+    makeRoomWelcoming: () => {
+      roomFull = false;
     },
     addPlayer: () => {
       players = [self, bob];
@@ -116,15 +125,17 @@ async function connect(
 ) {
   const updates: RoomUpdate[] = [];
   const states: ConnectionState[] = [];
+  const refusals: boolean[] = [];
   const transport = createPollingTransport({
     fetch: server.fetch,
     page: page.page,
   })(ROOM_CODE, self, {
     onUpdate: (update) => updates.push(update),
     onConnectionChange: (state) => states.push(state),
+    onJoinRefusedChange: (refused) => refusals.push(refused),
   });
   await firstReadDone(server);
-  return { transport, updates, states, page };
+  return { transport, updates, states, refusals, page };
 }
 
 async function advance(ms: number): Promise<void> {
@@ -215,6 +226,26 @@ describe("polling transport", () => {
     await advance(60_000);
     const joins = server.calls.filter((call) => call.query === "?action=join");
     expect(joins.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("reports a refused join and a later accepted one", async () => {
+    const server = createFakeServer();
+    server.fillRoom();
+    const { refusals } = await connect(server);
+    expect(refusals).toEqual([true]);
+
+    server.makeRoomWelcoming();
+    await advance(60_000);
+
+    expect(refusals).toEqual([true, false]);
+  });
+
+  it("stays silent about the join while it is accepted", async () => {
+    const server = createFakeServer();
+    const { refusals } = await connect(server);
+    await advance(60_000);
+
+    expect(refusals).toEqual([]);
   });
 
   it("appends a move with its sequence number", async () => {

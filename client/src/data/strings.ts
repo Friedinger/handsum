@@ -122,6 +122,10 @@ export const strings = {
     backToStart: "Back to start",
     playAgain: "Play again",
   },
+  roomFull: {
+    notice:
+      "This room is full. Please wait for a free seat or try again later.",
+  },
   spectator: {
     notice: "This game has already started. Only its players can rejoin.",
   },

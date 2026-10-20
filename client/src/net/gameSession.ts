@@ -16,6 +16,7 @@ export interface SessionSnapshot {
   readonly players: readonly HelloMessage[];
   readonly log: SyncedLog;
   readonly connection: ConnectionState;
+  readonly joinRefused: boolean;
 }
 
 export interface GameSession {
@@ -41,6 +42,7 @@ export function initialSnapshot(
     players: [],
     log: emptyLog,
     connection: "connecting",
+    joinRefused: false,
   };
 }
 
@@ -91,6 +93,9 @@ export function createGameSession(options: SessionOptions): GameSession {
     },
     onConnectionChange: (connection) => {
       update({ connection });
+    },
+    onJoinRefusedChange: (joinRefused) => {
+      update({ joinRefused });
     },
   };
 
