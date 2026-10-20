@@ -15,8 +15,8 @@ final class RoomStoreTest extends DataDirTestCase
     public function testIdleRoomsAreDeleted(): void
     {
         $store = new RoomStore($this->dataDir, $this->clock());
-        $store->append(hash('sha256', 'ABC234'), 0, '{"type":"a"}');
-        $store->joinPlayer(hash('sha256', 'JOIN22'), ['playerId' => 'p1', 'name' => 'Anna']);
+        $store->append(self::roomId(), 0, '{"type":"a"}');
+        $store->joinPlayer(self::roomId(self::PLAYERS_ROOM_CODE), ['playerId' => 'p1', 'name' => 'Anna']);
         $this->now += Config::ROOM_IDLE_SECONDS + 1;
 
         $store->deleteIdleRooms();
@@ -29,13 +29,13 @@ final class RoomStoreTest extends DataDirTestCase
     {
         $store = new RoomStore($this->dataDir, $this->clock());
 
-        self::assertSame([], $store->moves(hash('sha256', 'NONE22')));
+        self::assertSame([], $store->moves(self::roomId('NONE22')));
     }
 
     public function testMovesAreReturnedInAppendOrder(): void
     {
         $store = new RoomStore($this->dataDir, $this->clock());
-        $roomId = hash('sha256', 'ABC234');
+        $roomId = self::roomId();
         $store->append($roomId, 0, '{"type":"a"}');
         $store->append($roomId, 1, '{"type":"b"}');
 
@@ -45,7 +45,7 @@ final class RoomStoreTest extends DataDirTestCase
     public function testRoomSizeIsCapped(): void
     {
         $store = new RoomStore($this->dataDir, $this->clock());
-        $roomId = hash('sha256', 'FULL22');
+        $roomId = self::roomId('FULL22');
         $filler = json_encode(['type' => 'a', 'pad' => str_repeat('x', Config::MAX_BYTES_PER_MOVE - 40)]);
 
         $result = null;
@@ -63,7 +63,7 @@ final class RoomStoreTest extends DataDirTestCase
     public function testSilentPlayersAreNotListed(): void
     {
         $store = new RoomStore($this->dataDir, $this->clock());
-        $roomId = hash('sha256', 'JOIN22');
+        $roomId = self::roomId(self::PLAYERS_ROOM_CODE);
         $store->joinPlayer($roomId, ['playerId' => 'p1', 'name' => 'Anna']);
         $this->now += Config::PLAYER_ACTIVE_SECONDS - 1;
         $store->joinPlayer($roomId, ['playerId' => 'p2', 'name' => 'Ben']);
@@ -75,7 +75,7 @@ final class RoomStoreTest extends DataDirTestCase
     public function testSilentPlayersDoNotCountTowardsTheRoomLimit(): void
     {
         $store = new RoomStore($this->dataDir, $this->clock());
-        $roomId = hash('sha256', 'JOIN22');
+        $roomId = self::roomId(self::PLAYERS_ROOM_CODE);
         for ($i = 0; $i < Config::MAX_PLAYERS_PER_ROOM; $i++) {
             $store->joinPlayer($roomId, ['playerId' => "p$i", 'name' => "P$i"]);
         }

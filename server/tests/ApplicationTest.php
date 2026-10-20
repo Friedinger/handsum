@@ -15,7 +15,7 @@ final class ApplicationTest extends DataDirTestCase
     {
         $application = new Application($this->dataDir, $this->clock());
 
-        $response = $application->handle('GET', [Config::ROOM_ID_HEADER => hash('sha256', 'ABC234')], [], '', '1.1.1.1');
+        $response = $application->handle('GET', self::roomHeader(), [], '', '1.1.1.1');
 
         self::assertSame(200, $response->status);
     }
@@ -25,7 +25,7 @@ final class ApplicationTest extends DataDirTestCase
         file_put_contents($this->dataDir . '/rooms', 'blocks the rooms directory');
         $application = new Application($this->dataDir, $this->clock());
 
-        $response = $application->handle('GET', [Config::ROOM_ID_HEADER => hash('sha256', 'ABC234')], [], '', '1.1.1.1');
+        $response = $application->handle('GET', self::roomHeader(), [], '', '1.1.1.1');
 
         self::assertSame(500, $response->status);
         self::assertSame(ErrorCode::StorageNotWritable->value, $response->payload['error']);
