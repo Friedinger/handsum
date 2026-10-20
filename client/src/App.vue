@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { strings } from "@/data/strings";
-import { useRoomCode } from "./composables/useRoomCode";
-import HomeView from "./views/HomeView.vue";
-import RoomView from "./views/RoomView.vue";
+import { useRoomCode } from "@/composables/useRoomCode";
+import HomeView from "@/views/HomeView.vue";
+import RoomView from "@/views/RoomView.vue";
 
 const roomCode = useRoomCode();
 </script>

@@ -1,14 +1,14 @@
-import type { Move } from "./moves/types";
-import { applyCallEnd } from "./moves/callEnd";
+import type { Move } from "@/engine/moves/types";
+import { applyCallEnd } from "@/engine/moves/callEnd";
 import {
   applyExchangeBlind,
   applyViewOtherCard,
   applyViewOwnCard,
-} from "./moves/cardActions";
-import { applyDiscardDrawnCard, applyDrawFromDeck } from "./moves/draw";
-import { applyStartGame } from "./moves/startGame";
-import { applyViewStartingCards } from "./moves/startingView";
-import { applySwapDiscardCard, applySwapDrawnCard } from "./moves/swap";
+} from "@/engine/moves/cardActions";
+import { applyDiscardDrawnCard, applyDrawFromDeck } from "@/engine/moves/draw";
+import { applyStartGame } from "@/engine/moves/startGame";
+import { applyViewStartingCards } from "@/engine/moves/startingView";
+import { applySwapDiscardCard, applySwapDrawnCard } from "@/engine/moves/swap";
 import { accept, type MoveRejection, type Result } from "./outcome";
 import type { GameState, StartedGame } from "./types";
 
