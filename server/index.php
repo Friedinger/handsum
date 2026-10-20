@@ -4,11 +4,7 @@ declare(strict_types=1);
 
 namespace Handsum;
 
-require __DIR__ . '/src/Config.php';
-require __DIR__ . '/src/ErrorLog.php';
-require __DIR__ . '/src/RoomStore.php';
-require __DIR__ . '/src/RateLimiter.php';
-require __DIR__ . '/src/Api.php';
+require __DIR__ . '/src/autoload.php';
 
 function failOnPhpErrors(): void
 {

@@ -12,7 +12,7 @@ final class RoomStore
     public function __construct(string $dataDir, private readonly \Closure $clock)
     {
         $this->roomsDir = $dataDir . '/rooms';
-        ensureDirectory($this->roomsDir);
+        Filesystem::ensureDirectory($this->roomsDir);
     }
 
     public function exists(string $roomId): bool
@@ -153,29 +153,5 @@ final class RoomStore
     private function playersPath(string $roomId): string
     {
         return $this->roomsDir . '/' . $roomId . '.players';
-    }
-}
-
-enum AppendStatus
-{
-    case Appended;
-    case Conflict;
-    case RoomFull;
-}
-
-final class AppendResult
-{
-    public function __construct(public readonly AppendStatus $status, public readonly int $length) {}
-}
-
-final class StorageException extends \RuntimeException {}
-
-function ensureDirectory(string $path): void
-{
-    if (!is_dir($path) && !@mkdir($path, 0700, true) && !is_dir($path)) {
-        throw new StorageException("Cannot create directory $path");
-    }
-    if (!is_writable($path)) {
-        throw new StorageException("Directory $path is not writable");
     }
 }

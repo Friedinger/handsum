@@ -12,7 +12,7 @@ final class RateLimiter
     public function __construct(string $dataDir, private readonly \Closure $clock)
     {
         $this->dir = $dataDir . '/limits';
-        ensureDirectory($this->dir);
+        Filesystem::ensureDirectory($this->dir);
     }
 
     /** Counts one hit and returns whether it is still within the limit. */
