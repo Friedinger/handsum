@@ -23,14 +23,13 @@ To try it alone, open the room link in two browser windows. The PHP commands run
 | Command                  | Purpose                                                     |
 | ------------------------ | ----------------------------------------------------------- |
 | `npm run client:dev`     | Start the Vite dev server                                   |
-| `npm run client:build`   | Type-check and build to `client/dist/`                      |
+| `npm run client:build`   | Type-check and build the deployable site to `client/dist/`  |
 | `npm run client:test`    | Run the client unit tests                                   |
 | `npm run client:lint`    | Type-check, check formatting and lint                       |
 | `npm run client:fix`     | Format, fix lint issues and type-check                      |
 | `npm run server:dev`     | Start the PHP API on port 8080 (Compose)                    |
 | `npm run server:install` | Install the PHP test dependencies (Composer in a container) |
 | `npm run server:test`    | Run the PHP server tests (PHPUnit, Compose)                 |
-| `npm run deploy:check`   | Check the build in an Apache sub-folder                     |
 | `npm test`               | Run client and server tests                                 |
 | `npm run lint`           | Same as `client:lint`                                       |
 | `npm run fix`            | Same as `client:fix`                                        |
@@ -48,7 +47,6 @@ client/            Vue 3 app (own package.json, Vite, Vitest, ESLint)
   src/utils/       Vue-free table logic
   test/            tests, mirroring src/ (test/support/ holds shared helpers)
 server/            PHP move log server
-scripts/           helper scripts
 ```
 
 The root `package.json` only delegates to `client/` and runs the PHP helpers; install dependencies with `npm --prefix client install`.
@@ -111,14 +109,13 @@ Optional: to keep the data outside the web root, create `api/config.local.php` o
 
 ### Manual deployment
 
-Without the workflow, build and assemble the same folder yourself and upload it with SFTP:
+Without the workflow, build the site, which already contains the server as `api/`, and upload it with SFTP:
 
 ```bash
 npm run client:build
-scripts/stage-site.sh site
 ```
 
-Upload the contents of `site/` to the sub-folder on the host.
+Upload the contents of `client/dist/` to the sub-folder on the host.
 
 ### Optional password protection
 

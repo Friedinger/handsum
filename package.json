@@ -24,7 +24,6 @@
     "server:lint": "npm run server:install && docker compose run --rm php-lint",
     "server:fix": "npm run server:install && docker compose run --rm php-fix",
     "server:test": "npm run server:install && docker compose run --rm php-test",
-    "deploy:check": "scripts/check-subfolder-deploy.sh",
     "lint": "npm run client:lint && npm run server:lint",
     "fix": "npm run client:fix && npm run server:fix",
     "test": "npm run client:test && npm run server:test"

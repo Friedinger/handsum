@@ -41,20 +41,5 @@ services:
       - ./server:/server:Z
       - composer-cache:/cache
 
-  apache:
-    profiles: [deploy-check]
-    image: php:8.5-apache
-    network_mode: host
-    command:
-      - sh
-      - -c
-      - >-
-        sed -i 's/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
-        && sed -i "s/Listen 80/Listen $${APACHE_PORT}/" /etc/apache2/ports.conf
-        && sed -i "s/<VirtualHost \\*:80>/<VirtualHost *:$${APACHE_PORT}>/" /etc/apache2/sites-available/000-default.conf
-        && exec apache2-foreground
-    environment:
-      APACHE_PORT: ${APACHE_PORT:-8089}
-
 volumes:
   composer-cache:

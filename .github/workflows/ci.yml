@@ -40,16 +40,12 @@ jobs:
       - name: Build client
         run: npm run client:build
 
-      - name: Stage site
-        if: github.event_name == 'workflow_dispatch'
-        run: scripts/stage-site.sh site
-
       - name: Upload site
         if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: site
-          path: ./site/
+          path: ./client/dist/
           include-hidden-files: true
 
   server:
@@ -68,30 +64,10 @@ jobs:
       - name: Run tests
         run: docker compose run --rm php-test
 
-  check-deploy:
-    name: Check sub-folder deployment
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Setup Node.js
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version-file: mise.toml
-          cache: npm
-          cache-dependency-path: client/package-lock.json
-
-      - name: Install dependencies
-        run: npm --prefix client ci
-
-      - name: Check the production layout in an Apache container
-        run: npm run deploy:check
-
   deploy:
     name: Deploy to server
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
-    needs: [client, server, check-deploy]
+    needs: [client, server]
     concurrency:
       group: deploy
       cancel-in-progress: false
