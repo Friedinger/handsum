@@ -9,7 +9,7 @@ import {
   savePlayerName,
 } from "@/net/identity";
 import type { HelloMessage } from "@/net/protocol";
-import SessionView from "./SessionView.vue";
+import SessionView from "@/views/SessionView.vue";
 
 const PLAYER_NAME_MAX_LENGTH = 24;
 

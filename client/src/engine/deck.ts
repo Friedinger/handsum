@@ -1,6 +1,6 @@
 import cardData from "@/data/cards.json";
 import { isRecord } from "@/engine/guards";
-import type { Card, CardAction } from "./types";
+import type { Card, CardAction } from "@/engine/types";
 
 export interface CardType {
   readonly value: number;

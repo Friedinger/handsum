@@ -10,7 +10,7 @@ import {
   requireAwaitingChoice,
   requireHeldCard,
   withEvent,
-} from "./turn";
+} from "@/engine/moves/turn";
 
 // The reshuffle seed depends on the move number so repeated reshuffles differ but stay replayable.
 function replenishDrawPile(state: StartedGame): StartedGame {

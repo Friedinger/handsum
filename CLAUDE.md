@@ -28,7 +28,7 @@ Browser-based multiplayer card game prototype (2–8 players, join via link). No
 - `server/`: PHP move log server for shared hosting (Apache, PHP, no database, no APCu). Limits live as named constants in `server/src/Config.php`. It stores only hashed room IDs, player names and IDs, seed, moves and hashed IPs for rate limiting; rooms expire when inactive. The API uses no absolute paths so the app works in a sub-folder.
 - The Vue 3 app (single-file components, no UI library) lives in `client/src/components/`, `views/` and `composables/`; Vue-free table logic in `client/src/utils/`. The UI never contains game rules. ESLint enforces the layering: `engine` and `data` import neither Vue nor `net`/UI folders, `net` and `utils` import no UI, composables and components import no views.
 - Tests live in `client/test/`, mirroring the folder structure of `client/src/`. `client/test/support/` holds helpers shared by tests only (game fixtures, in-memory network).
-- Imports across folders use the `@/` alias (`@/engine`, `@/net/...`), tests import their helpers via `@test/support/...`; `./` only for files in the same folder, `../` is forbidden.
+- All imports use the `@/` alias (`@/engine`, `@/net/...`), tests import their helpers via `@test/support/...`; relative imports (`./`, `../`) are forbidden.
 
 ## Tech
 

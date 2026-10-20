@@ -1,7 +1,7 @@
-import { tryApplyMove } from "./applyMove";
+import { tryApplyMove } from "@/engine/applyMove";
 import type { Move } from "@/engine/moves/types";
-import { SLOT_INDICES, STARTING_VIEW_CARD_COUNT } from "./rules";
-import type { GameState, PlayerId } from "./types";
+import { SLOT_INDICES, STARTING_VIEW_CARD_COUNT } from "@/engine/rules";
+import type { GameState, PlayerId } from "@/engine/types";
 
 function nonEmptySubsets(items: readonly number[]): number[][] {
   return items.reduce<number[][]>(

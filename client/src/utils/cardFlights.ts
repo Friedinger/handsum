@@ -9,8 +9,8 @@ import {
   type SwapDiscardCardMove,
   type SwapDrawnCardMove,
 } from "@/engine";
-import { currentHeldCard } from "./heldCard";
-import type { SlotRef } from "./tableIntent";
+import { currentHeldCard } from "@/utils/heldCard";
+import type { SlotRef } from "@/utils/tableIntent";
 
 export type Anchor =
   | { readonly kind: "drawPile" }

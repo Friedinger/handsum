@@ -3,8 +3,8 @@ import { computed } from "vue";
 import { strings } from "@/data/strings";
 import type { HelloMessage } from "@/net/protocol";
 import { useGameSession } from "@/composables/useGameSession";
-import GameTable from "./GameTable.vue";
-import LobbyView from "./LobbyView.vue";
+import GameTable from "@/views/GameTable.vue";
+import LobbyView from "@/views/LobbyView.vue";
 
 const props = defineProps<{ roomCode: string; self: HelloMessage }>();
 

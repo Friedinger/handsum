@@ -1,5 +1,5 @@
 import type { Move } from "@/engine";
-import type { HelloMessage } from "./protocol";
+import type { HelloMessage } from "@/net/protocol";
 
 export type ConnectionState = "connecting" | "online" | "offline";
 

@@ -14,7 +14,7 @@ import {
   type Intent,
   type SwappingSeveralIntent,
   type TakingDiscardIntent,
-} from "./tableIntent";
+} from "@/utils/tableIntent";
 
 export interface ClickOutcome {
   readonly intent: Intent;

@@ -9,8 +9,8 @@ import { applyDiscardDrawnCard, applyDrawFromDeck } from "@/engine/moves/draw";
 import { applyStartGame } from "@/engine/moves/startGame";
 import { applyViewStartingCards } from "@/engine/moves/startingView";
 import { applySwapDiscardCard, applySwapDrawnCard } from "@/engine/moves/swap";
-import { accept, type MoveRejection, type Result } from "./outcome";
-import type { GameState, StartedGame } from "./types";
+import { accept, type MoveRejection, type Result } from "@/engine/outcome";
+import type { GameState, StartedGame } from "@/engine/types";
 
 export const initialGameState: GameState = { status: "notStarted" };
 

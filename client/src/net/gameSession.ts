@@ -1,12 +1,12 @@
 import type { Move, MoveRejection, Player, PlayerId } from "@/engine";
-import { appendMove, emptyLog, extendLog, type SyncedLog } from "./moveLog";
-import type { HelloMessage } from "./protocol";
+import { appendMove, emptyLog, extendLog, type SyncedLog } from "@/net/moveLog";
+import type { HelloMessage } from "@/net/protocol";
 import type {
   ConnectionState,
   ConnectTransport,
   Transport,
   TransportHandlers,
-} from "./transport";
+} from "@/net/transport";
 
 const MAX_CONFLICT_RETRIES = 3;
 

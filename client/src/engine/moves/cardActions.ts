@@ -23,7 +23,7 @@ import {
   requireHeldCard,
   withEvent,
   type HeldCardTurn,
-} from "./turn";
+} from "@/engine/moves/turn";
 
 interface TargetSeat {
   readonly playerId: PlayerId;

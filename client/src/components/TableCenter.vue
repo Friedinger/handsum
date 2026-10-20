@@ -7,7 +7,7 @@ import {
   DRAW_PILE_ANCHOR,
   HELD_ANCHOR,
 } from "@/utils/cardFlights";
-import PlayingCard from "./PlayingCard.vue";
+import PlayingCard from "@/components/PlayingCard.vue";
 
 defineProps<{
   drawPileCount: number;

@@ -1,6 +1,6 @@
 import { strings } from "@/data/strings";
 import type { Card, PlayerId, StartedGame } from "@/engine";
-import { displayName } from "./displayName";
+import { displayName } from "@/utils/displayName";
 
 export interface HeldCard {
   readonly holderId: PlayerId;

@@ -2,8 +2,8 @@ import {
   CALLER_PENALTY,
   SPECIAL_LAYOUT_PENALTY,
   SPECIAL_LAYOUT_VALUES,
-} from "./rules";
-import type { Card, PlayerId, PlayerResult, Seat, Slot } from "./types";
+} from "@/engine/rules";
+import type { Card, PlayerId, PlayerResult, Seat, Slot } from "@/engine/types";
 
 interface Tally {
   readonly playerId: PlayerId;

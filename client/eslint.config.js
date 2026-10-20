@@ -29,10 +29,9 @@ function restrictImports(files, patterns) {
   };
 }
 
-const RELATIVE_PARENT_IMPORTS = {
-  group: ["../*", "../**"],
-  message:
-    "Import across folders via the @/ alias; ./ is only for the same folder.",
+const RELATIVE_IMPORTS = {
+  group: ["./*", "./**", "../*", "../**"],
+  message: "Import via the @/ alias (@test/ in tests), not relative paths.",
 };
 const TEST_ALIAS_IMPORTS = {
   group: ["@test", "@test/**"],
@@ -44,7 +43,7 @@ function layer(folderName, layerDescription, ...forbidden) {
   return restrictImports(
     [`src/${folderName}/**`],
     [
-      RELATIVE_PARENT_IMPORTS,
+      RELATIVE_IMPORTS,
       TEST_ALIAS_IMPORTS,
       { group: forbidden.flat(), message: layerDescription },
     ],
@@ -127,11 +126,8 @@ export default withVueTs(
   ),
   layer("components", "Components must not depend on views.", VIEWS, APP),
   layer("views", "Views must not depend on the app shell.", APP),
-  restrictImports(
-    ["src/*.{ts,vue}"],
-    [RELATIVE_PARENT_IMPORTS, TEST_ALIAS_IMPORTS],
-  ),
-  restrictImports(["test/**"], [RELATIVE_PARENT_IMPORTS]),
+  restrictImports(["src/*.{ts,vue}"], [RELATIVE_IMPORTS, TEST_ALIAS_IMPORTS]),
+  restrictImports(["test/**"], [RELATIVE_IMPORTS]),
   eslintConfigPrettier,
   globalIgnores(["dist", "node_modules"]),
 );

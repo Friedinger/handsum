@@ -1,5 +1,5 @@
-import type { MoveRejection } from "./outcome";
-import type { Card, PlayerId, Seat, Slot, StartedGame } from "./types";
+import type { MoveRejection } from "@/engine/outcome";
+import type { Card, PlayerId, Seat, Slot, StartedGame } from "@/engine/types";
 
 export function seatIndexOf(state: StartedGame, playerId: PlayerId): number {
   return state.seats.findIndex((seat) => seat.player.id === playerId);

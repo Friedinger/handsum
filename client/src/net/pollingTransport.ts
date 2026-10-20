@@ -4,14 +4,14 @@ import {
   parseRoomSnapshot,
   type HelloMessage,
   type RoomSnapshot,
-} from "./protocol";
-import { hashRoomCode } from "./roomCode";
+} from "@/net/protocol";
+import { hashRoomCode } from "@/net/roomCode";
 import type {
   AppendResult,
   ConnectionState,
   ConnectTransport,
   Transport,
-} from "./transport";
+} from "@/net/transport";
 
 const API_URL = "api/index.php";
 const ACTIVE_POLL_MS = 1500;
