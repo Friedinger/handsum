@@ -11,7 +11,7 @@ services:
     working_dir: /server
     ports:
       - "127.0.0.1:8080:8080"
-    command: php -d display_errors=On -d error_reporting=E_ALL -S 0.0.0.0:8080 index.php
+    command: php -S 0.0.0.0:8080 index.php
 
   php-test:
     <<: *php
