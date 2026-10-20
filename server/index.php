@@ -10,15 +10,17 @@ require __DIR__ . '/src/RoomStore.php';
 require __DIR__ . '/src/RateLimiter.php';
 require __DIR__ . '/src/Api.php';
 
-// Errors must never leak into the JSON response, so they are turned into exceptions and logged.
-ini_set('display_errors', '0');
-error_reporting(E_ALL);
-set_error_handler(static function (int $severity, string $message, string $file, int $line): bool {
-    if ((error_reporting() & $severity) === 0) {
-        return false;
-    }
-    throw new \ErrorException($message, 0, $severity, $file, $line);
-});
+function failOnPhpErrors(): void
+{
+    ini_set('display_errors', '0');
+    error_reporting(E_ALL);
+    set_error_handler(static function (int $severity, string $message, string $file, int $line): bool {
+        if ((error_reporting() & $severity) === 0) {
+            return false;
+        }
+        throw new \ErrorException($message, 0, $severity, $file, $line);
+    });
+}
 
 function respond(int $status, array $payload): void
 {
@@ -28,6 +30,7 @@ function respond(int $status, array $payload): void
     echo json_encode($payload, JSON_THROW_ON_ERROR);
 }
 
+failOnPhpErrors();
 $dataDir = Config::dataDir();
 ob_start();
 try {

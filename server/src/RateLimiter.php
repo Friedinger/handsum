@@ -50,7 +50,7 @@ final class RateLimiter
         }
     }
 
-    // The day is part of the hash so stored keys cannot be linked across days.
+    /** The day is part of the hash so stored keys cannot be linked across days. */
     private function key(string $ip, string $bucket): string
     {
         return hash('sha256', $ip . '|' . gmdate('Y-m-d', ($this->clock)())) . '-' . $bucket;
