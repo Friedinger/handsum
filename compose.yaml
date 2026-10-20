@@ -39,7 +39,7 @@ services:
       COMPOSER_CACHE_DIR: /cache
     volumes:
       - ./server:/server:Z
-      - composer-cache:/cache
+      - ${COMPOSER_CACHE_VOLUME:-composer-cache}:/cache
 
 volumes:
   composer-cache:
