@@ -80,7 +80,7 @@ IP addresses are never stored in clear text. Limits (rooms, moves, sizes, reques
 
 ## Deployment to shared hosting
 
-The app runs in a sub-folder (for example `https://example.com/apps/handsum/`), needs PHP 8.4 with Apache and no database. The result on the host looks like this:
+The app runs in a sub-folder (for example `https://example.com/apps/handsum/`), needs PHP with Apache and no database. The result on the host looks like this:
 
 ```
 handsum/                  contents of client/dist/ (index.html, assets/)
