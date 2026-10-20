@@ -95,7 +95,7 @@ handsum/                  contents of client/dist/ (index.html, assets/)
 
 ### Automatic deployment
 
-The workflow `deploy.yml` builds the site and deploys it via SFTP with the shared workflow from `Friedinger/configs` (environment `prod`). It runs only when started by hand from the `main` branch (Actions → Deploy to server → Run workflow).
+The workflow `ci.yml` runs all checks and then deploys the built site via SFTP with the shared workflow from `Friedinger/configs` (environment `prod`). It runs only when started by hand from the `main` branch (Actions → CI → Run workflow).
 
 The site is mirrored into the root of the SFTP user. Everything else there is deleted, except `api/data/`, `api/config.local.php`, `.htaccess` and `.htpasswd` in the site root, which belong to the host.
 
