@@ -1,0 +1,95 @@
+import { mount } from "@vue/test-utils";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { MAX_PLAYERS, MIN_PLAYERS, type MoveRejection } from "@/engine";
+import { strings } from "@/data/strings";
+import { initialSnapshot, type SessionSnapshot } from "@/net/gameSession";
+import type { HelloMessage } from "@/net/protocol";
+import LobbyView from "@/views/LobbyView.vue";
+
+const self: HelloMessage = { playerId: "alice", name: "Alice" };
+
+function snapshotWith(others: readonly string[]): SessionSnapshot {
+  return {
+    ...initialSnapshot("ABCDEF", self),
+    players: [
+      self,
+      ...others.map((name) => ({ playerId: name.toLowerCase(), name })),
+    ],
+  };
+}
+
+function mountLobby(
+  snapshot: SessionSnapshot,
+  rejection: MoveRejection | null = null,
+) {
+  return mount(LobbyView, { props: { snapshot, rejection } });
+}
+
+function startButton(wrapper: ReturnType<typeof mountLobby>) {
+  return wrapper.find("button.button-primary");
+}
+
+describe("LobbyView", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.useRealTimers();
+  });
+
+  it("lists the players and marks the own one", () => {
+    const wrapper = mountLobby(snapshotWith(["Ben"]));
+
+    const items = wrapper.findAll(".player-list li").map((li) => li.text());
+
+    expect(items).toEqual([`Alice (${strings.table.you})`, "Ben"]);
+  });
+
+  it("cannot start alone and says how many players are needed", () => {
+    const wrapper = mountLobby(snapshotWith([]));
+
+    expect(startButton(wrapper).attributes("disabled")).toBeDefined();
+    expect(wrapper.text()).toContain(
+      strings.lobby.playerLimits(MIN_PLAYERS, MAX_PLAYERS),
+    );
+  });
+
+  it("lets anyone start once enough players are there", async () => {
+    const wrapper = mountLobby(snapshotWith(["Ben"]));
+
+    await startButton(wrapper).trigger("click");
+
+    expect(startButton(wrapper).attributes("disabled")).toBeUndefined();
+    expect(wrapper.emitted("start")).toHaveLength(1);
+  });
+
+  it("shows why a start was rejected", () => {
+    const wrapper = mountLobby(snapshotWith(["Ben"]), "invalidSeed");
+
+    expect(wrapper.text()).toContain(strings.rejectionMessages.invalidSeed);
+  });
+
+  it("confirms a copied link for a moment", async () => {
+    vi.useFakeTimers();
+    const writeText = vi.fn(() => Promise.resolve());
+    vi.stubGlobal("navigator", { clipboard: { writeText } });
+    const wrapper = mountLobby(snapshotWith([]));
+    const copy = wrapper.find(".inline-form button");
+
+    await copy.trigger("click");
+    await vi.advanceTimersByTimeAsync(0);
+    expect(copy.text()).toBe(strings.lobby.copied);
+    await vi.advanceTimersByTimeAsync(2000);
+
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining("#ABCDEF"));
+    expect(copy.text()).toBe(strings.lobby.copyLink);
+  });
+
+  it("tells the player when copying is not possible", async () => {
+    vi.stubGlobal("navigator", {});
+    const wrapper = mountLobby(snapshotWith([]));
+
+    await wrapper.find(".inline-form button").trigger("click");
+    await vi.waitFor(() => {
+      expect(wrapper.text()).toContain(strings.lobby.copyFailed);
+    });
+  });
+});
