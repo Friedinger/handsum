@@ -9,10 +9,14 @@ const roomCode = useRoomCode();
 </script>
 
 <template>
-  <main class="app">
-    <h1 class="app-title">{{ strings.appTitle }}</h1>
-    <RoomView v-if="roomCode" :key="roomCode" :room-code="roomCode" />
-    <HomeView v-else />
+  <div class="app" :class="{ 'app-home': !roomCode }">
+    <header>
+      <h1>{{ strings.appTitle }}</h1>
+    </header>
+    <main>
+      <RoomView v-if="roomCode" :key="roomCode" :room-code="roomCode" />
+      <HomeView v-else />
+    </main>
     <LegalFooter />
-  </main>
+  </div>
 </template>
