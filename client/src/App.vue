@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppFooter from "@/components/AppFooter.vue";
+import CardFan from "@/components/CardFan.vue";
 import { useRoomCode } from "@/composables/useRoomCode";
 import { strings } from "@/data/strings";
 import HomeView from "@/views/HomeView.vue";
@@ -9,9 +10,10 @@ const roomCode = useRoomCode();
 </script>
 
 <template>
-  <div class="app" :class="{ 'app-home': !roomCode }">
+  <div class="app">
     <header>
       <h1>{{ strings.appTitle }}</h1>
+      <CardFan />
     </header>
     <main>
       <RoomView v-if="roomCode" :key="roomCode" :room-code="roomCode" />
