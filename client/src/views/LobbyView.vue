@@ -55,7 +55,11 @@ async function share(): Promise<void> {
         >
           {{ strings.lobby.share }}
         </button>
-        <button type="button" class="button-secondary" @click="copyLink">
+        <button
+          type="button"
+          class="button-secondary button-copy"
+          @click="copyLink"
+        >
           {{
             copyResult === "copied"
               ? strings.lobby.copied

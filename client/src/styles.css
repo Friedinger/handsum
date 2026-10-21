@@ -173,6 +173,11 @@ button {
   color: var(--color-accent);
 }
 
+/* Wide enough for both labels, so the row does not jump when the text changes to "Copied!". */
+.button-copy {
+  min-width: 7.5rem;
+}
+
 .button-confirming {
   outline: 2px solid var(--color-error);
   outline-offset: 2px;
