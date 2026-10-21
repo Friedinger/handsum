@@ -12,6 +12,15 @@ const cardActionNames = {
   exchangeBlind: "Blind exchange",
 } as const satisfies Record<CardAction, string>;
 
+const cardActionDescriptions = {
+  viewOwn:
+    "Drawn and clicked: look at one of your own cards without showing it to anyone.",
+  viewOther:
+    "Drawn and clicked: look at a card of another player without showing it to anyone.",
+  exchangeBlind:
+    "Drawn and clicked: exchange one of your cards with a card of another player, without looking at either.",
+} as const satisfies Record<CardAction, string>;
+
 const rejectionMessages = {
   gameNotStarted: "The game has not started yet.",
   gameAlreadyStarted: "The game has already started.",
@@ -40,6 +49,7 @@ const rejectionMessages = {
 export const strings = {
   appTitle: "Handsum",
   cardActionNames,
+  cardActionDescriptions,
   rejectionMessages,
   connection: {
     offline: "No connection to the server. Retrying …",
