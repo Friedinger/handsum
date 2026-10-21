@@ -12,6 +12,7 @@ const props = withDefaults(
     size?: CardSize;
     clickable?: boolean;
     marked?: boolean;
+    ready?: boolean;
     inFlight?: boolean;
     peeked?: boolean;
   }>(),
@@ -19,6 +20,7 @@ const props = withDefaults(
     size: "medium",
     clickable: false,
     marked: false,
+    ready: false,
     inFlight: false,
     peeked: false,
   },
@@ -45,6 +47,7 @@ const visibleCard = computed(() => (props.faceUp ? props.card : null));
       {
         'card-clickable': clickable,
         'card-marked': marked,
+        'card-ready': ready,
         'card-placeholder': faceUp && !card,
         'card-in-flight': inFlight,
         'card-peeked': peeked,

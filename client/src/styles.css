@@ -562,6 +562,17 @@ button {
   outline-offset: 2px;
 }
 
+.card-ready {
+  animation: card-ready 1.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-ready {
+    outline: 3px solid var(--color-accent);
+    animation: none;
+  }
+}
+
 .card-marked:hover {
   transform: translateY(-0.7rem);
 }
@@ -652,6 +663,18 @@ button {
 
 .card-peeked {
   animation: card-peek 1.6s ease-in-out;
+}
+
+@keyframes card-ready {
+  0%,
+  100% {
+    outline-color: rgb(143 211 255 / 70%);
+  }
+
+  50% {
+    outline-color: var(--color-accent);
+    box-shadow: 0 0 0.9rem var(--color-accent);
+  }
 }
 
 @keyframes card-peek {

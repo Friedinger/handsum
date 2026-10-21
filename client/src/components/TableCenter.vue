@@ -19,6 +19,8 @@ defineProps<{
   discardClickable: boolean;
   heldClickable: boolean;
   heldMarked: boolean;
+  discardConfirms: boolean;
+  heldConfirms: boolean;
   heldInFlight: boolean;
   heldIsTakenDiscard: boolean;
 }>();
@@ -51,6 +53,7 @@ const emit = defineEmits<{ draw: []; discard: []; held: [] }>();
           heldIsTakenDiscard ? DISCARD_BELOW_ANCHOR : DISCARD_PILE_ANCHOR
         "
         :clickable="discardClickable"
+        :ready="discardConfirms"
         @click="emit('discard')"
       />
       <span class="pile-label">{{ strings.table.discardPile }}</span>
@@ -69,6 +72,7 @@ const emit = defineEmits<{ draw: []; discard: []; held: [] }>();
         size="large"
         :clickable="heldClickable"
         :marked="heldMarked"
+        :ready="heldConfirms"
         :in-flight="heldInFlight"
         :data-anchor="heldIsTakenDiscard ? DISCARD_PILE_ANCHOR : HELD_ANCHOR"
         @click="emit('held')"

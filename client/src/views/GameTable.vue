@@ -29,6 +29,7 @@ import {
   type Intent,
   isSlotMarked,
   noIntent,
+  selectedOwnSlots,
   situationOf,
 } from "@/utils/tableIntent";
 import { handleClick, isClickable } from "@/utils/tableInteraction";
@@ -99,6 +100,10 @@ const discardTop = computed(() => {
 });
 const heldLabel = computed(() =>
   heldCardLabel(props.state, selfId.value, held.value, isTakingDiscard.value),
+);
+const hasSelection = computed(() => selectedOwnSlots(intent.value).length > 0);
+const discardConfirms = computed(
+  () => hasSelection.value && !isTakingDiscard.value,
 );
 const targetsOpponents = computed(
   () => intent.value.kind === "action" && intent.value.action !== "viewOwn",
@@ -237,6 +242,8 @@ const results = computed(() =>
         :discard-clickable="clickable({ kind: 'discardPile' })"
         :held-clickable="clickable({ kind: 'heldCard' })"
         :held-marked="intent.kind === 'action'"
+        :discard-confirms="discardConfirms"
+        :held-confirms="hasSelection && isTakingDiscard"
         :held-in-flight="cardFlights.hiddenAnchors.value.has(HELD_ANCHOR)"
         :held-is-taken-discard="isTakingDiscard"
         @draw="click({ kind: 'drawPile' })"
