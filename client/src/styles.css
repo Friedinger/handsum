@@ -702,3 +702,64 @@ button {
       var(--shadow);
   }
 }
+
+/* Phones: one column, opponents above the table, smaller cards. */
+@media (max-width: 40rem) {
+  .game-table {
+    grid-template-rows: none;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "top"
+      "left"
+      "right"
+      "center"
+      "hand";
+    padding: 2.25rem 0.5rem 0.5rem;
+    overflow-y: auto;
+    gap: 0.5rem;
+  }
+
+  .area-top,
+  .area-left,
+  .area-right {
+    flex-flow: row wrap;
+    gap: 0.5rem;
+  }
+
+  .area-left:empty,
+  .area-right:empty {
+    display: none;
+  }
+
+  .player-seat {
+    padding: 0.25rem 0.35rem;
+  }
+
+  .seat-small {
+    width: auto;
+  }
+
+  .seat-small .seat-cards {
+    padding-top: 0.4rem;
+  }
+
+  .card-large {
+    --card-width: 4.2rem;
+  }
+
+  .pile {
+    width: 4.5rem;
+  }
+
+  .table-center {
+    gap: 0.75rem;
+  }
+
+  .seat-cards {
+    gap: 0.35rem;
+  }
+
+  .hint {
+    font-size: 0.9rem;
+  }
+}
