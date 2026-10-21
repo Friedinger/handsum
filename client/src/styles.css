@@ -202,6 +202,20 @@ button {
   color: #b3261e;
 }
 
+/* As tall as the bottom padding of .app, so the links sit centred below the table. */
+.legal-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: auto;
+  padding-top: 1rem;
+  gap: 1.25rem;
+  font-size: 0.8rem;
+}
+
+.legal-footer a {
+  color: var(--color-ink-muted);
+}
+
 .disclaimer {
   margin-top: 2rem;
   color: var(--color-ink-muted);

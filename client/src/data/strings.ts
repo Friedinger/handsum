@@ -73,6 +73,10 @@ export const strings = {
       `${player} exchanged a card with ${target}`,
     calledEnd: (player: string) => `${player} called the end`,
   },
+  legal: {
+    imprint: "Imprint",
+    privacy: "Privacy policy",
+  },
   turnAlert: {
     title: "▶ Your turn – Handsum",
   },

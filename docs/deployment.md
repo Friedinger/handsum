@@ -19,6 +19,10 @@ The workflow `ci.yml` runs all checks and then deploys the built site via SFTP w
 
 The site is mirrored into the root of the SFTP user. Everything else there is deleted, except `api/data/`, `api/config.local.php`, `.htaccess` and `.htpasswd` in the site root, which belong to the host.
 
+### Legal links
+
+The footer links to an imprint and a privacy policy only if the repository variables `IMPRINT_URL` and `PRIVACY_URL` (Settings → Secrets and variables → Actions → Variables) are set. They are baked into the build as `VITE_IMPRINT_URL` and `VITE_PRIVACY_URL`; a value is either a full `https://` address or a path on the same host such as `/imprint`. For a local build, put the same names into `client/.env.local`.
+
 ## First deployment on a new host
 
 Check in the browser after the first deploy:

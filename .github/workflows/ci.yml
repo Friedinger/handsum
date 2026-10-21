@@ -41,6 +41,9 @@ jobs:
         run: npm run client:test
 
       - name: Build client
+        env:
+          VITE_IMPRINT_URL: ${{ vars.IMPRINT_URL }}
+          VITE_PRIVACY_URL: ${{ vars.PRIVACY_URL }}
         run: npm run client:build
 
       - name: Check that the server is part of the build

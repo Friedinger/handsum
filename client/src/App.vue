@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import LegalFooter from "@/components/LegalFooter.vue";
 import { useRoomCode } from "@/composables/useRoomCode";
 import { strings } from "@/data/strings";
 import HomeView from "@/views/HomeView.vue";
@@ -12,5 +13,6 @@ const roomCode = useRoomCode();
     <h1 class="app-title">{{ strings.appTitle }}</h1>
     <RoomView v-if="roomCode" :key="roomCode" :room-code="roomCode" />
     <HomeView v-else />
+    <LegalFooter />
   </main>
 </template>
