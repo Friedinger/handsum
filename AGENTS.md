@@ -13,7 +13,7 @@ Browser-based multiplayer card game prototype (2–8 players, join via link). No
 - Comments only for the non-obvious "why". No comments restating code, no commented-out code, no TODO leftovers, no JSDoc that only repeats types.
 - TypeScript strict. No `any`, no non-null assertions without good reason. Immutable state.
 - Prefer types over comments for documentation (e.g. discriminated unions for moves and events).
-- All visible texts and game terms (including action names) live in `client/src/data/strings.ts`.
+- All visible texts and game terms (including action names) live in `client/src/data/strings/` (one file per area, `index.ts` exports `strings`).
 
 ## Architecture (binding)
 

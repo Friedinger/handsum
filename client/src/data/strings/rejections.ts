@@ -1,0 +1,31 @@
+import {
+  MAX_PLAYERS,
+  MIN_PLAYERS,
+  type MoveRejection,
+  STARTING_VIEW_CARD_COUNT,
+} from "@/engine";
+
+export const rejectionMessages = {
+  gameNotStarted: "The game has not started yet.",
+  gameAlreadyStarted: "The game has already started.",
+  invalidPlayerCount: `A game needs ${String(MIN_PLAYERS)} to ${String(MAX_PLAYERS)} players.`,
+  invalidPlayerId: "Every player needs an ID.",
+  duplicatePlayerId: "Player IDs must be unique.",
+  emptyPlayerName: "Every player needs a name.",
+  invalidSeed: "The seed must be an unsigned 32-bit integer.",
+  unknownPlayer: "This player is not part of the game.",
+  wrongPhase: "This move is not possible in the current phase.",
+  alreadyViewed: "You have already viewed your starting cards.",
+  wrongCardCount: `Select exactly ${String(STARTING_VIEW_CARD_COUNT)} cards.`,
+  notYourTurn: "It is not your turn.",
+  wrongTurnStep: "This move is not possible at this point of your turn.",
+  drawPileEmpty: "There are no cards left to draw.",
+  discardPileEmpty: "The discard pile is empty.",
+  invalidSlot: "This slot does not exist.",
+  duplicateSlot: "Each slot can only be selected once.",
+  noSlotSelected: "Select at least one slot.",
+  emptySlot: "This slot is empty.",
+  wrongCardAction: "The drawn card does not allow this action.",
+  invalidTarget: "Choose another player.",
+  endAlreadyCalled: "The end has already been called.",
+} as const satisfies Record<MoveRejection, string>;

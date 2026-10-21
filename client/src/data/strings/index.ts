@@ -1,54 +1,10 @@
 import {
-  type CardAction,
-  MAX_PLAYERS,
-  MIN_PLAYERS,
-  type MoveRejection,
-  STARTING_VIEW_CARD_COUNT,
-} from "@/engine";
-
-const cardActionNames = {
-  viewOwn: "View own card",
-  viewOther: "View other card",
-  exchangeBlind: "Blind exchange",
-} as const satisfies Record<CardAction, string>;
-
-const cardActionDescriptions = {
-  viewOwn:
-    "Drawn and clicked: look at one of your own cards without showing it to anyone.",
-  viewOther:
-    "Drawn and clicked: look at a card of another player without showing it to anyone.",
-  exchangeBlind:
-    "Drawn and clicked: exchange one of your cards with a card of another player, without looking at either.",
-} as const satisfies Record<CardAction, string>;
-
-function cardCount(count: number): string {
-  return count === 1 ? "1 card" : `${String(count)} cards`;
-}
-
-const rejectionMessages = {
-  gameNotStarted: "The game has not started yet.",
-  gameAlreadyStarted: "The game has already started.",
-  invalidPlayerCount: `A game needs ${String(MIN_PLAYERS)} to ${String(MAX_PLAYERS)} players.`,
-  invalidPlayerId: "Every player needs an ID.",
-  duplicatePlayerId: "Player IDs must be unique.",
-  emptyPlayerName: "Every player needs a name.",
-  invalidSeed: "The seed must be an unsigned 32-bit integer.",
-  unknownPlayer: "This player is not part of the game.",
-  wrongPhase: "This move is not possible in the current phase.",
-  alreadyViewed: "You have already viewed your starting cards.",
-  wrongCardCount: `Select exactly ${String(STARTING_VIEW_CARD_COUNT)} cards.`,
-  notYourTurn: "It is not your turn.",
-  wrongTurnStep: "This move is not possible at this point of your turn.",
-  drawPileEmpty: "There are no cards left to draw.",
-  discardPileEmpty: "The discard pile is empty.",
-  invalidSlot: "This slot does not exist.",
-  duplicateSlot: "Each slot can only be selected once.",
-  noSlotSelected: "Select at least one slot.",
-  emptySlot: "This slot is empty.",
-  wrongCardAction: "The drawn card does not allow this action.",
-  invalidTarget: "Choose another player.",
-  endAlreadyCalled: "The end has already been called.",
-} as const satisfies Record<MoveRejection, string>;
+  cardActionDescriptions,
+  cardActionNames,
+} from "@/data/strings/cardActions";
+import { moveLog } from "@/data/strings/moveLog";
+import { rejectionMessages } from "@/data/strings/rejections";
+import { MAX_PLAYERS, MIN_PLAYERS } from "@/engine";
 
 export const strings = {
   appTitle: "Handsum",
@@ -58,21 +14,7 @@ export const strings = {
   connection: {
     offline: "No connection to the server. Retrying …",
   },
-  moveLog: {
-    drewCard: (player: string) => `${player} drew a card`,
-    discardedDrawnCard: (player: string) =>
-      `${player} threw the drawn card away`,
-    swappedDrawnCard: (player: string, count: number) =>
-      `${player} swapped ${cardCount(count)} with the drawn card`,
-    swappedDiscardCard: (player: string, count: number) =>
-      `${player} swapped ${cardCount(count)} with the discard pile`,
-    viewedOwnCard: (player: string) => `${player} looked at an own card`,
-    viewedOtherCard: (player: string, target: string) =>
-      `${player} looked at a card of ${target}`,
-    exchangedBlind: (player: string, target: string) =>
-      `${player} exchanged a card with ${target}`,
-    calledEnd: (player: string) => `${player} called the end`,
-  },
+  moveLog,
   legal: {
     imprint: "Imprint",
     privacy: "Privacy policy",
