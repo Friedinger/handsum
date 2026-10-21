@@ -1,7 +1,6 @@
 import { onUnmounted, watch } from "vue";
 
 import { strings } from "@/data/strings";
-import { playTurnSound } from "@/utils/turnSound";
 
 function isInBackground(): boolean {
   return document.visibilityState !== "visible" || !document.hasFocus();
@@ -24,7 +23,6 @@ export function useTurnAlert(isMyTurn: () => boolean): void {
     }
     if (isInBackground()) {
       document.title = strings.turnAlert.title;
-      playTurnSound();
     }
   });
 

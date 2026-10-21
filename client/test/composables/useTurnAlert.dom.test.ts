@@ -5,9 +5,6 @@ import { defineComponent, nextTick, ref } from "vue";
 import { useTurnAlert } from "@/composables/useTurnAlert";
 import { strings } from "@/data/strings";
 
-const playTurnSound = vi.hoisted(() => vi.fn());
-vi.mock("@/utils/turnSound", () => ({ playTurnSound }));
-
 function setup() {
   const myTurn = ref(false);
   const wrapper = mount(
@@ -31,10 +28,9 @@ describe("useTurnAlert", () => {
   });
   afterEach(() => {
     vi.restoreAllMocks();
-    playTurnSound.mockClear();
   });
 
-  it("changes the title and plays a sound when the turn starts in the background", async () => {
+  it("changes the title when the turn starts in the background", async () => {
     setFocus(false);
     const { myTurn } = setup();
 
@@ -42,7 +38,6 @@ describe("useTurnAlert", () => {
     await nextTick();
 
     expect(document.title).toBe(strings.turnAlert.title);
-    expect(playTurnSound).toHaveBeenCalledOnce();
   });
 
   it("stays quiet while the player is looking at the game", async () => {
@@ -53,7 +48,6 @@ describe("useTurnAlert", () => {
     await nextTick();
 
     expect(document.title).toBe("Handsum");
-    expect(playTurnSound).not.toHaveBeenCalled();
   });
 
   it("restores the title when the window gets focus or the turn ends", async () => {
