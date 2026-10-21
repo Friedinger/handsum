@@ -21,6 +21,7 @@ import { onlinePlayerIds, type SessionSnapshot } from "@/net/gameSession";
 import { anchorKey, HELD_ANCHOR } from "@/utils/cardFlights";
 import { displayName } from "@/utils/displayName";
 import { heldCardLabel, shownHeldCard } from "@/utils/heldCard";
+import { recentMoveDescriptions } from "@/utils/moveDescription";
 import { isRevealed } from "@/utils/reveals";
 import { leaveRoom } from "@/utils/roomNavigation";
 import type { SlotView } from "@/utils/slotView";
@@ -138,6 +139,9 @@ const heldLabel = computed(() =>
 const hasSelection = computed(() => selectedOwnSlots(intent.value).length > 0);
 const discardConfirms = computed(
   () => hasSelection.value && !isTakingDiscard.value,
+);
+const recentMoves = computed(() =>
+  recentMoveDescriptions(props.state, props.snapshot.log.moves),
 );
 const targetsOpponents = computed(
   () => intent.value.kind === "action" && intent.value.action !== "viewOwn",
@@ -284,6 +288,12 @@ const results = computed(() =>
         @discard="click({ kind: 'discardPile' })"
         @held="click({ kind: 'heldCard' })"
       />
+
+      <ul v-if="!isFinished" class="move-log">
+        <li v-for="(description, index) in recentMoves" :key="index">
+          {{ description }}
+        </li>
+      </ul>
     </div>
 
     <div class="table-area area-hand">
