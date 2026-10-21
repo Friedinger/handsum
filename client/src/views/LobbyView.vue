@@ -7,6 +7,7 @@ import { lobbyPlayers, type SessionSnapshot } from "@/net/gameSession";
 import { roomLink } from "@/net/roomCode";
 import { copyText } from "@/utils/clipboard";
 import { leaveRoom } from "@/utils/roomNavigation";
+import { canShareLink, shareLink } from "@/utils/shareLink";
 
 const props = defineProps<{
   snapshot: SessionSnapshot;
@@ -30,6 +31,13 @@ async function copyLink(): Promise<void> {
     copyResult.value = "idle";
   }, COPIED_NOTICE_MS);
 }
+
+async function share(): Promise<void> {
+  const result = await shareLink(link.value, strings.lobby.shareTitle);
+  if (result === "failed") {
+    await copyLink();
+  }
+}
 </script>
 
 <template>
@@ -39,6 +47,14 @@ async function copyLink(): Promise<void> {
       <span class="muted">{{ strings.lobby.shareHint }}</span>
       <div class="inline-form">
         <input :value="link" readonly :aria-label="strings.lobby.shareHint" />
+        <button
+          v-if="canShareLink()"
+          type="button"
+          class="button-secondary button-accent-outline"
+          @click="share"
+        >
+          {{ strings.lobby.share }}
+        </button>
         <button type="button" class="button-secondary" @click="copyLink">
           {{
             copyResult === "copied"

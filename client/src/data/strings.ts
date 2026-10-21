@@ -98,6 +98,8 @@ export const strings = {
   lobby: {
     title: (roomCode: string) => `Room ${roomCode}`,
     shareHint: "Share this link with the other players:",
+    share: "Share",
+    shareTitle: "Join my game of Handsum",
     copyLink: "Copy link",
     copied: "Copied!",
     copyFailed: "Copying failed. Select the link and copy it by hand.",

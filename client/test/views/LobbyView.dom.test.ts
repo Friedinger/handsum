@@ -84,6 +84,61 @@ describe("LobbyView", () => {
     expect(copy.text()).toBe(strings.lobby.copyLink);
   });
 
+  it("offers sharing only where the browser can share", () => {
+    const buttonLabels = () =>
+      mountLobby(snapshotWith([]))
+        .findAll("button")
+        .map((button) => button.text());
+
+    vi.stubGlobal("navigator", {});
+    expect(buttonLabels()).not.toContain(strings.lobby.share);
+
+    vi.stubGlobal("navigator", { share: vi.fn() });
+    expect(buttonLabels()).toContain(strings.lobby.share);
+  });
+
+  it("shares the room link", async () => {
+    const share = vi.fn(() => Promise.resolve());
+    vi.stubGlobal("navigator", { share });
+    const wrapper = mountLobby(snapshotWith([]));
+
+    await wrapper.find(".inline-form button").trigger("click");
+
+    expect(share).toHaveBeenCalledWith({
+      url: expect.stringContaining("#ABCDEF"),
+      title: strings.lobby.shareTitle,
+    });
+  });
+
+  it("copies the link instead when sharing fails", async () => {
+    const writeText = vi.fn(() => Promise.resolve());
+    vi.stubGlobal("navigator", {
+      share: () => Promise.reject(new Error("not allowed")),
+      clipboard: { writeText },
+    });
+    const wrapper = mountLobby(snapshotWith([]));
+
+    await wrapper.find(".inline-form button").trigger("click");
+
+    await vi.waitFor(() => {
+      expect(writeText).toHaveBeenCalled();
+    });
+  });
+
+  it("stays quiet when the player cancels sharing", async () => {
+    const writeText = vi.fn(() => Promise.resolve());
+    vi.stubGlobal("navigator", {
+      share: () => Promise.reject(new DOMException("", "AbortError")),
+      clipboard: { writeText },
+    });
+    const wrapper = mountLobby(snapshotWith([]));
+
+    await wrapper.find(".inline-form button").trigger("click");
+    await Promise.resolve();
+
+    expect(writeText).not.toHaveBeenCalled();
+  });
+
   it("tells the player when copying is not possible", async () => {
     vi.stubGlobal("navigator", {});
     const wrapper = mountLobby(snapshotWith([]));
