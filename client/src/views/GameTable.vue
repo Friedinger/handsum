@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 
 import FlightLayer from "@/components/FlightLayer.vue";
 import PlayerSeat from "@/components/PlayerSeat.vue";
@@ -67,6 +67,33 @@ const intentContext = computed(() =>
 );
 watch(intentContext, () => {
   intent.value = noIntent;
+});
+
+const CANCELLABLE_SITUATIONS = ["choosing", "holding"];
+
+function cancelIntent(): void {
+  if (CANCELLABLE_SITUATIONS.includes(situation.value.kind)) {
+    intent.value = noIntent;
+  }
+}
+
+function cancelOnEscape(event: KeyboardEvent): void {
+  if (event.key === "Escape") {
+    cancelIntent();
+  }
+}
+
+function cancelOnEmptyClick(event: MouseEvent): void {
+  if (event.target instanceof Element && !event.target.closest("button")) {
+    cancelIntent();
+  }
+}
+
+onMounted(() => {
+  document.addEventListener("keydown", cancelOnEscape);
+});
+onUnmounted(() => {
+  document.removeEventListener("keydown", cancelOnEscape);
 });
 
 const opponentAreas = computed(() => {
@@ -189,7 +216,7 @@ const results = computed(() =>
 </script>
 
 <template>
-  <div ref="tableElement" class="game-table">
+  <div ref="tableElement" class="game-table" @click="cancelOnEmptyClick">
     <button type="button" class="button-quiet table-leave" @click="leaveRoom">
       {{ strings.table.leave }}
     </button>
