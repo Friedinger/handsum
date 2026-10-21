@@ -4,6 +4,7 @@ import {
 } from "@/data/strings/cardActions";
 import { moveLog } from "@/data/strings/moveLog";
 import { rejectionMessages } from "@/data/strings/rejections";
+import { rules } from "@/data/strings/rules";
 import { MAX_PLAYERS, MIN_PLAYERS } from "@/engine";
 
 export const strings = {
@@ -23,6 +24,7 @@ export const strings = {
     title: "▶ Your turn – Handsum",
   },
   cardSymbol: "◆",
+  rules,
   home: {
     tagline: `A card game for ${String(MIN_PLAYERS)} to ${String(MAX_PLAYERS)} players in the browser.`,
     createRoom: "Create a room",
