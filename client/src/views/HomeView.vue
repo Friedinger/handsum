@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
+import CardFan from "@/components/CardFan.vue";
 import { strings } from "@/data/strings";
 import { normalizeRoomCode, randomRoomCode } from "@/net/roomCode";
 import { openRoom } from "@/utils/roomNavigation";
@@ -22,6 +23,7 @@ function joinRoom(): void {
 </script>
 
 <template>
+  <CardFan />
   <section class="panel stack">
     <p>{{ strings.home.tagline }}</p>
     <button type="button" class="button-primary" @click="createRoom">
