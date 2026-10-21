@@ -1,5 +1,8 @@
 # Handsum
 
+<!-- markdownlint-disable-next-line MD033 -->
+<img src="docs/fan.svg" alt="A fan of playing cards" width="360" />
+
 A browser-based multiplayer card game prototype for 2 to 8 players. Players join a round via a shared link; the browser clients exchange moves through a small PHP server that only stores the move log.
 
 > **Unofficial fan project, not affiliated with the original publisher.**
