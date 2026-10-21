@@ -12,7 +12,6 @@ import {
   noIntent,
   selectedOwnSlots,
   situationOf,
-  type SwappingSeveralIntent,
   type TakingDiscardIntent,
 } from "@/utils/tableIntent";
 
@@ -58,11 +57,12 @@ function clickDuringStartingView(
 
 function swapSelection(
   type: "swapDrawnCard" | "swapDiscardCard",
-  intent: TakingDiscardIntent | SwappingSeveralIntent,
+  intent: Intent,
   selfId: PlayerId,
 ): ClickOutcome {
-  return intent.slotIndices.length > 0
-    ? play({ type, playerId: selfId, slotIndices: intent.slotIndices })
+  const slotIndices = selectedOwnSlots(intent);
+  return slotIndices.length > 0
+    ? play({ type, playerId: selfId, slotIndices })
     : unchanged(intent);
 }
 
@@ -73,16 +73,10 @@ function clickWhileTakingDiscard(
 ): ClickOutcome {
   const slotIndex = ownSlotIndex(target, selfId);
   if (slotIndex !== null) {
-    return intent.severalCards
-      ? unchanged({
-          ...intent,
-          slotIndices: toggle(intent.slotIndices, slotIndex),
-        })
-      : play({
-          type: "swapDiscardCard",
-          playerId: selfId,
-          slotIndices: [slotIndex],
-        });
+    return unchanged({
+      ...intent,
+      slotIndices: toggle(intent.slotIndices, slotIndex),
+    });
   }
   switch (target.kind) {
     case "heldCard":
@@ -110,11 +104,7 @@ function clickWhileChoosing(
     case "drawPile":
       return play({ type: "drawFromDeck", playerId: selfId });
     case "discardPile":
-      return unchanged({
-        kind: "takingDiscard",
-        severalCards: false,
-        slotIndices: [],
-      });
+      return unchanged({ kind: "takingDiscard", slotIndices: [] });
     case "slot":
     case "heldCard":
       return unchanged(intent);
@@ -174,27 +164,15 @@ function clickDuringAction(
   return move ? play(move) : unchanged(next);
 }
 
-function clickWhileSwappingSeveral(
-  intent: SwappingSeveralIntent,
-  target: ClickTarget,
-  selfId: PlayerId,
-): ClickOutcome {
-  const slotIndex = ownSlotIndex(target, selfId);
-  if (slotIndex !== null) {
-    return unchanged({
-      ...intent,
-      slotIndices: toggle(intent.slotIndices, slotIndex),
-    });
-  }
-  switch (target.kind) {
-    case "heldCard":
-      return swapSelection("swapDrawnCard", intent, selfId);
-    case "discardPile":
-      return play({ type: "discardDrawnCard", playerId: selfId });
-    case "slot":
-    case "drawPile":
-      return unchanged(intent);
-  }
+function holdAction(card: Card, intent: Intent): ClickOutcome {
+  return card.action
+    ? unchanged({
+        kind: "action",
+        action: card.action,
+        ownSlotIndex: null,
+        target: null,
+      })
+    : unchanged(intent);
 }
 
 function clickWhileHolding(
@@ -206,29 +184,20 @@ function clickWhileHolding(
   if (intent.kind === "action") {
     return clickDuringAction(intent, target, selfId);
   }
-  if (intent.kind === "swappingSeveral") {
-    return clickWhileSwappingSeveral(intent, target, selfId);
-  }
   const slotIndex = ownSlotIndex(target, selfId);
   if (slotIndex !== null) {
-    return play({
-      type: "swapDrawnCard",
-      playerId: selfId,
-      slotIndices: [slotIndex],
+    return unchanged({
+      kind: "selectingSwapCards",
+      slotIndices: toggle(selectedOwnSlots(intent), slotIndex),
     });
   }
   switch (target.kind) {
     case "heldCard":
-      return card.action
-        ? unchanged({
-            kind: "action",
-            action: card.action,
-            ownSlotIndex: null,
-            target: null,
-          })
-        : unchanged(intent);
+      return holdAction(card, intent);
     case "discardPile":
-      return play({ type: "discardDrawnCard", playerId: selfId });
+      return selectedOwnSlots(intent).length > 0
+        ? swapSelection("swapDrawnCard", intent, selfId)
+        : play({ type: "discardDrawnCard", playerId: selfId });
     case "slot":
     case "drawPile":
       return unchanged(intent);

@@ -1,14 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  canToggleSeveral,
   type Intent,
   isSlotMarked,
-  isSwappingSeveral,
   noIntent,
   selectedOwnSlots,
   situationOf,
-  toggleSeveral,
 } from "@/utils/tableIntent";
 
 import { holding, makeCard, playingGame } from "@test/support/gameFixtures";
@@ -16,7 +13,6 @@ import { holding, makeCard, playingGame } from "@test/support/gameFixtures";
 const self = "player-1";
 const takingDiscard: Intent = {
   kind: "takingDiscard",
-  severalCards: false,
   slotIndices: [1],
 };
 const exchange: Intent = {
@@ -51,41 +47,6 @@ describe("selectedOwnSlots", () => {
   it("is empty for intents without a selection", () => {
     expect(selectedOwnSlots(noIntent)).toEqual([]);
     expect(selectedOwnSlots(exchange)).toEqual([]);
-  });
-});
-
-describe("several cards switch", () => {
-  const chooser = situationOf(playingGame(3), self);
-  const holder = situationOf(holding(playingGame(3), makeCard(4)), self);
-
-  it("is offered while holding a card or after taking the discard card", () => {
-    expect(canToggleSeveral(holder, noIntent)).toBe(true);
-    expect(canToggleSeveral(chooser, takingDiscard)).toBe(true);
-  });
-
-  it("is hidden when nothing could be swapped yet or an action runs", () => {
-    expect(canToggleSeveral(chooser, noIntent)).toBe(false);
-    expect(canToggleSeveral(holder, exchange)).toBe(false);
-  });
-
-  it("turns on and off again", () => {
-    const on = toggleSeveral(noIntent);
-    expect(isSwappingSeveral(on)).toBe(true);
-    expect(toggleSeveral(on)).toEqual(noIntent);
-  });
-
-  it("starts with an empty selection when taking the discard card", () => {
-    const on = toggleSeveral(takingDiscard);
-    expect(on).toEqual({
-      ...takingDiscard,
-      severalCards: true,
-      slotIndices: [],
-    });
-    expect(isSwappingSeveral(on)).toBe(true);
-  });
-
-  it("leaves other intents unchanged", () => {
-    expect(toggleSeveral(exchange)).toBe(exchange);
   });
 });
 

@@ -81,15 +81,15 @@ export const strings = {
     choosing:
       "Click the draw pile to draw a card, or the discard pile to take its top card.",
     takingDiscard:
-      "Click one of your cards to swap it with the taken card, or click the discard pile to put it back.",
+      "Select one or more of your cards with the same value, then click the taken card to swap. Click the discard pile to put it back.",
+    takingDiscardSelected:
+      "Click the taken card to swap it with the selected cards, or select more cards with the same value.",
     holding:
-      "Click one of your cards to swap it with the drawn card, or click the discard pile to throw it away.",
+      "Select one or more of your cards with the same value to swap them with the drawn card, or click the discard pile to throw it away.",
     holdingAction:
-      "Click one of your cards to swap it, click the discard pile to throw it away, or click the drawn card to use its action.",
-    severalCards:
-      "Select your cards with the same value, then click the card you hold to swap.",
-    severalCardsSelected:
-      "Click the card you hold to swap it with the selected cards. They must all share one value.",
+      "Select one or more of your cards with the same value to swap them, click the discard pile to throw the drawn card away, or click it to use its action.",
+    holdingSelected:
+      "Click the discard pile to swap the selected cards with the drawn card, or select more cards with the same value.",
     viewOwn:
       "Click one of your cards to look at it. Click the drawn card to cancel.",
     viewOther:
@@ -103,7 +103,6 @@ export const strings = {
   },
   table: {
     callEnd: "Call the end",
-    swapSeveral: "Swap several cards",
     drawPileCount: (count: number) => `${String(count)} left`,
     drawPile: "Draw pile",
     discardPile: "Discard pile",

@@ -6,7 +6,6 @@ import {
   type Intent,
   noIntent,
   type SlotRef,
-  toggleSeveral,
 } from "@/utils/tableIntent";
 import { handleClick, isClickable } from "@/utils/tableInteraction";
 
@@ -72,26 +71,17 @@ describe("start of a turn", () => {
     });
   });
 
-  it("swaps the taken discard with the own card that is clicked", () => {
-    expect(clickAll(playingGame(), [discardPile, own(2)])).toEqual({
+  it("swaps the taken discard with the selected cards when it is clicked", () => {
+    expect(clickAll(playingGame(), [discardPile, own(2), heldCard])).toEqual({
       type: "swapDiscardCard",
       playerId: self,
       slotIndices: [2],
     });
   });
 
-  it("swaps the taken discard with several cards once that is switched on", () => {
-    const taking: Intent = {
-      kind: "takingDiscard",
-      severalCards: false,
-      slotIndices: [],
-    };
+  it("swaps the taken discard with several selected cards", () => {
     expect(
-      clickAll(
-        playingGame(),
-        [own(1), own(2), heldCard],
-        toggleSeveral(taking),
-      ),
+      clickAll(playingGame(), [discardPile, own(1), own(2), heldCard]),
     ).toEqual({
       type: "swapDiscardCard",
       playerId: self,
@@ -110,11 +100,7 @@ describe("start of a turn", () => {
     expect(isClickable(state, self, noIntent, own(0))).toBe(false);
     expect(isClickable(state, self, noIntent, heldCard)).toBe(false);
     expect(isClickable(state, self, noIntent, other(0))).toBe(false);
-    const taking: Intent = {
-      kind: "takingDiscard",
-      severalCards: false,
-      slotIndices: [],
-    };
+    const taking: Intent = { kind: "takingDiscard", slotIndices: [] };
     expect(isClickable(state, self, taking, own(0))).toBe(true);
     expect(isClickable(state, self, taking, heldCard)).toBe(false);
   });
@@ -136,21 +122,26 @@ describe("holding a drawn card", () => {
     });
   });
 
-  it("swaps it with the own card that is clicked", () => {
-    expect(clickAll(plain, [own(3)])).toEqual({
+  it("swaps it with the selected card when the discard pile is clicked", () => {
+    expect(clickAll(plain, [own(3), discardPile])).toEqual({
       type: "swapDrawnCard",
       playerId: self,
       slotIndices: [3],
     });
   });
 
-  it("swaps it with several cards once that is switched on", () => {
-    expect(
-      clickAll(plain, [own(0), own(3), heldCard], toggleSeveral(noIntent)),
-    ).toEqual({
+  it("swaps it with several selected cards", () => {
+    expect(clickAll(plain, [own(0), own(3), discardPile])).toEqual({
       type: "swapDrawnCard",
       playerId: self,
       slotIndices: [0, 3],
+    });
+  });
+
+  it("discards it when the selection was cleared again", () => {
+    expect(clickAll(plain, [own(3), own(3), discardPile])).toEqual({
+      type: "discardDrawnCard",
+      playerId: self,
     });
   });
 

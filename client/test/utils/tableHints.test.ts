@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { strings } from "@/data/strings";
 import { hintFor } from "@/utils/tableHints";
-import { noIntent, toggleSeveral } from "@/utils/tableIntent";
+import { type Intent, noIntent } from "@/utils/tableIntent";
 
 import {
   holding,
@@ -42,11 +42,10 @@ describe("hintFor", () => {
     );
   });
 
-  it("guides swapping several cards", () => {
+  it("guides ending the turn once cards are selected", () => {
     const state = holding(playingGame(), makeCard(4));
-    expect(hintFor(state, self, toggleSeveral(noIntent))).toBe(
-      strings.hints.severalCards,
-    );
+    const selecting: Intent = { kind: "selectingSwapCards", slotIndices: [1] };
+    expect(hintFor(state, self, selecting)).toBe(strings.hints.holdingSelected);
   });
 
   it("names the player whose turn it is", () => {

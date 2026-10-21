@@ -22,12 +22,11 @@ export interface PickStartingCardsIntent {
 
 export interface TakingDiscardIntent {
   readonly kind: "takingDiscard";
-  readonly severalCards: boolean;
   readonly slotIndices: readonly number[];
 }
 
-export interface SwappingSeveralIntent {
-  readonly kind: "swappingSeveral";
+export interface SelectingSwapCardsIntent {
+  readonly kind: "selectingSwapCards";
   readonly slotIndices: readonly number[];
 }
 
@@ -42,7 +41,7 @@ export type Intent =
   | NoIntent
   | PickStartingCardsIntent
   | TakingDiscardIntent
-  | SwappingSeveralIntent
+  | SelectingSwapCardsIntent
   | ActionIntent;
 
 export type Situation =
@@ -72,53 +71,11 @@ export function selectedOwnSlots(intent: Intent): readonly number[] {
   switch (intent.kind) {
     case "pickStartingCards":
     case "takingDiscard":
-    case "swappingSeveral":
+    case "selectingSwapCards":
       return intent.slotIndices;
     case "none":
     case "action":
       return [];
-  }
-}
-
-export function isSwappingSeveral(intent: Intent): boolean {
-  return (
-    intent.kind === "swappingSeveral" ||
-    (intent.kind === "takingDiscard" && intent.severalCards)
-  );
-}
-
-export function canToggleSeveral(
-  situation: Situation,
-  intent: Intent,
-): boolean {
-  if (situation.kind === "choosing") {
-    return intent.kind === "takingDiscard";
-  }
-  return (
-    situation.kind === "holding" &&
-    (intent.kind === "none" || intent.kind === "swappingSeveral")
-  );
-}
-
-/**
- * Swapping several equal cards at once needs an explicit switch, so a single click on an own
- * card can swap right away in the common case.
- */
-export function toggleSeveral(intent: Intent): Intent {
-  switch (intent.kind) {
-    case "takingDiscard":
-      return {
-        kind: "takingDiscard",
-        severalCards: !intent.severalCards,
-        slotIndices: [],
-      };
-    case "none":
-      return { kind: "swappingSeveral", slotIndices: [] };
-    case "swappingSeveral":
-      return noIntent;
-    case "pickStartingCards":
-    case "action":
-      return intent;
   }
 }
 

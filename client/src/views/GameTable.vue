@@ -25,14 +25,11 @@ import { leaveRoom } from "@/utils/roomNavigation";
 import type { SlotView } from "@/utils/slotView";
 import { hintFor } from "@/utils/tableHints";
 import {
-  canToggleSeveral,
   type ClickTarget,
   type Intent,
   isSlotMarked,
-  isSwappingSeveral,
   noIntent,
   situationOf,
-  toggleSeveral,
 } from "@/utils/tableIntent";
 import { handleClick, isClickable } from "@/utils/tableInteraction";
 import { arrangeOpponents } from "@/utils/tableLayout";
@@ -174,10 +171,6 @@ const message = computed(() => {
   return showRememberNotice.value ? strings.hints.rememberCards : hint.value;
 });
 
-const showSeveralToggle = computed(() =>
-  canToggleSeveral(situation.value, intent.value),
-);
-
 const canCallEnd = computed(
   () =>
     situation.value.kind === "choosing" &&
@@ -272,15 +265,6 @@ const results = computed(() =>
         @select="selectOwnSlot"
       />
       <div class="hand-actions">
-        <button
-          v-if="showSeveralToggle"
-          type="button"
-          class="button-toggle"
-          :aria-pressed="isSwappingSeveral(intent)"
-          @click="intent = toggleSeveral(intent)"
-        >
-          {{ strings.table.swapSeveral }}
-        </button>
         <button
           v-if="canCallEnd"
           type="button"
