@@ -130,8 +130,7 @@ final class Api
         $valid = is_string($playerId)
             && preg_match(Config::PLAYER_ID_PATTERN, $playerId) === 1
             && is_string($name)
-            && mb_strlen(trim($name)) >= 1
-            && mb_strlen($name) <= Config::MAX_PLAYER_NAME_LENGTH;
+            && preg_match(Config::PLAYER_NAME_PATTERN, $name) === 1;
         return $valid ? new Player($playerId, $name) : null;
     }
 

@@ -7,7 +7,12 @@ import {
   type Result,
 } from "@/engine/outcome";
 import { isValidSeed, shuffle } from "@/engine/random";
-import { LAYOUT_SIZE, MAX_PLAYERS, MIN_PLAYERS } from "@/engine/rules";
+import {
+  isValidPlayerName,
+  LAYOUT_SIZE,
+  MAX_PLAYERS,
+  MIN_PLAYERS,
+} from "@/engine/rules";
 import type { GameState, Player, Seat, StartedGame } from "@/engine/types";
 
 function findPlayerListProblem(
@@ -22,8 +27,8 @@ function findPlayerListProblem(
   if (new Set(players.map((player) => player.id)).size !== players.length) {
     return "duplicatePlayerId";
   }
-  if (players.some((player) => player.name.trim().length === 0)) {
-    return "emptyPlayerName";
+  if (players.some((player) => !isValidPlayerName(player.name))) {
+    return "invalidPlayerName";
   }
   return null;
 }

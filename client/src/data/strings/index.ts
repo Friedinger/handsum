@@ -38,6 +38,7 @@ export const strings = {
     label: "Your name",
     submit: "Join room",
     connecting: "Connecting…",
+    invalid: rejectionMessages.invalidPlayerName,
   },
   lobby: {
     title: (roomCode: string) => `Room ${roomCode}`,

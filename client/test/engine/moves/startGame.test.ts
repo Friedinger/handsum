@@ -73,7 +73,7 @@ describe("startGame", () => {
     expect(validateMove(initialGameState, tooFew)).toBe("invalidPlayerCount");
     expect(validateMove(initialGameState, tooMany)).toBe("invalidPlayerCount");
     expect(validateMove(initialGameState, duplicate)).toBe("duplicatePlayerId");
-    expect(validateMove(initialGameState, unnamed)).toBe("emptyPlayerName");
+    expect(validateMove(initialGameState, unnamed)).toBe("invalidPlayerName");
   });
 
   it("starts a fresh game after a finished one", () => {

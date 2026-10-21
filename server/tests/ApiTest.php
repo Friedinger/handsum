@@ -170,6 +170,24 @@ final class ApiTest extends DataDirTestCase
         self::assertSame([['playerId' => 'p1', 'name' => 'Anna']], self::wire($response)['players']);
     }
 
+    /** @return array<string, array{string}> */
+    public static function validNames(): array
+    {
+        return [
+            'umlaut' => ['Zoë'],
+            'hyphen' => ['Jean-Luc'],
+            'apostrophe' => ['O’Brien'],
+            'cjk' => ['李雷'],
+            'longest' => [str_repeat('n', Config::MAX_PLAYER_NAME_LENGTH)],
+        ];
+    }
+
+    #[DataProvider('validNames')]
+    public function testValidNamesAreAccepted(string $name): void
+    {
+        self::assertSame(200, $this->join('p1', $name)->status);
+    }
+
     public function testRejoiningUpdatesTheName(): void
     {
         $this->join('p1', 'Anna');
@@ -194,6 +212,12 @@ final class ApiTest extends DataDirTestCase
         return [
             'invalid player id' => ['../x', 'A'],
             'empty name' => ['p9', '  '],
+            'leading space' => ['p9', ' Anna'],
+            'markup' => ['p9', '<b>Anna</b>'],
+            'line break' => ['p9', "Anna\n"],
+            'direction override' => ['p9', "Eve\u{202E}"],
+            'zero-width space' => ['p9', "Zero\u{200B}width"],
+            'emoji' => ['p9', "Anna \u{1F600}"],
             'too long name' => ['p9', str_repeat('n', Config::MAX_PLAYER_NAME_LENGTH + 1)],
         ];
     }

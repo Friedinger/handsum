@@ -13,6 +13,7 @@ final class Config
 
     public const ROOM_ID_PATTERN = '/^[0-9a-f]{64}$/';
     public const PLAYER_ID_PATTERN = '/^[A-Za-z0-9-]{1,' . self::MAX_PLAYER_ID_LENGTH . '}$/';
+    public const PLAYER_NAME_PATTERN = '/^(?=.{1,' . self::MAX_PLAYER_NAME_LENGTH . '}\z)[\p{L}\p{N}\p{M}][\p{L}\p{N}\p{M} ._\'’-]*(?<! )\z/u';
     public const SINCE_PATTERN = '/^\d{1,9}$/';
     public const ROOM_ID_HEADER = 'HTTP_X_ROOM';
 
@@ -24,7 +25,7 @@ final class Config
 
     public const MAX_PLAYERS_PER_ROOM = 8;
     public const MAX_PLAYER_ID_LENGTH = 64;
-    public const MAX_PLAYER_NAME_LENGTH = 32;
+    public const MAX_PLAYER_NAME_LENGTH = 24;
     public const PLAYER_ACTIVE_SECONDS = 90;
 
     public const ROOM_IDLE_SECONDS = 6 * 3600;

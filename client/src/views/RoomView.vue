@@ -2,6 +2,7 @@
 import { ref } from "vue";
 
 import { strings } from "@/data/strings";
+import { isValidPlayerName, PLAYER_NAME_MAX_LENGTH } from "@/engine";
 import {
   claimPlayerId,
   hasJoinedRoom,
@@ -12,11 +13,10 @@ import {
 import type { HelloMessage } from "@/net/protocol";
 import SessionView from "@/views/SessionView.vue";
 
-const PLAYER_NAME_MAX_LENGTH = 24;
-
 const props = defineProps<{ roomCode: string }>();
 
 const nameInput = ref(loadPlayerName());
+const showInvalidName = ref(false);
 const connecting = ref(false);
 const self = ref<HelloMessage | null>(null);
 
@@ -30,12 +30,16 @@ async function join(name: string): Promise<void> {
 
 function submitName(): void {
   const name = nameInput.value.trim();
-  if (name.length > 0) {
+  showInvalidName.value = !isValidPlayerName(name);
+  if (!showInvalidName.value) {
     void join(name);
   }
 }
 
-if (hasJoinedRoom(props.roomCode) && nameInput.value.trim().length > 0) {
+if (
+  hasJoinedRoom(props.roomCode) &&
+  isValidPlayerName(nameInput.value.trim())
+) {
   void join(nameInput.value.trim());
 }
 </script>
@@ -57,5 +61,8 @@ if (hasJoinedRoom(props.roomCode) && nameInput.value.trim().length > 0) {
         {{ strings.nameForm.submit }}
       </button>
     </div>
+    <p v-if="showInvalidName" class="error">
+      {{ strings.nameForm.invalid }}
+    </p>
   </form>
 </template>

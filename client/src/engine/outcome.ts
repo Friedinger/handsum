@@ -4,7 +4,7 @@ export type MoveRejection =
   | "invalidPlayerCount"
   | "invalidPlayerId"
   | "duplicatePlayerId"
-  | "emptyPlayerName"
+  | "invalidPlayerName"
   | "invalidSeed"
   | "unknownPlayer"
   | "wrongPhase"

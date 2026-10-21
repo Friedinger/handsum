@@ -2,6 +2,7 @@ import {
   MAX_PLAYERS,
   MIN_PLAYERS,
   type MoveRejection,
+  PLAYER_NAME_MAX_LENGTH,
   STARTING_VIEW_CARD_COUNT,
 } from "@/engine";
 
@@ -11,7 +12,7 @@ export const rejectionMessages = {
   invalidPlayerCount: `A game needs ${String(MIN_PLAYERS)} to ${String(MAX_PLAYERS)} players.`,
   invalidPlayerId: "Every player needs an ID.",
   duplicatePlayerId: "Player IDs must be unique.",
-  emptyPlayerName: "Every player needs a name.",
+  invalidPlayerName: `Names have up to ${String(PLAYER_NAME_MAX_LENGTH)} characters: letters, digits, spaces and . _ ' - only.`,
   invalidSeed: "The seed must be an unsigned 32-bit integer.",
   unknownPlayer: "This player is not part of the game.",
   wrongPhase: "This move is not possible in the current phase.",
