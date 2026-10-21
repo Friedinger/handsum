@@ -7,6 +7,7 @@ import ResultsPanel from "@/components/ResultsPanel.vue";
 import TableCenter from "@/components/TableCenter.vue";
 import { useCardFlights } from "@/composables/useCardFlights";
 import { useReveals } from "@/composables/useReveals";
+import { useTurnAlert } from "@/composables/useTurnAlert";
 import { strings } from "@/data/strings";
 import {
   findSeat,
@@ -55,6 +56,12 @@ const cardFlights = useCardFlights(
   props.snapshot.self.playerId,
 );
 const situation = computed(() => situationOf(props.state, selfId.value));
+
+useTurnAlert(
+  () =>
+    props.state.phase.kind === "playing" &&
+    props.state.phase.currentPlayerId === selfId.value,
+);
 
 const intent = ref<Intent>(noIntent);
 /**

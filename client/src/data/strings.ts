@@ -54,6 +54,9 @@ export const strings = {
   connection: {
     offline: "No connection to the server. Retrying …",
   },
+  turnAlert: {
+    title: "▶ Your turn – Handsum",
+  },
   cardSymbol: "◆",
   home: {
     tagline: `A card game for ${String(MIN_PLAYERS)} to ${String(MAX_PLAYERS)} players in the browser.`,
