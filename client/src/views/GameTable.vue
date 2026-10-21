@@ -6,6 +6,7 @@ import PlayerSeat from "@/components/PlayerSeat.vue";
 import ResultsPanel from "@/components/ResultsPanel.vue";
 import TableCenter from "@/components/TableCenter.vue";
 import { useCardFlights } from "@/composables/useCardFlights";
+import { useConfirmation } from "@/composables/useConfirmation";
 import { useReveals } from "@/composables/useReveals";
 import { useTurnAlert } from "@/composables/useTurnAlert";
 import { strings } from "@/data/strings";
@@ -76,6 +77,8 @@ const intentContext = computed(() =>
 watch(intentContext, () => {
   intent.value = noIntent;
 });
+
+const CONFIRMATION_MS = 3000;
 
 const CANCELLABLE_SITUATIONS = ["choosing", "holding"];
 
@@ -214,6 +217,23 @@ const message = computed(() => {
   return showRememberNotice.value ? strings.hints.rememberCards : hint.value;
 });
 
+const leaveConfirmation = useConfirmation(CONFIRMATION_MS);
+const callEndConfirmation = useConfirmation(CONFIRMATION_MS);
+
+function leaveTable(): void {
+  if (isFinished.value) {
+    leaveRoom();
+    return;
+  }
+  leaveConfirmation.request(leaveRoom);
+}
+
+function callEnd(): void {
+  callEndConfirmation.request(() => {
+    emit("move", { type: "callEnd", playerId: selfId.value });
+  });
+}
+
 const canCallEnd = computed(
   () =>
     situation.value.kind === "choosing" &&
@@ -228,8 +248,17 @@ const results = computed(() =>
 
 <template>
   <div ref="tableElement" class="game-table" @click="cancelOnEmptyClick">
-    <button type="button" class="button-quiet table-leave" @click="leaveRoom">
-      {{ strings.table.leave }}
+    <button
+      type="button"
+      class="button-quiet table-leave"
+      :class="{ 'button-confirming': leaveConfirmation.armed.value }"
+      @click="leaveTable"
+    >
+      {{
+        leaveConfirmation.armed.value
+          ? strings.table.confirmLeave
+          : strings.table.leave
+      }}
     </button>
     <div
       v-for="{ area, seats } in opponentAreas"
@@ -320,9 +349,14 @@ const results = computed(() =>
           v-if="canCallEnd"
           type="button"
           class="button-call"
-          @click="emit('move', { type: 'callEnd', playerId: selfId })"
+          :class="{ 'button-confirming': callEndConfirmation.armed.value }"
+          @click="callEnd"
         >
-          {{ strings.table.callEnd }}
+          {{
+            callEndConfirmation.armed.value
+              ? strings.table.confirmCallEnd
+              : strings.table.callEnd
+          }}
         </button>
       </div>
     </div>

@@ -173,6 +173,11 @@ button {
   color: var(--color-accent);
 }
 
+.button-confirming {
+  outline: 2px solid var(--color-error);
+  outline-offset: 2px;
+}
+
 .button-quiet {
   background: transparent;
   color: var(--color-ink-muted);

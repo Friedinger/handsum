@@ -139,6 +139,7 @@ export const strings = {
   },
   table: {
     callEnd: "Call the end",
+    confirmCallEnd: "Really call the end?",
     drawPileCount: (count: number) => `${String(count)} left`,
     drawPile: "Draw pile",
     discardPile: "Discard pile",
@@ -150,6 +151,7 @@ export const strings = {
     offline: "offline",
     you: "you",
     leave: "Leave",
+    confirmLeave: "Really leave?",
     results: "Results",
     cardSum: "Cards",
     score: "Points",
