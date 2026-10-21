@@ -1,7 +1,7 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 
-import LegalFooter from "@/components/LegalFooter.vue";
+import AppFooter from "@/components/AppFooter.vue";
 import { legalLinksFrom } from "@/data/legalLinks";
 import { strings } from "@/data/strings";
 
@@ -29,9 +29,9 @@ describe("legalLinksFrom", () => {
   });
 });
 
-describe("LegalFooter", () => {
+describe("AppFooter", () => {
   it("shows only the links that are set", () => {
-    const wrapper = mount(LegalFooter, {
+    const wrapper = mount(AppFooter, {
       props: { links: { imprintUrl: null, privacyUrl: "/datenschutz" } },
     });
     const links = wrapper.findAll("a");
@@ -39,10 +39,11 @@ describe("LegalFooter", () => {
     expect(links[0]?.attributes("href")).toBe("/datenschutz");
   });
 
-  it("renders nothing without links", () => {
-    const wrapper = mount(LegalFooter, {
+  it("keeps the rules button even without links", () => {
+    const wrapper = mount(AppFooter, {
       props: { links: { imprintUrl: null, privacyUrl: null } },
     });
-    expect(wrapper.find("footer").exists()).toBe(false);
+    expect(wrapper.find("a").exists()).toBe(false);
+    expect(wrapper.find(".rules-open").exists()).toBe(true);
   });
 });

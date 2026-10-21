@@ -65,20 +65,6 @@ button {
   min-height: 0;
 }
 
-.app > header {
-  position: relative;
-}
-
-.rules-open {
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-.app-home .rules-open {
-  top: 0.5rem;
-}
-
 .rules-dialog {
   width: min(32rem, calc(100% - 2rem));
   max-height: calc(100% - 2rem);
@@ -266,8 +252,9 @@ button {
 }
 
 /* As tall as the bottom padding of .app, so the links sit centred below the table. */
-.legal-footer {
+.app-footer {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   margin-top: auto;
   padding-top: 1rem;
@@ -275,8 +262,14 @@ button {
   font-size: 0.85rem;
 }
 
-.legal-footer a {
+.app-footer a,
+.rules-open {
+  padding: 0;
+  border: none;
+  background: none;
   color: var(--color-ink-muted);
+  font: inherit;
+  text-decoration: underline;
 }
 
 .disclaimer {

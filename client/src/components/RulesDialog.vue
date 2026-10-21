@@ -15,7 +15,7 @@ function close(): void {
 </script>
 
 <template>
-  <button type="button" class="button-quiet rules-open" @click="open">
+  <button type="button" class="rules-open" @click="open">
     {{ strings.rules.open }}
   </button>
   <dialog

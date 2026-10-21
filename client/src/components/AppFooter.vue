@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
+import RulesDialog from "@/components/RulesDialog.vue";
 import { type LegalLinks, legalLinks } from "@/data/legalLinks";
 import { strings } from "@/data/strings";
 
@@ -18,7 +19,8 @@ const entries = computed(() => {
 </script>
 
 <template>
-  <footer v-if="entries.length > 0" class="legal-footer">
+  <footer class="app-footer">
+    <RulesDialog />
     <a v-for="entry in entries" :key="entry.label" :href="entry.url">{{
       entry.label
     }}</a>
