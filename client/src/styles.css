@@ -130,44 +130,6 @@ button {
 }
 
 .button-quiet {
-  padding: 0.5rem 1.1rem;
-  border: none;
-  border-radius: 999px;
-  font-weight: 600;
-}
-
-.button-primary,
-.button-call {
-  background: var(--color-accent);
-  color: var(--color-accent-ink);
-}
-
-.button-primary:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.button-secondary {
-  border: 1px solid var(--color-card-edge);
-  background: transparent;
-  color: var(--color-panel-ink);
-}
-
-.button-toggle {
-  padding: 0.45rem 1rem;
-  border: 1px solid rgb(255 255 255 / 40%);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--color-ink);
-}
-
-.button-toggle[aria-pressed="true"] {
-  border-color: var(--color-accent);
-  background: rgb(242 179 61 / 20%);
-  color: var(--color-accent);
-}
-
-.button-quiet {
   background: transparent;
   color: var(--color-ink-muted);
   font-weight: 400;
