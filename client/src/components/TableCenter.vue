@@ -33,7 +33,6 @@ const emit = defineEmits<{ draw: []; discard: []; held: [] }>();
         :card="null"
         :face-up="drawPileCount === 0"
         size="large"
-        class="pile-stack"
         :data-anchor="DRAW_PILE_ANCHOR"
         :aria-label="strings.table.drawPile"
         :clickable="drawClickable"
@@ -92,7 +91,7 @@ const emit = defineEmits<{ draw: []; discard: []; held: [] }>();
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 5.5rem;
+  width: var(--card-width-large);
   gap: 0.35rem;
 }
 

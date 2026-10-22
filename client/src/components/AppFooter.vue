@@ -24,12 +24,17 @@ const entries = computed(() => {
 <template>
   <footer class="app-footer">
     <RulesDialog />
-    <a v-for="entry in entries" :key="entry.label" :href="entry.url">{{
-      entry.label
-    }}</a>
+    <a
+      v-for="entry in entries"
+      :key="entry.label"
+      class="link-quiet"
+      :href="entry.url"
+      >{{ entry.label }}</a
+    >
     <template v-if="shownBuild">
       <a
         v-if="shownBuild.commitUrl"
+        class="link-quiet"
         :href="shownBuild.commitUrl"
         :title="strings.build.commitTitle"
         >{{ shownBuild.shortHash }}</a
@@ -50,20 +55,9 @@ const entries = computed(() => {
   font-size: 0.85rem;
 }
 
-.app-footer a,
-.commit-hash {
-  border: none;
-  background: none;
-  color: var(--color-ink-muted);
-  font: inherit;
-}
-
-.app-footer a {
-  padding: var(--space-2);
-  text-decoration: underline;
-}
-
 .commit-hash {
   padding-block: var(--space-2);
+  color: var(--color-ink-muted);
+  font: inherit;
 }
 </style>

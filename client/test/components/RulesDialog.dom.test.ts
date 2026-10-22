@@ -5,6 +5,8 @@ import RulesDialog from "@/components/RulesDialog.vue";
 import { strings } from "@/data/strings";
 import { deckOverview } from "@/data/strings/deckOverview";
 
+import { buttonLabelled } from "@test/support/domQueries";
+
 function mountDialog() {
   return mount(RulesDialog, { attachTo: document.body });
 }
@@ -15,7 +17,7 @@ describe("RulesDialog", () => {
     const dialog = wrapper.find("dialog").element;
     expect(dialog.open).toBe(false);
 
-    await wrapper.find(".rules-open").trigger("click");
+    await buttonLabelled(wrapper, strings.rules.open)?.trigger("click");
 
     expect(dialog.open).toBe(true);
     wrapper.unmount();
@@ -45,7 +47,7 @@ describe("RulesDialog", () => {
   it("closes with the close button", async () => {
     const wrapper = mountDialog();
     const dialog = wrapper.find("dialog").element;
-    await wrapper.find(".rules-open").trigger("click");
+    await buttonLabelled(wrapper, strings.rules.open)?.trigger("click");
 
     await wrapper.find(".rules-header button").trigger("click");
 
@@ -56,7 +58,7 @@ describe("RulesDialog", () => {
   it("closes when the backdrop is clicked", async () => {
     const wrapper = mountDialog();
     const dialog = wrapper.find("dialog").element;
-    await wrapper.find(".rules-open").trigger("click");
+    await buttonLabelled(wrapper, strings.rules.open)?.trigger("click");
 
     await wrapper.find("dialog").trigger("click");
 

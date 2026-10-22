@@ -31,9 +31,9 @@ describe("TableCenter", () => {
   it("names the draw pile for screen readers", () => {
     const wrapper = mount(TableCenter, { props: baseProps });
 
-    expect(wrapper.find(".pile-stack").attributes("aria-label")).toBe(
-      strings.table.drawPile,
-    );
+    expect(
+      wrapper.find(`button[aria-label="${strings.table.drawPile}"]`).exists(),
+    ).toBe(true);
   });
 
   it("reports clicks on the piles", async () => {

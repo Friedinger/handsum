@@ -15,7 +15,7 @@ function close(): void {
 </script>
 
 <template>
-  <button type="button" class="rules-open" @click="open">
+  <button type="button" class="link-quiet" @click="open">
     {{ strings.rules.open }}
   </button>
   <dialog
@@ -53,15 +53,6 @@ function close(): void {
 </template>
 
 <style scoped>
-.rules-open {
-  padding: var(--space-2);
-  border: none;
-  background: none;
-  color: var(--color-ink-muted);
-  font: inherit;
-  text-decoration: underline;
-}
-
 /* Long text reads best at roughly 70 characters per line, so the rules get more room than the forms. */
 .rules-dialog {
   width: min(var(--reading-max-width), calc(100% - 2 * var(--space-4)));

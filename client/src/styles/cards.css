@@ -23,11 +23,11 @@
 }
 
 .card-large {
-  --card-width: 5.5rem;
+  --card-width: var(--card-width-large);
 }
 
 .card-small {
-  --card-width: 2.9rem;
+  --card-width: var(--card-width-small);
 }
 
 .card-face {
@@ -176,7 +176,7 @@
 }
 
 @media (max-width: 40rem) {
-  .card-large {
-    --card-width: 4.2rem;
+  :root {
+    --card-width-large: 4.2rem;
   }
 }

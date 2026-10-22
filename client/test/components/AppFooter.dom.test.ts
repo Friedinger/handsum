@@ -6,6 +6,8 @@ import { buildInfoFrom } from "@/data/buildInfo";
 import { legalLinksFrom } from "@/data/legalLinks";
 import { strings } from "@/data/strings";
 
+import { buttonLabelled } from "@test/support/domQueries";
+
 describe("legalLinksFrom", () => {
   it("accepts web addresses and paths on the same host", () => {
     expect(
@@ -45,7 +47,7 @@ describe("AppFooter", () => {
       props: { links: { imprintUrl: null, privacyUrl: null } },
     });
     expect(wrapper.find("a").exists()).toBe(false);
-    expect(wrapper.find(".rules-open").exists()).toBe(true);
+    expect(buttonLabelled(wrapper, strings.rules.open)).toBeDefined();
   });
 });
 

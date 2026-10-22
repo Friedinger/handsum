@@ -79,7 +79,7 @@ const emit = defineEmits<{ select: [slotIndex: number] }>();
 /* Opponent seats always take the width of four spread-out cards, so expanding them for an
    action or adding a badge never pushes the rest of the table around. */
 .seat-small {
-  width: calc(2.9rem * 4 + 0.5rem * 3 + 1.5rem + 4px);
+  width: calc(var(--card-width-small) * 4 + 0.5rem * 3 + 1.5rem + 4px);
 }
 
 .seat-name {
@@ -91,7 +91,7 @@ const emit = defineEmits<{ select: [slotIndex: number] }>();
 .seat-badge {
   flex: none;
   padding: 0.05rem 0.45rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--color-surface-dim);
   color: var(--color-ink-muted);
   font-size: 0.75rem;
