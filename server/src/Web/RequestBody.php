@@ -21,10 +21,17 @@ final class RequestBody
         return new MoveRequest($sequence, json_encode($move, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
     }
 
+    /** Both values end up on every client's screen, so only IDs and names that match the fixed patterns are accepted. */
     public static function player(string $body): ?Player
     {
         $request = self::decodedAsObjects($body);
-        return Player::tryFromInput($request->playerId ?? null, $request->name ?? null);
+        $playerId = $request->playerId ?? null;
+        $name = $request->name ?? null;
+        $valid = is_string($playerId)
+            && preg_match(Config::PLAYER_ID_PATTERN, $playerId) === 1
+            && is_string($name)
+            && preg_match(Config::PLAYER_NAME_PATTERN, $name) === 1;
+        return $valid ? new Player($playerId, $name) : null;
     }
 
     /**

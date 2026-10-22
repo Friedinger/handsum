@@ -53,6 +53,68 @@ final class RequestBodyTest extends TestCase
     }
 
     /** @return array<string, array{string}> */
+    public static function validNames(): array
+    {
+        return [
+            'plain' => ['Anna'],
+            'umlaut' => ['Zoë'],
+            'hyphen' => ['Jean-Luc'],
+            'apostrophe' => ['O’Brien'],
+            'space' => ['Max Mustermann'],
+            'cjk' => ['李雷'],
+            'longest' => [str_repeat('n', Config::MAX_PLAYER_NAME_LENGTH)],
+        ];
+    }
+
+    #[DataProvider('validNames')]
+    public function testAValidNameIsAccepted(string $name): void
+    {
+        self::assertEquals(new Player('p1', $name), RequestBody::player(self::playerBody('p1', $name)));
+    }
+
+    /** @return array<string, array{string}> */
+    public static function invalidNames(): array
+    {
+        return [
+            'empty' => [''],
+            'only spaces' => ['  '],
+            'leading space' => [' Anna'],
+            'trailing space' => ['Anna '],
+            'too long' => [str_repeat('n', Config::MAX_PLAYER_NAME_LENGTH + 1)],
+            'markup' => ['<b>Anna</b>'],
+            'line break' => ["Anna\n"],
+            'direction override' => ["Eve\u{202E}"],
+            'zero-width space' => ["Zero\u{200B}width"],
+            'emoji' => ["Anna \u{1F600}"],
+        ];
+    }
+
+    #[DataProvider('invalidNames')]
+    public function testAnInvalidNameIsRejected(string $name): void
+    {
+        self::assertNull(RequestBody::player(self::playerBody('p1', $name)));
+    }
+
+    /** @return array<string, array{mixed}> */
+    public static function invalidIds(): array
+    {
+        return [
+            'path traversal' => ['../x'],
+            'empty' => [''],
+            'trailing newline' => ["abc\n"],
+            'too long' => [str_repeat('a', Config::MAX_PLAYER_ID_LENGTH + 1)],
+            'a number' => [7],
+            'null' => [null],
+        ];
+    }
+
+    #[DataProvider('invalidIds')]
+    public function testAnInvalidIdIsRejected(mixed $playerId): void
+    {
+        self::assertNull(RequestBody::player(self::playerBody($playerId, 'Anna')));
+    }
+
+    /** @return array<string, array{string}> */
     public static function invalidPlayers(): array
     {
         return [
@@ -60,13 +122,18 @@ final class RequestBodyTest extends TestCase
             'a list' => ['["p1","Anna"]'],
             'no name' => ['{"playerId":"p1"}'],
             'a name that is no string' => ['{"playerId":"p1","name":7}'],
-            'an invalid name' => ['{"playerId":"p1","name":"<b>"}'],
+            'a key the decoder cannot represent' => ['{"playerId":"p1","name":"Anna","\u0000x":1}'],
         ];
     }
 
     #[DataProvider('invalidPlayers')]
-    public function testAnInvalidPlayerIsRejected(string $body): void
+    public function testAnInvalidPlayerBodyIsRejected(string $body): void
     {
         self::assertNull(RequestBody::player($body));
+    }
+
+    private static function playerBody(mixed $playerId, mixed $name): string
+    {
+        return json_encode(['playerId' => $playerId, 'name' => $name], JSON_THROW_ON_ERROR);
     }
 }
