@@ -16,8 +16,18 @@ use Handsum\Web\Response;
 
 final class Application
 {
-    /** @param \Closure(): int $clock */
-    public function __construct(private readonly string $dataDir, private readonly \Closure $clock) {}
+    private const RATE_LIMITED = 429;
+
+    private readonly \Closure $roll;
+
+    /**
+     * @param \Closure(): int $clock
+     * @param (\Closure(): int)|null $roll decides when the housekeeping runs, see {@see Housekeeping}
+     */
+    public function __construct(private readonly string $dataDir, private readonly \Closure $clock, ?\Closure $roll = null)
+    {
+        $this->roll = $roll ?? Housekeeping::randomRoll(...);
+    }
 
     /**
      * Never throws: unexpected failures are logged and reported as generic errors.
@@ -31,13 +41,18 @@ final class Application
             Filesystem::ensureDirectory($this->dataDir);
             Filesystem::denyWebAccess($this->dataDir);
             $rooms = new Rooms($this->dataDir, $this->clock);
+            $limiter = new RateLimiter($this->dataDir, $this->clock);
             $api = new Api(
                 $rooms,
                 new MoveLog($rooms, $this->clock),
                 new PlayerList($rooms, $this->clock),
-                new RateLimiter($this->dataDir, $this->clock),
+                $limiter,
             );
-            return $api->handle($method, $server, $query, $body, $ip);
+            $response = $api->handle($method, $server, $query, $body, $ip);
+            if ($response->status !== self::RATE_LIMITED) {
+                (new Housekeeping($rooms, $limiter, $this->roll))->maybeRun();
+            }
+            return $response;
         } catch (\Throwable $error) {
             ErrorLog::write($error, $this->dataDir);
             return Response::error(500, $error instanceof StorageException ? ErrorCode::StorageNotWritable : ErrorCode::ServerError);
