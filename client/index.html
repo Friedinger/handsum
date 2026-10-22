@@ -4,7 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <meta name="color-scheme" content="dark" />
     <title>Handsum</title>
+    <!-- Paints the page color before the stylesheets load, so a reload (e.g. switching the language) does not flash white. Keep in sync with --color-page. -->
+    <style>
+      html {
+        background: #12291f;
+      }
+    </style>
   </head>
   <body>
     <div id="app"></div>
