@@ -7,8 +7,10 @@ namespace Handsum\Web;
 use Handsum\Config;
 use Handsum\RateLimit\RateLimiter;
 use Handsum\Room\AppendStatus;
+use Handsum\Room\MoveLog;
 use Handsum\Room\Player;
-use Handsum\Room\RoomStore;
+use Handsum\Room\PlayerList;
+use Handsum\Room\Rooms;
 
 final class Api
 {
@@ -16,7 +18,9 @@ final class Api
     private const CREATION_BUCKET = 'creation';
 
     public function __construct(
-        private readonly RoomStore $rooms,
+        private readonly Rooms $rooms,
+        private readonly MoveLog $moveLog,
+        private readonly PlayerList $playerList,
         private readonly RateLimiter $limiter,
     ) {}
 
@@ -48,14 +52,14 @@ final class Api
         if (preg_match(Config::SINCE_PATTERN, $since) !== 1) {
             return Response::error(400, ErrorCode::InvalidSince);
         }
-        $log = $this->rooms->moves($roomId);
+        $log = $this->moveLog->moves($roomId);
         return Response::ok([
             'length' => count($log),
             'moves' => array_map(
                 static fn(string $line): mixed => json_decode($line),
                 array_slice($log, (int) $since),
             ),
-            'players' => $this->rooms->activePlayers($roomId),
+            'players' => $this->playerList->active($roomId),
         ]);
     }
 
@@ -75,7 +79,7 @@ final class Api
         if ($denied !== null) {
             return $denied;
         }
-        $result = $this->rooms->append($roomId, $sequence, $moveJson);
+        $result = $this->moveLog->append($roomId, $sequence, $moveJson);
         return match ($result->status) {
             AppendStatus::Appended => Response::ok(['length' => $result->length]),
             AppendStatus::Conflict => Response::error(409, ErrorCode::Conflict, ['length' => $result->length]),
@@ -93,7 +97,7 @@ final class Api
         if ($denied !== null) {
             return $denied;
         }
-        $players = $this->rooms->joinPlayer($roomId, $player);
+        $players = $this->playerList->join($roomId, $player);
         return $players === null ? Response::error(409, ErrorCode::RoomFull) : Response::ok(['players' => $players]);
     }
 
@@ -102,7 +106,7 @@ final class Api
         if ($this->rooms->exists($roomId)) {
             return null;
         }
-        if ($this->rooms->roomCount() >= Config::MAX_ROOMS) {
+        if ($this->rooms->count() >= Config::MAX_ROOMS) {
             return Response::error(503, ErrorCode::TooManyRooms);
         }
         $allowed = $this->limiter->allow($ip, self::CREATION_BUCKET, Config::ROOM_CREATIONS_PER_IP_PER_WINDOW, Config::ROOM_CREATION_WINDOW_SECONDS);
@@ -158,7 +162,7 @@ final class Api
         if (random_int(1, 100) > Config::CLEANUP_PROBABILITY_PERCENT) {
             return;
         }
-        $this->rooms->deleteIdleRooms();
+        $this->rooms->deleteIdle();
         $this->limiter->deleteExpired();
     }
 }

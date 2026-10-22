@@ -6,7 +6,9 @@ namespace Handsum\Tests\Web;
 
 use Handsum\Config;
 use Handsum\RateLimit\RateLimiter;
-use Handsum\Room\RoomStore;
+use Handsum\Room\MoveLog;
+use Handsum\Room\PlayerList;
+use Handsum\Room\Rooms;
 use Handsum\Tests\Support\DataDirTestCase;
 use Handsum\Web\Api;
 use Handsum\Web\ErrorCode;
@@ -20,8 +22,11 @@ final class ApiTest extends DataDirTestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $rooms = new Rooms($this->dataDir, $this->clock());
         $this->api = new Api(
-            new RoomStore($this->dataDir, $this->clock()),
+            $rooms,
+            new MoveLog($rooms, $this->clock()),
+            new PlayerList($rooms, $this->clock()),
             new RateLimiter($this->dataDir, $this->clock()),
         );
     }

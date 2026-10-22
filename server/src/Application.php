@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Handsum;
 
 use Handsum\RateLimit\RateLimiter;
-use Handsum\Room\RoomStore;
+use Handsum\Room\MoveLog;
+use Handsum\Room\PlayerList;
+use Handsum\Room\Rooms;
 use Handsum\Storage\Filesystem;
 use Handsum\Storage\StorageException;
 use Handsum\Web\Api;
@@ -28,8 +30,11 @@ final class Application
         try {
             Filesystem::ensureDirectory($this->dataDir);
             Filesystem::denyWebAccess($this->dataDir);
+            $rooms = new Rooms($this->dataDir, $this->clock);
             $api = new Api(
-                new RoomStore($this->dataDir, $this->clock),
+                $rooms,
+                new MoveLog($rooms, $this->clock),
+                new PlayerList($rooms, $this->clock),
                 new RateLimiter($this->dataDir, $this->clock),
             );
             return $api->handle($method, $server, $query, $body, $ip);
