@@ -2,6 +2,7 @@ import {
   cardActionDescriptions,
   cardActionNames,
 } from "@/data/strings/cardActions";
+import { deckOverview } from "@/data/strings/deckOverview";
 import {
   CALLER_PENALTY,
   LAYOUT_SIZE,
@@ -26,6 +27,10 @@ const rulesSections: readonly RulesSection[] = [
       `Ending the game is a bet: if someone ends with a lower sum than the player who ended it, that player gets ${String(CALLER_PENALTY)} points on top. If they only tie for the lowest sum, they win alone.`,
       `One hand beats all others: ${SPECIAL_LAYOUT_VALUES.join(", ")}. Whoever holds exactly these cards at the end wins, and each opponent gets ${String(SPECIAL_LAYOUT_PENALTY)} points, however low their sum is.`,
     ],
+  },
+  {
+    heading: "The cards",
+    items: deckOverview,
   },
   {
     heading: "Your table",
@@ -79,8 +84,8 @@ const rulesSections: readonly RulesSection[] = [
 ];
 
 export const rules = {
-  open: "How to play",
-  title: "How to play",
+  open: "Rules",
+  title: "Rules",
   close: "Close",
   sections: rulesSections,
 } as const;
