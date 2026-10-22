@@ -6,6 +6,7 @@ export type MoveRejection =
   | "duplicatePlayerId"
   | "invalidPlayerName"
   | "invalidSeed"
+  | "invalidDeck"
   | "unknownPlayer"
   | "wrongPhase"
   | "alreadyViewed"

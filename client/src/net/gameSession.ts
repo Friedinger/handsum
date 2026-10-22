@@ -21,7 +21,10 @@ export interface SessionSnapshot {
 
 export interface GameSession {
   readonly submitMove: (move: Move) => MoveRejection | null;
-  readonly startGame: (seed: number) => MoveRejection | null;
+  readonly startGame: (
+    seed: number,
+    deck?: readonly number[],
+  ) => MoveRejection | null;
   readonly leave: () => void;
 }
 
@@ -136,12 +139,13 @@ export function createGameSession(options: SessionOptions): GameSession {
 
   return {
     submitMove,
-    startGame: (seed) =>
+    startGame: (seed, deck) =>
       submitMove({
         type: "startGame",
         playerId: snapshot.self.playerId,
         players: playersForStart(snapshot),
         seed,
+        ...(deck && { deck }),
       }),
     leave: transport.leave,
   };

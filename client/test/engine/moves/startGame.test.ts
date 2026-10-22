@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { applyMove, initialGameState } from "@/engine/applyMove";
 import { standardDeck } from "@/engine/deck";
 import { LAYOUT_SIZE, MAX_PLAYERS, MIN_PLAYERS } from "@/engine/rules";
-import type { StartedGame } from "@/engine/types";
+import type { Card, StartedGame } from "@/engine/types";
 
 import {
   allCards,
@@ -102,5 +102,70 @@ describe("startGame", () => {
     expect(validateMove(startedGame(), startGameMove())).toBe(
       "gameAlreadyStarted",
     );
+  });
+
+  describe("with a given deck", () => {
+    const standardValues = standardDeck.map((card) => card.value);
+    const orderedValues = [...standardValues].sort((a, b) => b - a);
+    const startWith = (deck: readonly number[], playerCount = 2) =>
+      applyMove(initialGameState, { ...startGameMove(playerCount), deck });
+
+    it("deals the layouts, the first discard and the draw pile in the given order", () => {
+      const state = expectStarted(startWith(orderedValues));
+      const values = (cards: readonly (Card | null)[]) =>
+        cards.map((card) => card?.value);
+      expect(state.seats.map((seat) => values(seat.layout))).toEqual([
+        orderedValues.slice(0, LAYOUT_SIZE),
+        orderedValues.slice(LAYOUT_SIZE, 2 * LAYOUT_SIZE),
+      ]);
+      expect(values(state.discardPile)).toEqual([
+        orderedValues[2 * LAYOUT_SIZE],
+      ]);
+      expect(values(state.drawPile)).toEqual(
+        orderedValues.slice(2 * LAYOUT_SIZE + 1),
+      );
+    });
+
+    it("uses every card of the deck exactly once", () => {
+      const ids = allCards(expectStarted(startWith(orderedValues))).map(
+        (card) => card.id,
+      );
+      expect([...ids].sort((a, b) => a - b)).toEqual(
+        standardDeck.map((card) => card.id),
+      );
+    });
+
+    it("ignores the seed for the card order", () => {
+      const withSeed = (seed: number) =>
+        expectStarted(
+          applyMove(initialGameState, {
+            ...startGameMove(2, seed),
+            deck: orderedValues,
+          }),
+        );
+      expect(withSeed(1).seats).toEqual(withSeed(2).seats);
+      expect(withSeed(1).drawPile).toEqual(withSeed(2).drawPile);
+    });
+
+    it.each([
+      ["a missing card", orderedValues.slice(1)],
+      ["an extra card", [...orderedValues, 0]],
+      ["a wrong card", [...orderedValues.slice(1), 99]],
+      ["one card too often", [...orderedValues.slice(0, -1), 13]],
+      ["no cards", []],
+    ])("rejects %s", (_name, deck) => {
+      expect(
+        validateMove(initialGameState, { ...startGameMove(2), deck }),
+      ).toBe("invalidDeck");
+    });
+
+    it("still validates the seed", () => {
+      expect(
+        validateMove(initialGameState, {
+          ...startGameMove(2, -1),
+          deck: orderedValues,
+        }),
+      ).toBe("invalidSeed");
+    });
   });
 });

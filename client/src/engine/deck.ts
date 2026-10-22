@@ -63,3 +63,22 @@ export function buildDeck(cardTypes: readonly CardType[]): Card[] {
 export const standardDeck: readonly Card[] = buildDeck(
   parseCardTypes(cardData),
 );
+
+/**
+ * Gives every value its card from the standard deck, in the given order. Returns null unless
+ * the values are exactly the composition of the standard deck.
+ */
+export function arrangeDeck(values: readonly number[]): Card[] | null {
+  const unused = [...standardDeck];
+  const arranged: Card[] = [];
+  for (const value of values) {
+    const index = unused.findIndex((card) => card.value === value);
+    const card = unused[index];
+    if (!card) {
+      return null;
+    }
+    unused.splice(index, 1);
+    arranged.push(card);
+  }
+  return arranged.length === standardDeck.length ? arranged : null;
+}

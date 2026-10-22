@@ -14,6 +14,8 @@ export const rejectionMessages = {
   duplicatePlayerId: "Player IDs must be unique.",
   invalidPlayerName: `Names have up to ${String(PLAYER_NAME_MAX_LENGTH)} characters: letters, digits, spaces and . _ ' - only.`,
   invalidSeed: "The seed must be an unsigned 32-bit integer.",
+  invalidDeck:
+    "The deck must consist of exactly the cards of the standard deck.",
   unknownPlayer: "This player is not part of the game.",
   wrongPhase: "This move is not possible in the current phase.",
   alreadyViewed: "You have already viewed your starting cards.",

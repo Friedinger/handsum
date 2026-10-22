@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { buildDeck, parseCardTypes, standardDeck } from "@/engine/deck";
+import {
+  arrangeDeck,
+  buildDeck,
+  parseCardTypes,
+  standardDeck,
+} from "@/engine/deck";
 
 const STANDARD_DECK_SIZE = 52;
 
@@ -72,5 +77,33 @@ describe("buildDeck", () => {
       { id: 1, value: 1, points: 1, action: null },
       { id: 2, value: 2, points: 2, action: "viewOwn" },
     ]);
+  });
+});
+
+describe("arrangeDeck", () => {
+  const values = standardDeck.map((card) => card.value);
+  const reversed = [...values].reverse();
+
+  it("puts the standard cards in the given order", () => {
+    expect(arrangeDeck(reversed)?.map((card) => card.value)).toEqual(reversed);
+  });
+
+  it("gives equal values different cards", () => {
+    const ids = arrangeDeck(reversed)?.map((card) => card.id) ?? [];
+    expect(new Set(ids).size).toBe(STANDARD_DECK_SIZE);
+  });
+
+  it("rejects a value that occurs too often", () => {
+    expect(arrangeDeck([...values.slice(0, -1), 12])).toBeNull();
+  });
+
+  it("rejects a value that is no card", () => {
+    expect(arrangeDeck([...values.slice(0, -1), 99])).toBeNull();
+  });
+
+  it("rejects too few and too many cards", () => {
+    expect(arrangeDeck(values.slice(1))).toBeNull();
+    expect(arrangeDeck([...values, 0])).toBeNull();
+    expect(arrangeDeck([])).toBeNull();
   });
 });

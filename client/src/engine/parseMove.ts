@@ -25,8 +25,14 @@ function parseFields(
   switch (type) {
     case "startGame": {
       const players = parsePlayers(fields.players);
-      return players && isNumber(fields.seed)
-        ? { type, playerId, players, seed: fields.seed }
+      if (!players || !isNumber(fields.seed)) {
+        return null;
+      }
+      if (fields.deck === undefined) {
+        return { type, playerId, players, seed: fields.seed };
+      }
+      return isNumberArray(fields.deck)
+        ? { type, playerId, players, seed: fields.seed, deck: fields.deck }
         : null;
     }
     case "drawFromDeck":

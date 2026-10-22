@@ -1,4 +1,4 @@
-import { standardDeck } from "@/engine/deck";
+import { arrangeDeck, standardDeck } from "@/engine/deck";
 import type { StartGameMove } from "@/engine/moves/types";
 import {
   accept,
@@ -13,7 +13,13 @@ import {
   MAX_PLAYERS,
   MIN_PLAYERS,
 } from "@/engine/rules";
-import type { GameState, Player, Seat, StartedGame } from "@/engine/types";
+import type {
+  Card,
+  GameState,
+  Player,
+  Seat,
+  StartedGame,
+} from "@/engine/types";
 
 function findPlayerListProblem(
   players: readonly Player[],
@@ -33,8 +39,11 @@ function findPlayerListProblem(
   return null;
 }
 
-function dealGame(players: readonly Player[], seed: number): StartedGame {
-  const deck = shuffle(standardDeck, seed);
+function dealGame(
+  players: readonly Player[],
+  seed: number,
+  deck: readonly Card[],
+): StartedGame {
   const seats: Seat[] = players.map((player, seatIndex) => ({
     player,
     layout: deck.slice(seatIndex * LAYOUT_SIZE, (seatIndex + 1) * LAYOUT_SIZE),
@@ -77,8 +86,15 @@ export function applyStartGame(
   if (!isValidSeed(move.seed)) {
     return reject("invalidSeed");
   }
+  const deck =
+    move.deck === undefined
+      ? shuffle(standardDeck, move.seed)
+      : arrangeDeck(move.deck);
+  if (!deck) {
+    return reject("invalidDeck");
+  }
   if (!move.players.some((player) => player.id === move.playerId)) {
     return reject("unknownPlayer");
   }
-  return accept(dealGame(move.players, move.seed));
+  return accept(dealGame(move.players, move.seed, deck));
 }

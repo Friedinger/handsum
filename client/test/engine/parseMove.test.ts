@@ -7,6 +7,7 @@ import { startGameMove } from "@test/support/gameFixtures";
 
 const validMoves: Move[] = [
   startGameMove(),
+  { ...startGameMove(), deck: [3, 1, 2] },
   { type: "viewStartingCards", playerId: "a", slotIndices: [0, 1] },
   { type: "drawFromDeck", playerId: "a" },
   { type: "discardDrawnCard", playerId: "a" },
@@ -29,6 +30,11 @@ describe("parseMove", () => {
     expect(parseMove(JSON.parse(JSON.stringify(move)))).toEqual(move);
   });
 
+  it("leaves the deck out of a start without one", () => {
+    const parsed = parseMove(JSON.parse(JSON.stringify(startGameMove())));
+    expect(parsed).not.toHaveProperty("deck");
+  });
+
   it("drops unknown extra fields", () => {
     expect(parseMove({ type: "callEnd", playerId: "a", sneaky: true })).toEqual(
       {
@@ -48,6 +54,9 @@ describe("parseMove", () => {
     { type: "swapDrawnCard", playerId: "a", slotIndices: ["0"] },
     { type: "viewOtherCard", playerId: "a", slotIndex: 0 },
     { type: "startGame", playerId: "a", players: [{ id: 1 }], seed: 1 },
+    { ...startGameMove(), deck: "1,2,3" },
+    { ...startGameMove(), deck: [1, "2"] },
+    { ...startGameMove(), deck: null },
   ])("rejects malformed input %j", (value) => {
     expect(parseMove(value)).toBeNull();
   });

@@ -5,6 +5,7 @@ export interface StartGameMove {
   readonly playerId: PlayerId;
   readonly players: readonly Player[];
   readonly seed: number;
+  readonly deck?: readonly number[];
 }
 
 export interface ViewStartingCardsMove {

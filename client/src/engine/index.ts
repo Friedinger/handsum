@@ -1,4 +1,5 @@
 export { applyMove, initialGameState, tryApplyMove } from "@/engine/applyMove";
+export { standardDeck } from "@/engine/deck";
 export { legalMoves } from "@/engine/legalMoves";
 export type * from "@/engine/moves/types";
 export type { MoveRejection, Result } from "@/engine/outcome";
