@@ -58,7 +58,6 @@ export const strings = {
     playerLimits: (min: number, max: number) =>
       `A game needs ${String(min)} to ${String(max)} players.`,
     startHint: "Anyone can start the game once everyone is here.",
-    leave: "Leave room",
   },
   hints: {
     startingView:
@@ -110,7 +109,6 @@ export const strings = {
     winner: "Winner",
     youWin: "You win!",
     playerWins: (player: string) => `${player} wins!`,
-    backToStart: "Back to start",
     playAgain: "Play again",
   },
   roomFull: {

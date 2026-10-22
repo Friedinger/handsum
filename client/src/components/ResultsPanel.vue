@@ -31,36 +31,34 @@ const ranked = computed(() =>
 
 <template>
   <div class="results-panel">
-    <div>
-      <h2>{{ headline }}</h2>
-      <table class="results">
-        <thead>
-          <tr>
-            <th></th>
-            <th>{{ strings.table.cardSum }}</th>
-            <th>{{ strings.table.score }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="result in ranked"
-            :key="result.playerId"
-            :class="{ 'result-winner': result.isWinner }"
-          >
-            <td>{{ displayName(state, result.playerId) }}</td>
-            <td>{{ result.cardSum }}</td>
-            <td>{{ result.score }}</td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="results-actions">
-        <button type="button" class="button-primary" @click="emit('playAgain')">
-          {{ strings.table.playAgain }}
-        </button>
-        <button type="button" class="button-secondary" @click="emit('leave')">
-          {{ strings.table.backToStart }}
-        </button>
-      </div>
+    <h2>{{ headline }}</h2>
+    <table class="results">
+      <thead>
+        <tr>
+          <th></th>
+          <th>{{ strings.table.cardSum }}</th>
+          <th>{{ strings.table.score }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="result in ranked"
+          :key="result.playerId"
+          :class="{ 'result-winner': result.isWinner }"
+        >
+          <td>{{ displayName(state, result.playerId) }}</td>
+          <td>{{ result.cardSum }}</td>
+          <td>{{ result.score }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="results-actions">
+      <button type="button" class="button-primary" @click="emit('playAgain')">
+        {{ strings.table.playAgain }}
+      </button>
+      <button type="button" class="button-secondary" @click="emit('leave')">
+        {{ strings.table.leave }}
+      </button>
     </div>
   </div>
 </template>

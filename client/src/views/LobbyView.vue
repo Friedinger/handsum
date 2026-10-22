@@ -102,7 +102,7 @@ async function share(): Promise<void> {
         {{ strings.lobby.start }}
       </button>
       <button type="button" class="button-secondary" @click="leaveRoom">
-        {{ strings.lobby.leave }}
+        {{ strings.table.leave }}
       </button>
     </div>
   </section>
