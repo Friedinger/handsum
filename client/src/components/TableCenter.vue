@@ -79,3 +79,50 @@ const emit = defineEmits<{ draw: []; discard: []; held: [] }>();
     </div>
   </div>
 </template>
+
+<style scoped>
+.table-center {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: var(--space-5);
+}
+
+.pile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 5.5rem;
+  gap: 0.35rem;
+}
+
+.pile-held {
+  margin-left: var(--space-2);
+}
+
+.pile-vacant {
+  visibility: hidden;
+}
+
+/* Labels may be wider than their pile; centred overflow keeps the piles at a fixed width. */
+.pile-label {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  min-height: 1.2em;
+  color: var(--color-ink-muted);
+  font-size: 0.8rem;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+@media (max-width: 40rem) {
+  .pile {
+    width: 4.5rem;
+  }
+
+  .table-center {
+    gap: var(--space-3);
+  }
+}
+</style>

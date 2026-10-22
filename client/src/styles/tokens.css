@@ -1,0 +1,51 @@
+:root {
+  --color-page: #12291f;
+  --color-felt: #1f5c43;
+  --color-felt-light: #2b7756;
+  --color-ink: #f3f1ea;
+  --color-ink-muted: #b9c9bf;
+  --color-panel: var(--color-felt);
+  --color-panel-ink: var(--color-ink);
+  --color-card-ink: #1d2420;
+  --color-accent: #f2b33d;
+  --color-accent-ink: #2a1d00;
+  --color-accent-border: rgb(242 179 61 / 50%);
+  --color-accent-tint: rgb(242 179 61 / 14%);
+  --color-focus: #8fd3ff;
+  --color-focus-soft: rgb(143 211 255 / 70%);
+  --color-error: #ff8a80;
+  --color-border: rgb(255 255 255 / 30%);
+  --color-panel-edge: rgb(255 255 255 / 20%);
+  --color-hover: rgb(255 255 255 / 10%);
+  --color-surface-dim: rgb(0 0 0 / 30%);
+  --color-backdrop: rgb(0 0 0 / 35%);
+  --color-card: #fffdf7;
+  --color-card-edge: #d8d2c2;
+  --color-back: #2c4a8a;
+  --color-back-pattern: #3a5ea8;
+  --color-back-edge: #1b2f5c;
+  --tier-low: #2e7d4f;
+  --tier-middle: #3d5a99;
+  --tier-action: #8a4fb0;
+  --tier-plain-high: #b0433a;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --control-height: 2.5rem;
+  --panel-max-width: 30rem;
+  --reading-max-width: 40rem;
+  --radius: 0.6rem;
+  --color-shadow: rgb(0 0 0 / 35%);
+  --shadow: 0 0.15rem 0.4rem var(--color-shadow);
+  background: var(--color-page);
+  color: var(--color-ink);
+
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+}

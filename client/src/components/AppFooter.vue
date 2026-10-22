@@ -38,3 +38,32 @@ const entries = computed(() => {
     </template>
   </footer>
 </template>
+
+<style scoped>
+/* Padded links are easier to tap and keep the footer height stable. */
+.app-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: auto;
+  gap: var(--space-2);
+  font-size: 0.85rem;
+}
+
+.app-footer a,
+.commit-hash {
+  border: none;
+  background: none;
+  color: var(--color-ink-muted);
+  font: inherit;
+}
+
+.app-footer a {
+  padding: var(--space-2);
+  text-decoration: underline;
+}
+
+.commit-hash {
+  padding-block: var(--space-2);
+}
+</style>

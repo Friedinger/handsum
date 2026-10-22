@@ -58,3 +58,10 @@ const coach = computed(() => {
     </template>
   </GameTable>
 </template>
+
+<style scoped>
+.coach-title {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+</style>

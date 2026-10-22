@@ -30,7 +30,7 @@ const ranked = computed(() =>
 </script>
 
 <template>
-  <div class="results-panel">
+  <div class="results-panel surface">
     <h2>{{ headline }}</h2>
     <table class="results">
       <thead>
@@ -62,3 +62,39 @@ const ranked = computed(() =>
     </div>
   </div>
 </template>
+
+<style scoped>
+.results-panel {
+  display: flex;
+  flex-direction: column;
+  min-width: min(22rem, 100%);
+  gap: var(--space-4);
+  text-align: center;
+}
+
+.results-actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.results {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.results th,
+.results td {
+  padding: 0.4rem 0.6rem;
+  text-align: left;
+}
+
+.results tbody tr + tr td {
+  border-top: 1px solid var(--color-panel-edge);
+}
+
+.result-winner td {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+</style>

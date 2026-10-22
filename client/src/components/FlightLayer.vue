@@ -16,3 +16,11 @@ const emit = defineEmits<{ land: [id: number] }>();
     />
   </div>
 </template>
+
+<style scoped>
+.flight-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+</style>

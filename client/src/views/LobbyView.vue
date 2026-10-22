@@ -107,3 +107,25 @@ async function share(): Promise<void> {
     </div>
   </section>
 </template>
+
+<style scoped>
+/* Wide enough for both labels, so the row does not jump when the text changes to "Copied!". */
+.button-copy {
+  min-width: 7.5rem;
+}
+
+.player-list {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  gap: 0.4rem;
+  list-style: none;
+}
+
+.player-list li {
+  padding: 0.3rem var(--space-3);
+  border-radius: 999px;
+  background: var(--color-surface-dim);
+}
+</style>

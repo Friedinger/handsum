@@ -370,3 +370,238 @@ const results = computed(() =>
     />
   </div>
 </template>
+
+<style scoped>
+.game-table {
+  display: grid;
+  position: relative;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "top top top"
+    "left center right"
+    "hand hand hand";
+  flex: 1;
+  min-height: 0;
+  padding: var(--space-4);
+  overflow: hidden;
+  gap: var(--space-4);
+  border-radius: 1.5rem;
+  background: radial-gradient(
+    ellipse at center,
+    var(--color-felt-light),
+    var(--color-felt) 70%
+  );
+  box-shadow: inset 0 0 3rem var(--color-shadow);
+}
+
+/* The tutorial coach is a row of the table itself, so the cards below it never get pushed out of view. */
+.table-with-coach {
+  grid-template-rows: auto auto 1fr auto;
+  grid-template-areas:
+    "coach coach coach"
+    "top top top"
+    "left center right"
+    "hand hand hand";
+  overflow-y: auto;
+  gap: var(--space-2);
+}
+
+.table-with-coach .move-log,
+.table-with-coach .hint,
+.table-with-coach .banner {
+  display: none;
+}
+
+.table-coach {
+  display: flex;
+  grid-area: coach;
+  flex-direction: column;
+  /* Leaves room on both sides for the leave button, so the coach needs no row of its own above. */
+  max-width: min(44rem, 100% - 10rem);
+  margin: 0 auto;
+  padding: var(--space-2) var(--space-3);
+  gap: 0.15rem;
+  border: 1px solid var(--color-accent-border);
+  border-radius: var(--radius);
+  background: var(--color-surface-dim);
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+
+.table-coach > :slotted(*) {
+  margin: 0;
+}
+
+.table-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+}
+
+.area-top {
+  grid-area: top;
+  flex-wrap: wrap;
+}
+
+.area-left,
+.area-right {
+  flex-direction: column;
+}
+
+.area-left {
+  grid-area: left;
+}
+
+.area-right {
+  grid-area: right;
+}
+
+.area-center {
+  grid-area: center;
+  flex-direction: column;
+}
+
+.area-hand {
+  grid-area: hand;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.banner-hidden {
+  visibility: hidden;
+}
+
+.banner {
+  min-height: 2.2em;
+  margin: 0;
+  padding: 0.4rem var(--space-4);
+  border-radius: 999px;
+  background: var(--color-surface-dim);
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.move-log {
+  min-height: 3.9em;
+  margin: 0;
+  padding: 0;
+  color: var(--color-ink-muted);
+  font-size: 0.85rem;
+  line-height: 1.3;
+  list-style: none;
+  text-align: center;
+}
+
+.hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 40rem;
+  min-height: 2.6em;
+  margin: 0;
+  padding: var(--space-1) var(--space-4);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--color-ink-muted);
+  line-height: 1.3;
+  text-align: center;
+}
+
+.hint-active {
+  border-color: var(--color-accent-border);
+  background: var(--color-accent-tint);
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+.hint-error {
+  color: var(--color-error);
+  font-weight: 600;
+}
+
+.table-leave {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-3);
+  min-height: 0;
+  padding: var(--space-1) var(--space-3);
+}
+
+.table-with-coach .table-leave {
+  top: var(--space-4);
+}
+
+.hand-actions {
+  display: flex;
+  align-items: center;
+  min-height: var(--control-height);
+  gap: var(--space-3);
+}
+
+.button-confirming {
+  outline: 2px solid var(--color-error);
+  outline-offset: 2px;
+}
+
+/* Phones: one column, opponents above the table. */
+@media (max-width: 40rem) {
+  .game-table {
+    grid-template-rows: none;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "leave"
+      "top"
+      "left"
+      "right"
+      "center"
+      "hand";
+    padding: var(--space-2);
+    overflow-y: auto;
+    gap: var(--space-2);
+  }
+
+  .table-with-coach {
+    grid-template-rows: none;
+    grid-template-areas:
+      "leave"
+      "coach"
+      "top"
+      "left"
+      "right"
+      "center"
+      "hand";
+  }
+
+  .table-leave,
+  .table-with-coach .table-leave {
+    position: static;
+    grid-area: leave;
+    justify-self: end;
+    min-height: var(--control-height);
+  }
+
+  .table-coach {
+    max-width: none;
+    margin: 0;
+    font-size: 0.9rem;
+  }
+
+  .area-top,
+  .area-left,
+  .area-right {
+    flex-flow: row wrap;
+    gap: var(--space-2);
+  }
+
+  .area-left:empty,
+  .area-right:empty {
+    display: none;
+  }
+
+  .hint {
+    font-size: 0.9rem;
+  }
+}
+</style>

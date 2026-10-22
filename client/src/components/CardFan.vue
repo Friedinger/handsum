@@ -40,3 +40,17 @@ const fan: readonly FanCard[] = FAN_SHAPE.map(({ value, tiltDegrees }) => ({
     </div>
   </div>
 </template>
+
+<style scoped>
+.card-fan {
+  display: none;
+  justify-content: center;
+  margin-top: var(--space-5);
+}
+
+.fan-card {
+  margin-inline: -0.6rem;
+  transform: rotate(var(--tilt));
+  transform-origin: 50% 120%;
+}
+</style>

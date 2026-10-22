@@ -20,7 +20,7 @@ function close(): void {
   </button>
   <dialog
     ref="dialog"
-    class="rules-dialog"
+    class="rules-dialog surface"
     :aria-label="strings.rules.title"
     @click.self="close"
   >
@@ -51,3 +51,77 @@ function close(): void {
     </section>
   </dialog>
 </template>
+
+<style scoped>
+.rules-open {
+  padding: var(--space-2);
+  border: none;
+  background: none;
+  color: var(--color-ink-muted);
+  font: inherit;
+  text-decoration: underline;
+}
+
+/* Long text reads best at roughly 70 characters per line, so the rules get more room than the forms. */
+.rules-dialog {
+  width: min(var(--reading-max-width), calc(100% - 2 * var(--space-4)));
+  max-height: calc(100% - 2 * var(--space-4));
+  padding-top: 0;
+  font-size: 1rem;
+  line-height: 1.45;
+  scrollbar-color: var(--color-felt-light) transparent;
+}
+
+.rules-dialog::backdrop {
+  background: var(--color-backdrop);
+}
+
+.rules-header {
+  display: flex;
+  position: sticky;
+  top: 0;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: var(--space-4) var(--space-2);
+  gap: var(--space-4);
+  background: var(--color-panel);
+}
+
+.rules-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.rules-section > * {
+  margin: 0;
+}
+
+.rules-section + .rules-section {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-panel-edge);
+}
+
+.rules-section ul {
+  padding-left: 1.2rem;
+}
+
+.rules-section li + li {
+  margin-top: var(--space-1);
+}
+
+.rules-facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--space-1) var(--space-4);
+}
+
+.rules-facts dt {
+  font-weight: 600;
+}
+
+.rules-facts dd {
+  margin: 0;
+}
+</style>

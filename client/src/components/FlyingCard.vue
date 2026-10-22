@@ -90,3 +90,34 @@ onUnmounted(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.flying-card {
+  position: absolute;
+  transform-origin: top left;
+  perspective: 40rem;
+}
+
+.flipper {
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+.flipper-front,
+.flipper-back {
+  backface-visibility: hidden;
+}
+
+.flipper-back {
+  transform: rotateY(180deg);
+}
+
+.flipper-front + .flipper-back {
+  position: absolute;
+  inset: 0;
+}
+
+.flying-card .card {
+  --card-width: inherit;
+}
+</style>

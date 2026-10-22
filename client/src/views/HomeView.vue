@@ -47,3 +47,12 @@ function joinRoom(): void {
   </section>
   <p class="disclaimer">{{ strings.home.disclaimer }}</p>
 </template>
+
+<style scoped>
+.disclaimer {
+  margin-top: var(--space-6);
+  color: var(--color-ink-muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+</style>
