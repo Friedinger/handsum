@@ -2,7 +2,7 @@ import {
   cardActionDescriptions,
   cardActionNames,
 } from "@/data/strings/cardActions";
-import { deckOverview } from "@/data/strings/deckOverview";
+import { type DeckFact, deckOverview } from "@/data/strings/deckOverview";
 import {
   CALLER_PENALTY,
   LAYOUT_SIZE,
@@ -15,6 +15,7 @@ interface RulesSection {
   readonly heading: string;
   readonly paragraphs?: readonly string[];
   readonly items?: readonly string[];
+  readonly facts?: readonly DeckFact[];
 }
 
 const rulesSections: readonly RulesSection[] = [
@@ -30,7 +31,8 @@ const rulesSections: readonly RulesSection[] = [
   },
   {
     heading: "The cards",
-    items: deckOverview,
+    paragraphs: [deckOverview.total],
+    facts: deckOverview.facts,
   },
   {
     heading: "Your table",

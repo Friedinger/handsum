@@ -39,6 +39,12 @@ function close(): void {
       <p v-for="paragraph in section.paragraphs" :key="paragraph">
         {{ paragraph }}
       </p>
+      <dl v-if="section.facts" class="rules-facts">
+        <template v-for="fact in section.facts" :key="fact.values">
+          <dt>{{ fact.values }}</dt>
+          <dd>{{ fact.detail }}</dd>
+        </template>
+      </dl>
       <ul v-if="section.items">
         <li v-for="item in section.items" :key="item">{{ item }}</li>
       </ul>

@@ -50,21 +50,38 @@ function distinct<T>(items: readonly T[]): T[] {
   return [...new Set(items)];
 }
 
-export function describeDeck(types: readonly CardType[]): string[] {
+export interface DeckFact {
+  readonly values: string;
+  readonly detail: string;
+}
+
+export interface DeckDescription {
+  readonly total: string;
+  readonly facts: readonly DeckFact[];
+}
+
+export function describeDeck(types: readonly CardType[]): DeckDescription {
   const total = types.reduce((sum, type) => sum + type.count, 0);
-  const countLines = distinct(types.map((type) => type.count))
+  const countFacts = distinct(types.map((type) => type.count))
     .sort((a, b) => b - a)
-    .map(
-      (count) =>
-        `${describeValues(valuesWhere(types, (type) => type.count === count))}: ${String(count)} each`,
-    );
-  const actionLines = distinct(
+    .map((count) => ({
+      values: describeValues(
+        valuesWhere(types, (type) => type.count === count),
+      ),
+      detail: `${String(count)} each`,
+    }));
+  const actionFacts = distinct(
     types.flatMap((type) => (type.action ? [type.action] : [])),
-  ).map(
-    (action: CardAction) =>
-      `${describeValues(valuesWhere(types, (type) => type.action === action))}: ${cardActionNames[action]}`,
-  );
-  return [`${String(total)} cards in total.`, ...countLines, ...actionLines];
+  ).map((action: CardAction) => ({
+    values: describeValues(
+      valuesWhere(types, (type) => type.action === action),
+    ),
+    detail: cardActionNames[action],
+  }));
+  return {
+    total: `${String(total)} cards in total.`,
+    facts: [...countFacts, ...actionFacts],
+  };
 }
 
 export const deckOverview = describeDeck(cardTypes);

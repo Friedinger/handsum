@@ -22,7 +22,7 @@ describe("describeValues", () => {
 
 describe("deck overview", () => {
   it("states the number of cards in the deck", () => {
-    expect(deckOverview[0]).toBe(
+    expect(deckOverview.total).toBe(
       `${String(standardDeck.length)} cards in total.`,
     );
   });
@@ -35,13 +35,28 @@ describe("deck overview", () => {
         { value: 2, count: 4, points: 2, action: null },
         { value: 3, count: 2, points: 3, action: null },
       ]),
-    ).toEqual(["12 cards in total.", "1 and 2: 4 each", "0 and 3: 2 each"]);
+    ).toEqual({
+      total: "12 cards in total.",
+      facts: [
+        { values: "1 and 2", detail: "4 each" },
+        { values: "0 and 3", detail: "2 each" },
+      ],
+    });
   });
 
   it("lists the values with a power per power", () => {
-    expect(deckOverview).toContain("7 and 8: View own card");
-    expect(deckOverview).toContain("9 and 10: View other card");
-    expect(deckOverview).toContain("11 and 12: Blind exchange");
+    expect(deckOverview.facts).toContainEqual({
+      values: "7 and 8",
+      detail: "View own card",
+    });
+    expect(deckOverview.facts).toContainEqual({
+      values: "9 and 10",
+      detail: "View other card",
+    });
+    expect(deckOverview.facts).toContainEqual({
+      values: "11 and 12",
+      detail: "Blind exchange",
+    });
   });
 
   it("matches the card data", () => {
