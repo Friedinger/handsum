@@ -28,6 +28,10 @@ Everyone who opens a room link enters a name and joins the lobby; anyone in the 
 
 The API has a single entry point, `api/index.php`. The room is identified by the SHA-256 hash of the room code in the `X-Room` header, so the code itself never reaches the server.
 
+## Security model
+
+Whoever knows a room link can read and write that room: the server does not authenticate players, and the room code (about 30 bits) is the only secret. Player IDs are visible to everyone in the room, and the rules are enforced only by the clients, which reject invalid moves. This matches the goal of a small game among friends and is a known limit, not a bug. What the server does enforce: size and count limits, the shape of requests and player names, ordered appends, and per-network rate limits.
+
 ## Commands
 
 | Command                  | Purpose                                                     |

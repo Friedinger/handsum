@@ -29,9 +29,12 @@ Check in the browser after the first deploy:
 
 1. The app loads at `https://example.com/apps/handsum/` and a game can be created and joined.
 2. `https://example.com/apps/handsum/api/src/Config.php` and `https://example.com/apps/handsum/api/data/` answer `403`.
-3. The data folder is writable by PHP and `flock` works on its file system. Both are needed for the server to accept moves; if creating a game fails, look at `error.log` in the data folder.
+3. The data folder is writable by PHP and `flock` works on its file system. Both are needed for every request, not only for moves, because counters and room files are updated under a lock. If creating a game fails, look at `error.log` in the data folder. If the folder itself is not writable, nothing can be logged there and the API answers `storageNotWritable`.
+4. Behind a reverse proxy or CDN of the host, `REMOTE_ADDR` can be the proxy's address, which would make all players share one rate limit. Check it once, for example with a temporary `var_dump($_SERVER['REMOTE_ADDR']);` in `api/index.php`.
 
-Optional: to keep the data outside the web root, create `api/config.local.php` on the host returning `['dataDir' => '/absolute/path/to/data'];`. The folder must be writable by PHP. Otherwise the server uses `api/data/`, which `api/.htaccess` blocks. Unexpected server errors never appear in responses; they are logged to `error.log` in the data folder.
+The server also writes its own `data/.htaccess` (`Require all denied`), and requests through `api/index.php` create files with `umask(0077)`. Treat that only as a second line of defence: the data folder holds all room IDs, so keeping it outside the web root is the safer setup.
+
+To keep the data outside the web root, create `api/config.local.php` on the host returning `['dataDir' => '/absolute/path/to/data'];`. The folder must be writable by PHP. Otherwise the server uses `api/data/`, which `api/.htaccess` and its own `data/.htaccess` block. Unexpected server errors never appear in responses; they are logged to `error.log` in the data folder.
 
 ## Manual deployment
 
