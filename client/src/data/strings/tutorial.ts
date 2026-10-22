@@ -74,7 +74,7 @@ export const tutorial = {
     },
     takeDiscard: {
       title: "Take from the discard pile",
-      text: `${opponentName} swapped away a card nobody had seen: a low one! Click the discard pile, select your unseen card, then click the taken card. A card taken from the discard pile must go onto your table.`,
+      text: `${opponentName} swapped away a card nobody had seen: a low one! Click the discard pile, select your unseen card, then click the discard pile again. A card taken from the discard pile must go onto your table.`,
     },
     callEnd: {
       title: "Announce the end",

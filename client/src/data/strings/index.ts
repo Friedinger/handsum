@@ -69,9 +69,9 @@ export const strings = {
     choosing:
       "Click the draw pile to draw a card, or the discard pile to take its top card.",
     takingDiscard:
-      "Select one or more of your cards with the same value, then click the taken card to swap. Click the discard pile to put it back.",
+      "Select one or more of your cards with the same value, then click the discard pile to swap. Click it without a selection to put the card back.",
     takingDiscardSelected:
-      "Click the taken card to swap it with the selected cards, or select more cards with the same value.",
+      "Click the discard pile to swap the selected cards with the taken card, or select more cards with the same value.",
     holding:
       "Select one or more of your cards with the same value to swap them with the drawn card, or click the discard pile to throw it away.",
     holdingAction:

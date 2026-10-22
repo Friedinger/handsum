@@ -71,17 +71,19 @@ describe("start of a turn", () => {
     });
   });
 
-  it("swaps the taken discard with the selected cards when it is clicked", () => {
-    expect(clickAll(playingGame(), [discardPile, own(2), heldCard])).toEqual({
-      type: "swapDiscardCard",
-      playerId: self,
-      slotIndices: [2],
-    });
+  it("swaps the taken discard with the selected cards on a second click on the discard pile", () => {
+    expect(clickAll(playingGame(), [discardPile, own(2), discardPile])).toEqual(
+      {
+        type: "swapDiscardCard",
+        playerId: self,
+        slotIndices: [2],
+      },
+    );
   });
 
   it("swaps the taken discard with several selected cards", () => {
     expect(
-      clickAll(playingGame(), [discardPile, own(1), own(2), heldCard]),
+      clickAll(playingGame(), [discardPile, own(1), own(2), discardPile]),
     ).toEqual({
       type: "swapDiscardCard",
       playerId: self,
@@ -89,7 +91,7 @@ describe("start of a turn", () => {
     });
   });
 
-  it("puts the taken discard back when the discard pile is clicked again", () => {
+  it("puts the taken discard back when the discard pile is clicked again without a selection", () => {
     expect(clickAll(playingGame(), [discardPile, discardPile])).toEqual(
       noIntent,
     );

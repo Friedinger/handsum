@@ -79,10 +79,11 @@ function clickWhileTakingDiscard(
     });
   }
   switch (target.kind) {
-    case "heldCard":
-      return swapSelection("swapDiscardCard", intent, selfId);
     case "discardPile":
-      return unchanged(noIntent);
+      return intent.slotIndices.length > 0
+        ? swapSelection("swapDiscardCard", intent, selfId)
+        : unchanged(noIntent);
+    case "heldCard":
     case "slot":
     case "drawPile":
       return unchanged(intent);

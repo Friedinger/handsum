@@ -17,7 +17,6 @@ const baseProps = {
   heldClickable: false,
   heldMarked: false,
   discardConfirms: false,
-  heldConfirms: false,
   heldInFlight: false,
   heldIsTakenDiscard: false,
 };
