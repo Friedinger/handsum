@@ -6,7 +6,7 @@ namespace Handsum\Tests\Storage;
 
 use Handsum\Storage\LockedJsonFile;
 use Handsum\Storage\StorageException;
-use Handsum\Tests\Support\WithDataDir;
+use Handsum\Tests\WithDataDir;
 use PHPUnit\Framework\TestCase;
 
 final class LockedJsonFileTest extends TestCase

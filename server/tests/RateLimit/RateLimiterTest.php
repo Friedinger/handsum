@@ -6,7 +6,7 @@ namespace Handsum\Tests\RateLimit;
 
 use Handsum\Config;
 use Handsum\RateLimit\RateLimiter;
-use Handsum\Tests\Support\WithDataDir;
+use Handsum\Tests\WithDataDir;
 use PHPUnit\Framework\TestCase;
 
 final class RateLimiterTest extends TestCase

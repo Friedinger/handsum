@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Handsum\Tests\Storage;
 
 use Handsum\Storage\InstallationSecret;
-use Handsum\Tests\Support\WithDataDir;
+use Handsum\Tests\WithDataDir;
 use PHPUnit\Framework\TestCase;
 
 final class InstallationSecretTest extends TestCase

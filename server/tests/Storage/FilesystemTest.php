@@ -6,7 +6,7 @@ namespace Handsum\Tests\Storage;
 
 use Handsum\Storage\Filesystem;
 use Handsum\Storage\StorageException;
-use Handsum\Tests\Support\WithDataDir;
+use Handsum\Tests\WithDataDir;
 use PHPUnit\Framework\TestCase;
 
 final class FilesystemTest extends TestCase

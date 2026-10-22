@@ -9,7 +9,7 @@ use Handsum\RateLimit\RateLimiter;
 use Handsum\Room\MoveLog;
 use Handsum\Room\PlayerList;
 use Handsum\Room\Rooms;
-use Handsum\Tests\Support\WithDataDir;
+use Handsum\Tests\WithDataDir;
 use Handsum\Web\Api;
 use Handsum\Web\ErrorCode;
 use Handsum\Web\Response;

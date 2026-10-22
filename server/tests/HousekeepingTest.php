@@ -9,7 +9,6 @@ use Handsum\Housekeeping;
 use Handsum\RateLimit\RateLimiter;
 use Handsum\Room\MoveLog;
 use Handsum\Room\Rooms;
-use Handsum\Tests\Support\WithDataDir;
 use PHPUnit\Framework\TestCase;
 
 final class HousekeepingTest extends TestCase

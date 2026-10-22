@@ -6,7 +6,6 @@ namespace Handsum\Tests;
 
 use Handsum\Config;
 use Handsum\ErrorLog;
-use Handsum\Tests\Support\WithDataDir;
 use PHPUnit\Framework\TestCase;
 
 final class ErrorLogTest extends TestCase

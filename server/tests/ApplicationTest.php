@@ -6,7 +6,6 @@ namespace Handsum\Tests;
 
 use Handsum\Application;
 use Handsum\Config;
-use Handsum\Tests\Support\WithDataDir;
 use Handsum\Web\ErrorCode;
 use PHPUnit\Framework\TestCase;
 

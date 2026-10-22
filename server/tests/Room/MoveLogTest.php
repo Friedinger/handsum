@@ -8,7 +8,7 @@ use Handsum\Config;
 use Handsum\Room\AppendStatus;
 use Handsum\Room\MoveLog;
 use Handsum\Room\Rooms;
-use Handsum\Tests\Support\WithDataDir;
+use Handsum\Tests\WithDataDir;
 use PHPUnit\Framework\TestCase;
 
 final class MoveLogTest extends TestCase

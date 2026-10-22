@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Handsum\Tests\Support;
+namespace Handsum\Tests;
 
 use Handsum\Config;
 use PHPUnit\Framework\Attributes\After;

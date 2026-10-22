@@ -10,7 +10,7 @@ use Handsum\Room\Player;
 use Handsum\Room\PlayerList;
 use Handsum\Room\Rooms;
 use Handsum\Storage\StorageException;
-use Handsum\Tests\Support\WithDataDir;
+use Handsum\Tests\WithDataDir;
 use PHPUnit\Framework\TestCase;
 
 final class RoomsTest extends TestCase
