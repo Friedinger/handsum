@@ -12,6 +12,7 @@ A browser-based multiplayer card game prototype for 2 to 8 players. Players join
 - Complete rules for 2 to 8 players, played online via a room link, no accounts
 - Game logic runs entirely in the browser (Vue 3, TypeScript, Vite); every client validates every move
 - Animated card table with a lobby, rematches and reconnecting after a reload
+- English and German interface, chosen from the browser language and switchable in the footer
 - Interactive tutorial against a scripted opponent, fully offline in the browser
 - Tiny PHP server for shared hosting: an ordered move log per room in plain files, no database
 - No tracking, no external fonts or CDNs; the server never sees room codes or IP addresses in clear text

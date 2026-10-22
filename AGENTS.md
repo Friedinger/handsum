@@ -4,7 +4,7 @@ Browser-based multiplayer card game prototype (2–8 players, join via link). No
 
 ## Language
 
-- Everything in the repo is English: code, identifiers, UI texts, README, docs, commit messages, issues, pull requests.
+- Everything in the repo is English: code, identifiers, README, docs, commit messages, issues, pull requests. UI texts are English by default with a German translation; German texts are translated from our English ones in our own words, never taken from the original rulebook.
 - Communication with the maintainer (milestone reports, questions) is in German.
 
 ## Code style
@@ -13,7 +13,7 @@ Browser-based multiplayer card game prototype (2–8 players, join via link). No
 - Comments only for the non-obvious "why". No comments restating code, no commented-out code, no TODO leftovers, no JSDoc that only repeats types.
 - TypeScript strict. No `any`, no non-null assertions without good reason. Immutable state.
 - Prefer types over comments for documentation (e.g. discriminated unions for moves and events).
-- All visible texts and game terms (including action names) live in `client/src/data/strings/` (one file per area, `index.ts` exports `strings`).
+- All visible texts and game terms (including action names) live in `client/src/data/strings/`: `en/` is the reference, `de/` mirrors it file by file and is typed against it (`types.ts`), and `index.ts` exports `strings` for the language chosen at startup.
 
 ## Architecture (binding)
 

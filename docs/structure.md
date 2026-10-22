@@ -8,7 +8,7 @@ This document describes how the repository is organized, how the game works and 
 client/            Vue 3 app (own package.json, Vite, Vitest, ESLint)
   src/engine/      pure game logic
   src/net/         move log sync, player identity, polling and in-memory transports
-  src/data/        card data and UI texts
+  src/data/        card data and UI texts (strings/en and strings/de, one file per area)
   src/components/  Vue components
   src/views/       page-level components
   src/composables/ Vue composables (e.g. useTableIntent: the selection state of the table)
@@ -41,6 +41,12 @@ The API has a single entry point, `api/index.php`. The room is identified by the
 `#tutorial` opens a guided practice round that runs completely in the browser and never contacts the server. It uses the real game: the same session and table view, connected to an in-memory room (`net/localTransport.ts`) instead of the PHP server. A scripted opponent (`utils/tutorialScript.ts`) joins that room, looks at two of its cards, then keeps drawn cards of up to 4 on a card it has never seen and throws away higher ones, with a short delay so the player can follow. The `startGame` move of the tutorial carries a fixed deck (`TUTORIAL_DECK`), so the drawn cards fit the lessons.
 
 `utils/tutorialScript.ts` holds the lesson plan: the fixed list of moves the player makes, each with its coach step and a hint. `utils/tutorialGuide.ts` only looks up how many moves the player has made to find the current step, and holds back every move that is not the planned one (the table then shows a hint instead of submitting it). The lessons are: look at the two cards on the left, draw and keep a low card, the three card powers (look at an own card, look at an opponent's card, blind exchange), replacing a group of equal cards, taking the top card of the discard pile, announcing the end once all own cards are known, and the results. `composables/useTutorial.ts` wires session, opponent and guide together, `views/TutorialView.vue` shows the coach (`components/TutorialCoach.vue`) inside the table, and the tests play every allowed path through the round against the engine.
+
+## Languages
+
+The UI exists in English and German. `data/strings/en/` is the reference; `data/strings/de/` has the same file names, and the German object is typed `Strings`, which is the English object with its literals widened to `string` (`data/strings/types.ts`). A missing or extra key therefore fails the type check, and `test/data/strings/languages.test.ts` compares the structure at runtime. Each language has its own deck wording (`deckWording`), because joining numbers differs per language.
+
+`main.ts` picks the language once at startup: a choice saved in `localStorage` (`net/identity.ts`) wins, otherwise the first of `navigator.languages` that the app speaks (`utils/pickLanguage.ts`), otherwise English. It calls `selectLanguage` and sets `<html lang>`, and only then imports `App.vue` dynamically, because `strings` is a live binding and many modules read it while loading. Tests never go through `main.ts`, so they always run in English. The footer switch saves the other language and reloads the page, so no string has to be reactive.
 
 ## Styles
 
