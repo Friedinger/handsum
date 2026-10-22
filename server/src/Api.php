@@ -24,10 +24,10 @@ final class Api
      */
     public function handle(string $method, array $server, array $query, string $body, string $ip): Response
     {
-        $this->maybeCleanUp();
         if (!$this->limiter->allow($ip, self::REQUEST_BUCKET, Config::REQUESTS_PER_IP_PER_WINDOW, Config::REQUEST_WINDOW_SECONDS)) {
             return Response::error(429, ErrorCode::RateLimited);
         }
+        $this->maybeCleanUp();
         $roomId = $server[Config::ROOM_ID_HEADER] ?? '';
         if (preg_match(Config::ROOM_ID_PATTERN, $roomId) !== 1) {
             return Response::error(400, ErrorCode::InvalidRoom);
@@ -59,9 +59,9 @@ final class Api
 
     private function appendMove(string $roomId, string $body, string $ip): Response
     {
-        $request = $this->decodeObject($body);
-        $sequence = $request['sequence'] ?? null;
-        $move = $request['move'] ?? null;
+        $request = $this->decodeMoveRequest($body);
+        $sequence = $request->sequence ?? null;
+        $move = $request->move ?? null;
         if (!is_int($sequence) || $sequence < 0 || !$this->isMoveShaped($move)) {
             return Response::error(400, ErrorCode::InvalidMove);
         }
@@ -117,9 +117,26 @@ final class Api
         return is_array($decoded) && !array_is_list($decoded) ? $decoded : [];
     }
 
+    /**
+     * Decoded as objects, so empty objects and numeric keys survive the round trip into the log
+     * unchanged; keys the decoder cannot represent make the whole request invalid.
+     */
+    private function decodeMoveRequest(string $body): ?\stdClass
+    {
+        if (strlen($body) > Config::MAX_REQUEST_BYTES) {
+            return null;
+        }
+        try {
+            $decoded = json_decode($body, false, flags: JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            return null;
+        }
+        return $decoded instanceof \stdClass ? $decoded : null;
+    }
+
     private function isMoveShaped(mixed $move): bool
     {
-        return is_array($move) && !array_is_list($move) && is_string($move['type'] ?? null);
+        return $move instanceof \stdClass && is_string($move->type ?? null);
     }
 
     /** @param array<string, mixed> $request */

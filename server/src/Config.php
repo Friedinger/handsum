@@ -13,10 +13,10 @@ final class Config
     public const DATA_DIR_PROTECTION_FILE = '.htaccess';
     public const MAX_ERROR_LOG_BYTES = 100_000;
 
-    public const ROOM_ID_PATTERN = '/^[0-9a-f]{64}$/';
-    public const PLAYER_ID_PATTERN = '/^[A-Za-z0-9-]{1,' . self::MAX_PLAYER_ID_LENGTH . '}$/';
+    public const ROOM_ID_PATTERN = '/^[0-9a-f]{64}\z/';
+    public const PLAYER_ID_PATTERN = '/^[A-Za-z0-9-]{1,' . self::MAX_PLAYER_ID_LENGTH . '}\z/';
     public const PLAYER_NAME_PATTERN = '/^(?=.{1,' . self::MAX_PLAYER_NAME_LENGTH . '}\z)[\p{L}\p{N}\p{M}][\p{L}\p{N}\p{M} ._\'’-]*(?<! )\z/u';
-    public const SINCE_PATTERN = '/^\d{1,9}$/';
+    public const SINCE_PATTERN = '/^\d{1,9}\z/';
     public const ROOM_ID_HEADER = 'HTTP_X_ROOM';
 
     public const MAX_ROOMS = 200;

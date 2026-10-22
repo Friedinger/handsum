@@ -139,6 +139,7 @@ final class ApiTest extends DataDirTestCase
             'move without type' => ['{"sequence":2,"move":{}}'],
             'list as move' => ['{"sequence":2,"move":[1]}'],
             'string sequence' => ['{"sequence":"2","move":{"type":"a"}}'],
+            'key the decoder cannot represent' => ['{"sequence":0,"move":{"type":"a","\\u0000b":1}}'],
         ];
     }
 
@@ -146,6 +147,30 @@ final class ApiTest extends DataDirTestCase
     public function testMalformedMoveIsRejected(string $body): void
     {
         self::assertSame(400, $this->call('POST', self::roomHeader(), ['action' => 'move'], $body)->status);
+    }
+
+    public function testMovesAreStoredAndReturnedUnchanged(): void
+    {
+        $body = '{"sequence":0,"move":{"type":"a","empty":{},"numbered":{"0":"x","1":"y"},"list":[1,2],"name":"Zoë"}}';
+
+        $this->call('POST', self::roomHeader(), ['action' => 'move'], $body);
+
+        $logLine = (string) file_get_contents($this->dataDir . '/rooms/' . self::roomId() . '.log');
+        self::assertSame('{"type":"a","empty":{},"numbered":{"0":"x","1":"y"},"list":[1,2],"name":"Zoë"}' . "\n", $logLine);
+        $served = json_encode($this->call('GET', self::roomHeader(), [], '')->payload['moves'], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
+        self::assertSame('[{"type":"a","empty":{},"numbered":{"0":"x","1":"y"},"list":[1,2],"name":"Zoë"}]', $served);
+    }
+
+    public function testRoomIdWithATrailingNewlineIsRejected(): void
+    {
+        $server = [Config::ROOM_ID_HEADER => self::roomId() . "\n"];
+
+        self::assertSame(400, $this->call('GET', $server, [], '')->status);
+    }
+
+    public function testPlayerIdWithATrailingNewlineIsRejected(): void
+    {
+        self::assertSame(400, $this->join("abc\n", 'Anna')->status);
     }
 
     public function testOversizedMoveIsRejected(): void
