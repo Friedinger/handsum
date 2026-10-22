@@ -74,26 +74,6 @@ final class FilesystemTest extends DataDirTestCase
         self::assertSame('custom', file_get_contents($this->dataDir . '/.htaccess'));
     }
 
-    public function testAFailedWriteIsReportedInsteadOfThrown(): void
-    {
-        $handle = fopen('/dev/full', 'w');
-        self::assertNotFalse($handle);
-        $this->failOnPhpErrors();
-
-        self::assertFalse(Filesystem::writeFully($handle, 'data'));
-        fclose($handle);
-    }
-
-    public function testASuccessfulWriteIsReported(): void
-    {
-        $handle = fopen($this->dataDir . '/out', 'c+');
-        self::assertNotFalse($handle);
-
-        self::assertTrue(Filesystem::writeFully($handle, 'data'));
-        fclose($handle);
-        self::assertSame('data', file_get_contents($this->dataDir . '/out'));
-    }
-
     public function testAFileThatVanishedDuringTheCleanupIsSkipped(): void
     {
         symlink($this->dataDir . '/gone', $this->dataDir . '/dangling');

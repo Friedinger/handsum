@@ -6,8 +6,8 @@ namespace Handsum\Room;
 
 use Handsum\Config;
 use Handsum\Storage\Filesystem;
+use Handsum\Storage\LockedFile;
 use Handsum\Storage\LockedJsonFile;
-use Handsum\Storage\StorageException;
 
 final class RoomStore
 {
@@ -33,50 +33,27 @@ final class RoomStore
     /** @return list<string> the whole move log as JSON-encoded moves, the index in the list being the sequence number */
     public function moves(string $roomId): array
     {
-        $raw = LockedJsonFile::readRaw($this->logPath($roomId));
+        $raw = LockedFile::readShared($this->logPath($roomId));
         return $raw === null || $raw === '' ? [] : explode("\n", rtrim($raw, "\n"));
     }
 
     /** Appends only if $sequence is the next free index, so duplicates and gaps are rejected. */
     public function append(string $roomId, int $sequence, string $moveJson): AppendResult
     {
-        $handle = @fopen($this->logPath($roomId), 'c+');
-        if ($handle === false) {
-            throw new StorageException('Cannot open a room log');
-        }
-        try {
-            if (!flock($handle, LOCK_EX)) {
-                throw new StorageException('Cannot lock a room log');
-            }
-            $existing = (string) stream_get_contents($handle);
+        $path = $this->logPath($roomId);
+        return LockedFile::withExclusiveLock($path, function ($handle) use ($path, $sequence, $moveJson): AppendResult {
+            $existing = LockedFile::contents($handle);
             $length = $existing === '' ? 0 : substr_count($existing, "\n");
-            $size = strlen($existing);
-            return match (true) {
-                $sequence !== $length => new AppendResult(AppendStatus::Conflict, $length),
-                $length >= Config::MAX_MOVES_PER_ROOM,
-                $size + strlen($moveJson) + 1 > Config::MAX_BYTES_PER_ROOM => new AppendResult(AppendStatus::RoomFull, $length),
-                default => $this->write($handle, $roomId, $moveJson, $length, $size),
-            };
-        } finally {
-            fclose($handle);
-        }
-    }
-
-    /**
-     * A short write (full disk, quota) is cut off again, so the next move never gets glued to half a line.
-     *
-     * @param resource $handle
-     * @param int<0, max> $sizeBefore
-     */
-    private function write($handle, string $roomId, string $moveJson, int $length, int $sizeBefore): AppendResult
-    {
-        fseek($handle, 0, SEEK_END);
-        if (!Filesystem::writeFully($handle, $moveJson . "\n")) {
-            Filesystem::truncateTo($handle, $sizeBefore);
-            throw new StorageException('Cannot write a room log');
-        }
-        touch($this->logPath($roomId), ($this->clock)());
-        return new AppendResult(AppendStatus::Appended, $length + 1);
+            if ($sequence !== $length) {
+                return new AppendResult(AppendStatus::Conflict, $length);
+            }
+            if ($length >= Config::MAX_MOVES_PER_ROOM || strlen($existing) + strlen($moveJson) + 1 > Config::MAX_BYTES_PER_ROOM) {
+                return new AppendResult(AppendStatus::RoomFull, $length);
+            }
+            LockedFile::append($handle, $moveJson . "\n", $path);
+            touch($path, ($this->clock)());
+            return new AppendResult(AppendStatus::Appended, $length + 1);
+        });
     }
 
     /** @return list<Player>|null null when the room is full */

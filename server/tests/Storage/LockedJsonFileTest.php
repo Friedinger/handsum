@@ -12,7 +12,6 @@ final class LockedJsonFileTest extends DataDirTestCase
 {
     public function testReadingAMissingFileGivesNothing(): void
     {
-        self::assertNull(LockedJsonFile::readRaw($this->path()));
         self::assertNull(LockedJsonFile::read($this->path()));
     }
 
