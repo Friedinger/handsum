@@ -107,6 +107,11 @@ const heldLabel = computed(() =>
   heldCardLabel(props.state, selfId.value, held.value, isTakingDiscard.value),
 );
 const heldFaceUp = computed(() => held.value?.holderId === selfId.value);
+const discardConfirmsSwap = computed(
+  () =>
+    hasSelection.value &&
+    (situation.value.kind === "holding" || isTakingDiscard.value),
+);
 const heldMarked = computed(() => intent.value.kind === "action");
 const heldInFlight = computed(() =>
   cardFlights.hiddenAnchors.value.has(HELD_ANCHOR),
@@ -272,7 +277,7 @@ const results = computed(() =>
         :discard-clickable="clickable({ kind: 'discardPile' })"
         :held-clickable="clickable({ kind: 'heldCard' })"
         :held-marked="heldMarked"
-        :discard-confirms="hasSelection"
+        :discard-confirms="discardConfirmsSwap"
         :held-in-flight="heldInFlight"
         :held-is-taken-discard="isTakingDiscard"
         @draw="click({ kind: 'drawPile' })"
