@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Handsum;
 
+use Handsum\Storage\Filesystem;
 use Handsum\Storage\RoomStore;
 use Handsum\Storage\StorageException;
 
@@ -21,6 +22,8 @@ final class Application
     public function handle(string $method, array $server, array $query, string $body, string $ip): Response
     {
         try {
+            Filesystem::ensureDirectory($this->dataDir);
+            Filesystem::denyWebAccess($this->dataDir);
             $api = new Api(
                 new RoomStore($this->dataDir, $this->clock),
                 new RateLimiter($this->dataDir, $this->clock),

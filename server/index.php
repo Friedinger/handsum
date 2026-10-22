@@ -18,17 +18,27 @@ function failOnPhpErrors(): void
     });
 }
 
-function respond(Response $response): void
+function respond(Response $response, string $dataDir): void
 {
-    http_response_code($response->status);
     header('Content-Type: application/json');
     header('Cache-Control: no-store');
-    echo json_encode($response->payload, JSON_THROW_ON_ERROR);
+    header('X-Content-Type-Options: nosniff');
+    try {
+        $json = json_encode($response->payload, JSON_THROW_ON_ERROR);
+        http_response_code($response->status);
+    } catch (\JsonException $error) {
+        ErrorLog::write($error, $dataDir);
+        $json = json_encode(Response::error(500, ErrorCode::ServerError)->payload, JSON_THROW_ON_ERROR);
+        http_response_code(500);
+    }
+    echo $json;
 }
 
+umask(0077);
 failOnPhpErrors();
 ob_start();
-$application = new Application(Config::dataDir(), static fn(): int => time());
+$dataDir = Config::dataDir();
+$application = new Application($dataDir, static fn(): int => time());
 $body = (string) file_get_contents('php://input', length: Config::MAX_REQUEST_BYTES + 1);
 $server = array_filter($_SERVER, 'is_string');
 $response = $application->handle(
@@ -39,4 +49,4 @@ $response = $application->handle(
     $server['REMOTE_ADDR'] ?? '',
 );
 ob_end_clean();
-respond($response);
+respond($response, $dataDir);

@@ -17,6 +17,16 @@ final class ErrorLogTest extends DataDirTestCase
         self::assertStringContainsString('boom', (string) file_get_contents($this->dataDir . '/' . Config::ERROR_LOG_FILE));
     }
 
+    public function testNothingIsWrittenOutsideTheDataDirectory(): void
+    {
+        $fallback = sys_get_temp_dir() . '/handsum-' . Config::ERROR_LOG_FILE;
+        @unlink($fallback);
+
+        ErrorLog::write(new \RuntimeException('boom'), $this->dataDir . '/missing');
+
+        self::assertFileDoesNotExist($fallback);
+    }
+
     public function testOversizedLogIsRestartedInsteadOfGrowing(): void
     {
         $path = $this->dataDir . '/' . Config::ERROR_LOG_FILE;
