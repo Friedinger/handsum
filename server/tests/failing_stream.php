@@ -7,6 +7,8 @@ namespace Handsum\Tests;
 /**
  * An in-memory file for `failing://...` paths that can run out of space or refuse locks, so the
  * rollback of failed writes can be tested without a full disk.
+ *
+ * The `stream_*` method names are dictated by PHP for stream wrappers, hence the naming rule is silenced.
  */
 final class FailingStream
 {
@@ -41,20 +43,20 @@ final class FailingStream
         return self::PROTOCOL . '://file';
     }
 
-    public function stream_open(string $path, string $mode, int $options, ?string &$openedPath): bool
+    public function stream_open(string $path, string $mode, int $options, ?string &$openedPath): bool // NOSONAR php:S100
     {
         $this->position = 0;
         return true;
     }
 
-    public function stream_read(int $count): string
+    public function stream_read(int $count): string // NOSONAR php:S100
     {
         $chunk = substr(self::$contents, $this->position, $count);
         $this->position += strlen($chunk);
         return $chunk;
     }
 
-    public function stream_write(string $data): int
+    public function stream_write(string $data): int // NOSONAR php:S100
     {
         $accepted = max(0, min(strlen($data), self::$capacity - $this->position));
         self::$contents = substr(self::$contents, 0, $this->position)
@@ -64,17 +66,17 @@ final class FailingStream
         return $accepted;
     }
 
-    public function stream_eof(): bool
+    public function stream_eof(): bool // NOSONAR php:S100
     {
         return $this->position >= strlen(self::$contents);
     }
 
-    public function stream_tell(): int
+    public function stream_tell(): int // NOSONAR php:S100
     {
         return $this->position;
     }
 
-    public function stream_seek(int $offset, int $whence): bool
+    public function stream_seek(int $offset, int $whence): bool // NOSONAR php:S100
     {
         $this->position = match ($whence) {
             SEEK_SET => $offset,
@@ -84,29 +86,29 @@ final class FailingStream
         return true;
     }
 
-    public function stream_truncate(int $size): bool
+    public function stream_truncate(int $size): bool // NOSONAR php:S100
     {
         self::$contents = substr(self::$contents, 0, $size);
         return true;
     }
 
-    public function stream_flush(): bool
+    public function stream_flush(): bool // NOSONAR php:S100
     {
         return true;
     }
 
-    public function stream_lock(int $operation): bool
+    public function stream_lock(int $operation): bool // NOSONAR php:S100
     {
         return self::$locksSucceed;
     }
 
-    public function stream_set_option(int $option, int $arg1, ?int $arg2): bool
+    public function stream_set_option(int $option, int $arg1, ?int $arg2): bool // NOSONAR php:S100
     {
         return false;
     }
 
     /** @return array<string, int> */
-    public function stream_stat(): array
+    public function stream_stat(): array // NOSONAR php:S100
     {
         return ['size' => strlen(self::$contents)];
     }
