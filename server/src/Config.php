@@ -9,6 +9,7 @@ final class Config
     public const DEFAULT_DATA_DIR = __DIR__ . '/../data';
     public const LOCAL_CONFIG_FILE = __DIR__ . '/../config.local.php';
     public const ERROR_LOG_FILE = 'error.log';
+    public const SECRET_FILE = 'secret.key';
     public const DATA_DIR_PROTECTION_FILE = '.htaccess';
     public const MAX_ERROR_LOG_BYTES = 100_000;
 
@@ -32,7 +33,7 @@ final class Config
     public const ROOM_IDLE_SECONDS = 6 * 3600;
     public const CLEANUP_PROBABILITY_PERCENT = 2;
 
-    public const REQUESTS_PER_IP_PER_WINDOW = 300;
+    public const REQUESTS_PER_IP_PER_WINDOW = 600;
     public const REQUEST_WINDOW_SECONDS = 60;
     public const ROOM_CREATIONS_PER_IP_PER_WINDOW = 10;
     public const ROOM_CREATION_WINDOW_SECONDS = 3600;

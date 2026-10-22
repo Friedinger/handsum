@@ -40,6 +40,19 @@ final class RateLimiterTest extends DataDirTestCase
         self::assertTrue($limiter->allow('1.1.1.1', 'requests', 1, self::WINDOW_SECONDS));
     }
 
+    public function testCounterNamesDependOnTheInstallation(): void
+    {
+        $otherDataDir = $this->dataDir . '-other';
+        mkdir($otherDataDir);
+        (new RateLimiter($this->dataDir, $this->clock()))->allow('1.1.1.1', 'requests', self::LIMIT, self::WINDOW_SECONDS);
+        (new RateLimiter($otherDataDir, $this->clock()))->allow('1.1.1.1', 'requests', self::LIMIT, self::WINDOW_SECONDS);
+
+        $names = array_map(basename(...), [...(glob($this->dataDir . '/limits/*') ?: []), ...(glob($otherDataDir . '/limits/*') ?: [])]);
+
+        self::assertCount(2, array_unique($names));
+        self::removeTree($otherDataDir);
+    }
+
     public function testExpiredCountersAreDeleted(): void
     {
         $limiter = new RateLimiter($this->dataDir, $this->clock());

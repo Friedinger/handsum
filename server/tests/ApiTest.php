@@ -285,6 +285,29 @@ final class ApiTest extends DataDirTestCase
         self::assertStringNotContainsString('2.2.2.2', $contents . implode('', $paths));
     }
 
+    public function testAnIpv6NetworkSharesOneRequestBudget(): void
+    {
+        $limit = Config::REQUESTS_PER_IP_PER_WINDOW;
+        for ($i = 0; $i < $limit; $i++) {
+            $this->call('GET', self::roomHeader(), [], '', '2001:db8:1:2::' . dechex($i + 1));
+        }
+
+        $response = $this->call('GET', self::roomHeader(), [], '', '2001:db8:1:2:ffff::1');
+
+        self::assertSame(429, $response->status);
+    }
+
+    public function testAnotherIpv6NetworkHasItsOwnRequestBudget(): void
+    {
+        for ($i = 0; $i < Config::REQUESTS_PER_IP_PER_WINDOW + 1; $i++) {
+            $this->call('GET', self::roomHeader(), [], '', '2001:db8:1:2::1');
+        }
+
+        $response = $this->call('GET', self::roomHeader(), [], '', '2001:db8:1:3::1');
+
+        self::assertSame(200, $response->status);
+    }
+
     public function testCreationLimitResetsAfterTheWindow(): void
     {
         $this->createRooms(Config::ROOM_CREATIONS_PER_IP_PER_WINDOW, '2.2.2.2');

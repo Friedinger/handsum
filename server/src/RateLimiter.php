@@ -5,17 +5,20 @@ declare(strict_types=1);
 namespace Handsum;
 
 use Handsum\Storage\Filesystem;
+use Handsum\Storage\InstallationSecret;
 use Handsum\Storage\LockedJsonFile;
 
 final class RateLimiter
 {
     private readonly string $dir;
+    private readonly string $secret;
 
     /** @param \Closure(): int $clock */
     public function __construct(string $dataDir, private readonly \Closure $clock)
     {
         $this->dir = $dataDir . '/limits';
         Filesystem::ensureDirectory($this->dir);
+        $this->secret = InstallationSecret::load($dataDir, ($this->clock)());
     }
 
     /** Counts one hit and returns whether it is still within the limit. */
@@ -47,6 +50,7 @@ final class RateLimiter
     /** The day is part of the hash so stored keys cannot be linked across days. */
     private function key(string $ip, string $bucket): string
     {
-        return hash('sha256', $ip . '|' . gmdate('Y-m-d', ($this->clock)())) . '-' . $bucket;
+        $day = gmdate('Y-m-d', ($this->clock)());
+        return hash_hmac('sha256', ClientAddress::rateLimitKey($ip) . '|' . $day, $this->secret) . '-' . $bucket;
     }
 }
