@@ -15,6 +15,12 @@ client/            Vue 3 app (own package.json, Vite, Vitest, ESLint)
   src/utils/       Vue-free table logic
   test/            tests, mirroring src/ (test/support/ holds shared helpers)
 server/            PHP move log server
+  index.php        entry point (api/index.php after the build)
+  src/Web/         request and response side: Api, RequestBody, Response, error codes
+  src/Room/        per-room data: Rooms (files), MoveLog, PlayerList, Player
+  src/RateLimit/   RateLimiter, per-network counters, client address handling
+  src/Storage/     low-level files: LockedFile, LockedJsonFile, Filesystem, InstallationSecret
+  tests/           tests, mirroring src/ (tests/Support/ holds shared helpers)
 docs/              this documentation
 ```
 
@@ -27,6 +33,10 @@ The game logic runs entirely in the browser. The PHP server in `server/` is a du
 Everyone who opens a room link enters a name and joins the lobby; anyone in the lobby can start the game.
 
 The API has a single entry point, `api/index.php`. The room is identified by the SHA-256 hash of the room code in the `X-Room` header, so the code itself never reaches the server.
+
+## Server layers
+
+`Application` (with `index.php`) wires everything together and turns exceptions into generic error responses; `Housekeeping` deletes expired data now and then. Below that the dependencies point one way: `Web` may use `Room` and `RateLimit`, both may use `Storage`, and `Storage` uses none of them. Everyone may read `Config`, where all limits and patterns live. A file is only ever opened through `LockedFile`, so locking and the rollback of failed writes exist once.
 
 ## Security model
 

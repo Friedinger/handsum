@@ -44,7 +44,7 @@ Without the workflow, build the site, which already contains the server as `api/
 npm run client:build
 ```
 
-Upload the contents of `client/dist/` to the sub-folder on the host.
+Upload the contents of `client/dist/` to the sub-folder on the host. If the server sources were reorganized since the last upload, delete the old `api/src/` folder on the host first, otherwise the previous files stay there unused.
 
 ## Optional password protection
 
