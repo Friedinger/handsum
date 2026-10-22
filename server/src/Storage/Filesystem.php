@@ -37,7 +37,8 @@ final class Filesystem
             return;
         }
         if (@file_put_contents($file, "Require all denied\n") !== false) {
-            chmod($file, 0644);
+            // The web server may run as another user than PHP and must read this file; it holds no secret.
+            chmod($file, 0644); // NOSONAR php:S2612
         }
     }
 }
