@@ -8,7 +8,6 @@ use Handsum\Config;
 use Handsum\RateLimit\RateLimiter;
 use Handsum\Room\AppendStatus;
 use Handsum\Room\MoveLog;
-use Handsum\Room\Player;
 use Handsum\Room\PlayerList;
 use Handsum\Room\Rooms;
 
@@ -65,21 +64,18 @@ final class Api
 
     private function appendMove(string $roomId, string $body, string $ip): Response
     {
-        $request = $this->decodeMoveRequest($body);
-        $sequence = $request->sequence ?? null;
-        $move = $request->move ?? null;
-        if (!is_int($sequence) || $sequence < 0 || !$this->isMoveShaped($move)) {
+        $move = RequestBody::move($body);
+        if ($move === null) {
             return Response::error(400, ErrorCode::InvalidMove);
         }
-        $moveJson = json_encode($move, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        if (strlen($moveJson) > Config::MAX_BYTES_PER_MOVE) {
+        if (strlen($move->moveJson) > Config::MAX_BYTES_PER_MOVE) {
             return Response::error(413, ErrorCode::MoveTooLarge);
         }
         $denied = $this->denyIfCreationLimited($roomId, $ip);
         if ($denied !== null) {
             return $denied;
         }
-        $result = $this->moveLog->append($roomId, $sequence, $moveJson);
+        $result = $this->moveLog->append($roomId, $move->sequence, $move->moveJson);
         return match ($result->status) {
             AppendStatus::Appended => Response::ok(['length' => $result->length]),
             AppendStatus::Conflict => Response::error(409, ErrorCode::Conflict, ['length' => $result->length]),
@@ -89,7 +85,7 @@ final class Api
 
     private function join(string $roomId, string $body, string $ip): Response
     {
-        $player = $this->parsePlayer($this->decodeObject($body));
+        $player = RequestBody::player($body);
         if ($player === null) {
             return Response::error(400, ErrorCode::InvalidPlayer);
         }
@@ -111,50 +107,6 @@ final class Api
         }
         $allowed = $this->limiter->allow($ip, self::CREATION_BUCKET, Config::ROOM_CREATIONS_PER_IP_PER_WINDOW, Config::ROOM_CREATION_WINDOW_SECONDS);
         return $allowed ? null : Response::error(429, ErrorCode::RateLimited);
-    }
-
-    /** @return array<string, mixed> */
-    private function decodeObject(string $body): array
-    {
-        if (strlen($body) > Config::MAX_REQUEST_BYTES) {
-            return [];
-        }
-        $decoded = json_decode($body, true);
-        return is_array($decoded) && !array_is_list($decoded) ? $decoded : [];
-    }
-
-    /**
-     * Decoded as objects, so empty objects and numeric keys survive the round trip into the log
-     * unchanged; keys the decoder cannot represent make the whole request invalid.
-     */
-    private function decodeMoveRequest(string $body): ?\stdClass
-    {
-        if (strlen($body) > Config::MAX_REQUEST_BYTES) {
-            return null;
-        }
-        try {
-            $decoded = json_decode($body, false, flags: JSON_THROW_ON_ERROR);
-        } catch (\JsonException) {
-            return null;
-        }
-        return $decoded instanceof \stdClass ? $decoded : null;
-    }
-
-    private function isMoveShaped(mixed $move): bool
-    {
-        return $move instanceof \stdClass && is_string($move->type ?? null);
-    }
-
-    /** @param array<string, mixed> $request */
-    private function parsePlayer(array $request): ?Player
-    {
-        $playerId = $request['playerId'] ?? null;
-        $name = $request['name'] ?? null;
-        $valid = is_string($playerId)
-            && preg_match(Config::PLAYER_ID_PATTERN, $playerId) === 1
-            && is_string($name)
-            && preg_match(Config::PLAYER_NAME_PATTERN, $name) === 1;
-        return $valid ? new Player($playerId, $name) : null;
     }
 
     private function maybeCleanUp(): void

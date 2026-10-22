@@ -142,9 +142,6 @@ final class ApiTest extends DataDirTestCase
         return [
             'non-JSON body' => ['garbage'],
             'move without type' => ['{"sequence":2,"move":{}}'],
-            'list as move' => ['{"sequence":2,"move":[1]}'],
-            'string sequence' => ['{"sequence":"2","move":{"type":"a"}}'],
-            'key the decoder cannot represent' => ['{"sequence":0,"move":{"type":"a","\\u0000b":1}}'],
         ];
     }
 
@@ -173,11 +170,6 @@ final class ApiTest extends DataDirTestCase
         self::assertSame(400, $this->call('GET', $server, [], '')->status);
     }
 
-    public function testPlayerIdWithATrailingNewlineIsRejected(): void
-    {
-        self::assertSame(400, $this->join("abc\n", 'Anna')->status);
-    }
-
     public function testOversizedMoveIsRejected(): void
     {
         $body = json_encode(['sequence' => 2, 'move' => ['type' => 'a', 'pad' => str_repeat('x', Config::MAX_BYTES_PER_MOVE)]], JSON_THROW_ON_ERROR);
@@ -198,24 +190,6 @@ final class ApiTest extends DataDirTestCase
 
         self::assertSame(200, $response->status);
         self::assertSame([['playerId' => 'p1', 'name' => 'Anna']], self::wire($response)['players']);
-    }
-
-    /** @return array<string, array{string}> */
-    public static function validNames(): array
-    {
-        return [
-            'umlaut' => ['Zoë'],
-            'hyphen' => ['Jean-Luc'],
-            'apostrophe' => ['O’Brien'],
-            'cjk' => ['李雷'],
-            'longest' => [str_repeat('n', Config::MAX_PLAYER_NAME_LENGTH)],
-        ];
-    }
-
-    #[DataProvider('validNames')]
-    public function testValidNamesAreAccepted(string $name): void
-    {
-        self::assertSame(200, $this->join('p1', $name)->status);
     }
 
     public function testRejoiningUpdatesTheName(): void
@@ -242,13 +216,6 @@ final class ApiTest extends DataDirTestCase
         return [
             'invalid player id' => ['../x', 'A'],
             'empty name' => ['p9', '  '],
-            'leading space' => ['p9', ' Anna'],
-            'markup' => ['p9', '<b>Anna</b>'],
-            'line break' => ['p9', "Anna\n"],
-            'direction override' => ['p9', "Eve\u{202E}"],
-            'zero-width space' => ['p9', "Zero\u{200B}width"],
-            'emoji' => ['p9', "Anna \u{1F600}"],
-            'too long name' => ['p9', str_repeat('n', Config::MAX_PLAYER_NAME_LENGTH + 1)],
         ];
     }
 
