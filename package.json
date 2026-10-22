@@ -14,6 +14,10 @@
   "license": "MIT",
   "author": "Friedinger",
   "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "lint": "npm run client:lint && npm run root:lint && npm run server:lint",
+    "fix": "npm run client:fix && npm run root:fix && npm run server:fix",
+    "test": "npm run client:test && npm run server:test",
     "client:dev": "npm --prefix client run dev",
     "client:build": "npm --prefix client run build",
     "client:lint": "npm --prefix client run lint",
@@ -25,9 +29,6 @@
     "server:fix": "npm run server:install && docker compose run --rm php-fix",
     "server:test": "npm run server:install && docker compose run --rm php-test",
     "root:lint": "npm --prefix client exec -- prettier . --check",
-    "root:fix": "npm --prefix client exec -- prettier . --write",
-    "lint": "npm run client:lint && npm run root:lint && npm run server:lint",
-    "fix": "npm run client:fix && npm run root:fix && npm run server:fix",
-    "test": "npm run client:test && npm run server:test"
+    "root:fix": "npm --prefix client exec -- prettier . --write"
   }
 }

@@ -24,6 +24,7 @@ server/            PHP move log server
   src/Storage/     low-level files: LockedFile, LockedJsonFile, Filesystem, InstallationSecret
   tests/           tests, mirroring src/ (tests/support/ holds shared test helpers, loaded by tests/bootstrap.php)
 docs/              this documentation
+scripts/           dev.mjs: runs the PHP API and the Vite dev server together
 ```
 
 The root `package.json` delegates to `client/`, runs the PHP helpers and formats the files outside `client/`. Install the dependencies with `npm install` and `npm --prefix client install`.
@@ -64,6 +65,10 @@ Whoever knows a room link can read and write that room: the server does not auth
 
 | Command                  | Purpose                                                     |
 | ------------------------ | ----------------------------------------------------------- |
+| `npm run dev`            | Start the PHP API and the Vite dev server together          |
+| `npm run lint`           | Run all lint checks (client, other files, server)           |
+| `npm run fix`            | Run all fixes (client, other files, server)                 |
+| `npm test`               | Run client and server tests                                 |
 | `npm run client:dev`     | Start the Vite dev server                                   |
 | `npm run client:build`   | Type-check and build the deployable site to `client/dist/`  |
 | `npm run client:test`    | Run the client unit tests                                   |
@@ -74,8 +79,5 @@ Whoever knows a room link can read and write that room: the server does not auth
 | `npm run server:lint`    | Check the PHP code style and static analysis (Compose)      |
 | `npm run server:fix`     | Fix the PHP code style (Compose)                            |
 | `npm run server:test`    | Run the PHP server tests (PHPUnit, Compose)                 |
-| `npm test`               | Run client and server tests                                 |
 | `npm run root:lint`      | Check the formatting of the files outside `client/`         |
 | `npm run root:fix`       | Format the files outside `client/`                          |
-| `npm run lint`           | Run all lint checks (client, other files, server)           |
-| `npm run fix`            | Run all fixes (client, other files, server)                 |

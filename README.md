@@ -35,9 +35,10 @@ npm --prefix client install
 ### 🖥️ Start development server
 
 ```bash
-npm run server:dev   # PHP API on port 8080, in its own terminal
-npm run client:dev   # Vite dev server
+npm run dev   # PHP API on port 8080 and Vite together, Ctrl+C stops both
 ```
+
+`npm run server:dev` and `npm run client:dev` start them one by one in separate terminals.
 
 To try it alone, open the room link in two browser windows.
 
