@@ -7,12 +7,12 @@ This document describes how the repository is organized, how the game works and 
 ```text
 client/            Vue 3 app (own package.json, Vite, Vitest, ESLint)
   src/engine/      pure game logic
-  src/net/         move log sync and player identity
+  src/net/         move log sync, player identity, polling and in-memory transports
   src/data/        card data and UI texts
   src/components/  Vue components
   src/views/       page-level components
   src/composables/ Vue composables
-  src/utils/       Vue-free table logic
+  src/utils/       Vue-free table and tutorial logic
   test/            tests, mirroring src/ (test/support/ holds shared helpers)
 server/            PHP move log server
   index.php        entry point (api/index.php after the build)
@@ -31,9 +31,15 @@ The root `package.json` delegates to `client/`, runs the PHP helpers and formats
 
 The game logic runs entirely in the browser. The PHP server in `server/` is a dumb, ordered log store per room: it knows nothing about the rules. Clients append moves with a sequence number (accepted only if it is the next free one), poll for new moves (about every 1.5 seconds while something happens, slower when idle, paused while the tab is hidden) and compute the same game state from the log. Every client validates every move with the engine. Reloading the page rejoins the game because the server keeps the whole log.
 
-Everyone who opens a room link enters a name and joins the lobby; anyone in the lobby can start the game.
+Everyone who opens a room link enters a name and joins the lobby; anyone in the lobby can start the game. The `startGame` move carries the seed that shuffles the deck. It may instead carry an explicit card order (`deck`, the card values), which must be exactly the standard deck; only the tutorial uses it.
 
 The API has a single entry point, `api/index.php`. The room is identified by the SHA-256 hash of the room code in the `X-Room` header, so the code itself never reaches the server.
+
+## Tutorial
+
+`#tutorial` opens a guided practice round that runs completely in the browser and never contacts the server. It uses the real game: the same session and table view, connected to an in-memory room (`net/localTransport.ts`) instead of the PHP server. A scripted opponent (`utils/tutorialScript.ts`) joins that room, looks at two of its cards, then keeps drawn cards of up to 4 on a card it has never seen and throws away higher ones, with a short delay so the player can follow. The `startGame` move of the tutorial carries a fixed deck (`TUTORIAL_DECK`), so the drawn cards fit the lessons.
+
+`utils/tutorialScript.ts` holds the lesson plan: the fixed list of moves the player makes, each with its coach step and a hint. `utils/tutorialGuide.ts` only looks up how many moves the player has made to find the current step, and holds back every move that is not the planned one (the table then shows a hint instead of submitting it). The lessons are: look at the two cards on the left, draw and keep a low card, the three card powers (look at an own card, look at an opponent's card, blind exchange), replacing a group of equal cards, taking the top card of the discard pile, announcing the end once all own cards are known, and the results. `composables/useTutorial.ts` wires session, opponent and guide together, `views/TutorialView.vue` shows the coach inside the table, and the tests play every allowed path through the round against the engine.
 
 ## Server layers
 
