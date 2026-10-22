@@ -36,7 +36,8 @@ final class MoveLog
                 return new AppendResult(AppendStatus::RoomFull, $length);
             }
             $file->append($moveJson . "\n");
-            touch($path, ($this->clock)());
+            // The move is stored already, so a failing touch must not fail the request.
+            @touch($path, ($this->clock)());
             return new AppendResult(AppendStatus::Appended, $length + 1);
         });
     }

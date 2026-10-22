@@ -18,7 +18,8 @@ final class LockedJsonFile
             $updated = $change(json_decode($file->readAll(), true));
             if ($updated !== null) {
                 $file->replace(json_encode($updated, JSON_THROW_ON_ERROR));
-                touch($path, $now);
+                // The data is stored already, so a failing touch must not fail the request.
+                @touch($path, $now);
             }
             return $updated;
         });

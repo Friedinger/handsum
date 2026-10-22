@@ -37,7 +37,7 @@ The API has a single entry point, `api/index.php`. The room is identified by the
 
 ## Server layers
 
-`Application` (with `index.php`) and `Housekeeping` wire everything together and turns exceptions into generic error responses; `Housekeeping` deletes expired data now and then. Below that the dependencies point one way: `Web` may use `Room` and `RateLimit`, both may use `Storage`, and `Storage` uses none of them. Everyone may read `Config`, where all limits and patterns live. The data files (rooms, counters, secret) are only ever opened through `LockedFile`, so locking and the rollback of failed writes exist once.
+`Application` (with `index.php`) wires everything together and turns exceptions into generic error responses. `Housekeeping` deletes expired data now and then after a request; it is skipped for rate limited requests, and a failing cleanup is only logged, so it never turns a successful request into an error. Below that the dependencies point one way: `Web` may use `Room` and `RateLimit`, both may use `Storage`, and `Storage` uses none of them. `Application`, `Housekeeping` and `index.php` may use everything, and everyone may read `Config`, where all limits and patterns live. The data files (rooms, counters, secret) are only ever opened through `LockedFile`, so locking and the rollback of failed writes exist once.
 
 ## Security model
 
