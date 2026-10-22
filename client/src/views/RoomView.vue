@@ -46,7 +46,7 @@ if (
 
 <template>
   <SessionView v-if="self" :room-code="roomCode" :self="self" />
-  <p v-else-if="connecting" class="panel">{{ strings.nameForm.connecting }}</p>
+  <p v-else-if="connecting" class="notice">{{ strings.nameForm.connecting }}</p>
   <form v-else class="panel stack" @submit.prevent="submitName">
     <label for="player-name">{{ strings.nameForm.label }}</label>
     <div class="inline-form">

@@ -23,10 +23,13 @@ const isSeated = computed(
 </script>
 
 <template>
-  <p v-if="snapshot.connection === 'offline'" class="error">
+  <p
+    v-if="snapshot.connection === 'offline'"
+    class="notice notice-error notice-slim"
+  >
     {{ strings.connection.offline }}
   </p>
-  <p v-if="game.status === 'notStarted' && snapshot.joinRefused" class="panel">
+  <p v-if="game.status === 'notStarted' && snapshot.joinRefused" class="notice">
     {{ strings.roomFull.notice }}
   </p>
   <LobbyView
@@ -43,5 +46,5 @@ const isSeated = computed(
     @move="submitMove"
     @play-again="startGame"
   />
-  <p v-else class="panel">{{ strings.spectator.notice }}</p>
+  <p v-else class="notice">{{ strings.spectator.notice }}</p>
 </template>

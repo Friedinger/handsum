@@ -34,7 +34,7 @@ function joinRoom(): void {
         :aria-label="strings.home.roomCode"
         autocomplete="off"
       />
-      <button type="submit" class="button-secondary button-accent-outline">
+      <button type="submit" class="button-accent-outline">
         {{ strings.home.joinRoom }}
       </button>
     </form>

@@ -50,7 +50,7 @@ async function share(): Promise<void> {
         <button
           v-if="canShareLink()"
           type="button"
-          class="button-secondary button-accent-outline"
+          class="button-accent-outline"
           @click="share"
         >
           {{ strings.lobby.share }}

@@ -32,10 +32,7 @@ const coach = computed(() => {
 </script>
 
 <template>
-  <section
-    v-if="game.status === 'notStarted'"
-    class="panel stack tutorial-intro"
-  >
+  <section v-if="game.status === 'notStarted'" class="panel stack">
     <h2>{{ strings.tutorial.intro.title }}</h2>
     <p>{{ strings.tutorial.intro.text }}</p>
     <button type="button" class="button-primary" @click="start">
