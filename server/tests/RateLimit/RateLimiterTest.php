@@ -6,10 +6,13 @@ namespace Handsum\Tests\RateLimit;
 
 use Handsum\Config;
 use Handsum\RateLimit\RateLimiter;
-use Handsum\Tests\Support\DataDirTestCase;
+use Handsum\Tests\Support\WithDataDir;
+use PHPUnit\Framework\TestCase;
 
-final class RateLimiterTest extends DataDirTestCase
+final class RateLimiterTest extends TestCase
 {
+    use WithDataDir;
+
     private const LIMIT = 2;
     private const WINDOW_SECONDS = 60;
 

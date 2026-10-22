@@ -9,16 +9,18 @@ use Handsum\Housekeeping;
 use Handsum\RateLimit\RateLimiter;
 use Handsum\Room\MoveLog;
 use Handsum\Room\Rooms;
-use Handsum\Tests\Support\DataDirTestCase;
+use Handsum\Tests\Support\WithDataDir;
+use PHPUnit\Framework\TestCase;
 
-final class HousekeepingTest extends DataDirTestCase
+final class HousekeepingTest extends TestCase
 {
+    use WithDataDir;
+
     private Rooms $rooms;
     private RateLimiter $limiter;
 
     protected function setUp(): void
     {
-        parent::setUp();
         $this->rooms = new Rooms($this->dataDir, $this->clock());
         $this->limiter = new RateLimiter($this->dataDir, $this->clock());
         (new MoveLog($this->rooms, $this->clock()))->append(self::roomId(), 0, '{"type":"a"}');

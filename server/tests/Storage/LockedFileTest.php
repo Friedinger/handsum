@@ -6,10 +6,13 @@ namespace Handsum\Tests\Storage;
 
 use Handsum\Storage\LockedFile;
 use Handsum\Storage\StorageException;
-use Handsum\Tests\Support\DataDirTestCase;
+use Handsum\Tests\Support\WithDataDir;
+use PHPUnit\Framework\TestCase;
 
-final class LockedFileTest extends DataDirTestCase
+final class LockedFileTest extends TestCase
 {
+    use WithDataDir;
+
     private bool $errorHandlerInstalled = false;
 
     protected function tearDown(): void
@@ -17,7 +20,6 @@ final class LockedFileTest extends DataDirTestCase
         if ($this->errorHandlerInstalled) {
             restore_error_handler();
         }
-        parent::tearDown();
     }
 
     public function testAMissingFileCannotBeRead(): void

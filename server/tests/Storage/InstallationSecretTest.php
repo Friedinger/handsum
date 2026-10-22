@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace Handsum\Tests\Storage;
 
 use Handsum\Storage\InstallationSecret;
-use Handsum\Tests\Support\DataDirTestCase;
+use Handsum\Tests\Support\WithDataDir;
+use PHPUnit\Framework\TestCase;
 
-final class InstallationSecretTest extends DataDirTestCase
+final class InstallationSecretTest extends TestCase
 {
+    use WithDataDir;
+
     public function testASecretIsCreatedOnFirstUse(): void
     {
         $secret = InstallationSecret::load($this->dataDir, $this->now);

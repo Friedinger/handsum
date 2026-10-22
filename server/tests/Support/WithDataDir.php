@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Handsum\Tests\Support;
 
 use Handsum\Config;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
 
-abstract class DataDirTestCase extends TestCase
+/** Gives a test its own temporary data folder and a fixed clock; use it in a test class next to extending `TestCase`. */
+trait WithDataDir
 {
     protected const START_TIME = 1_700_000_000;
     protected const MOVES_ROOM_CODE = 'ABC234';
@@ -16,13 +18,15 @@ abstract class DataDirTestCase extends TestCase
     protected string $dataDir;
     protected int $now = self::START_TIME;
 
-    protected function setUp(): void
+    #[Before]
+    protected function createDataDir(): void
     {
         $this->dataDir = sys_get_temp_dir() . '/handsum-test-' . bin2hex(random_bytes(6));
         mkdir($this->dataDir);
     }
 
-    protected function tearDown(): void
+    #[After]
+    protected function removeDataDir(): void
     {
         self::removeTree($this->dataDir);
     }

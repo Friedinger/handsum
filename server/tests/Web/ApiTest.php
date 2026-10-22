@@ -9,19 +9,21 @@ use Handsum\RateLimit\RateLimiter;
 use Handsum\Room\MoveLog;
 use Handsum\Room\PlayerList;
 use Handsum\Room\Rooms;
-use Handsum\Tests\Support\DataDirTestCase;
+use Handsum\Tests\Support\WithDataDir;
 use Handsum\Web\Api;
 use Handsum\Web\ErrorCode;
 use Handsum\Web\Response;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
 
-final class ApiTest extends DataDirTestCase
+final class ApiTest extends TestCase
 {
+    use WithDataDir;
+
     private Api $api;
 
     protected function setUp(): void
     {
-        parent::setUp();
         $rooms = new Rooms($this->dataDir, $this->clock());
         $this->api = new Api(
             $rooms,

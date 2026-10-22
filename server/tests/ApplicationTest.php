@@ -6,11 +6,14 @@ namespace Handsum\Tests;
 
 use Handsum\Application;
 use Handsum\Config;
-use Handsum\Tests\Support\DataDirTestCase;
+use Handsum\Tests\Support\WithDataDir;
 use Handsum\Web\ErrorCode;
+use PHPUnit\Framework\TestCase;
 
-final class ApplicationTest extends DataDirTestCase
+final class ApplicationTest extends TestCase
 {
+    use WithDataDir;
+
     public function testRequestsAreHandledByTheApi(): void
     {
         $application = new Application($this->dataDir, $this->clock());

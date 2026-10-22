@@ -8,15 +8,17 @@ use Handsum\Config;
 use Handsum\Room\AppendStatus;
 use Handsum\Room\MoveLog;
 use Handsum\Room\Rooms;
-use Handsum\Tests\Support\DataDirTestCase;
+use Handsum\Tests\Support\WithDataDir;
+use PHPUnit\Framework\TestCase;
 
-final class MoveLogTest extends DataDirTestCase
+final class MoveLogTest extends TestCase
 {
+    use WithDataDir;
+
     private MoveLog $log;
 
     protected function setUp(): void
     {
-        parent::setUp();
         $this->log = new MoveLog(new Rooms($this->dataDir, $this->clock()), $this->clock());
     }
 

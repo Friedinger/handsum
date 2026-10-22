@@ -6,10 +6,13 @@ namespace Handsum\Tests;
 
 use Handsum\Config;
 use Handsum\ErrorLog;
-use Handsum\Tests\Support\DataDirTestCase;
+use Handsum\Tests\Support\WithDataDir;
+use PHPUnit\Framework\TestCase;
 
-final class ErrorLogTest extends DataDirTestCase
+final class ErrorLogTest extends TestCase
 {
+    use WithDataDir;
+
     public function testErrorsAreLoggedToTheDataDirectory(): void
     {
         ErrorLog::write(new \RuntimeException('boom'), $this->dataDir);

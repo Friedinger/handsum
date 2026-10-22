@@ -6,10 +6,13 @@ namespace Handsum\Tests\Storage;
 
 use Handsum\Storage\LockedJsonFile;
 use Handsum\Storage\StorageException;
-use Handsum\Tests\Support\DataDirTestCase;
+use Handsum\Tests\Support\WithDataDir;
+use PHPUnit\Framework\TestCase;
 
-final class LockedJsonFileTest extends DataDirTestCase
+final class LockedJsonFileTest extends TestCase
 {
+    use WithDataDir;
+
     public function testReadingAMissingFileGivesNothing(): void
     {
         self::assertNull(LockedJsonFile::read($this->path()));

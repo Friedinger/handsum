@@ -8,15 +8,17 @@ use Handsum\Config;
 use Handsum\Room\Player;
 use Handsum\Room\PlayerList;
 use Handsum\Room\Rooms;
-use Handsum\Tests\Support\DataDirTestCase;
+use Handsum\Tests\Support\WithDataDir;
+use PHPUnit\Framework\TestCase;
 
-final class PlayerListTest extends DataDirTestCase
+final class PlayerListTest extends TestCase
 {
+    use WithDataDir;
+
     private PlayerList $players;
 
     protected function setUp(): void
     {
-        parent::setUp();
         $this->players = new PlayerList(new Rooms($this->dataDir, $this->clock()), $this->clock());
     }
 

@@ -10,10 +10,13 @@ use Handsum\Room\Player;
 use Handsum\Room\PlayerList;
 use Handsum\Room\Rooms;
 use Handsum\Storage\StorageException;
-use Handsum\Tests\Support\DataDirTestCase;
+use Handsum\Tests\Support\WithDataDir;
+use PHPUnit\Framework\TestCase;
 
-final class RoomsTest extends DataDirTestCase
+final class RoomsTest extends TestCase
 {
+    use WithDataDir;
+
     public function testARoomExistsOnceItHasAnyFile(): void
     {
         $rooms = new Rooms($this->dataDir, $this->clock());
