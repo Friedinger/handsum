@@ -15,8 +15,6 @@ export type TutorialStepId = keyof typeof strings.tutorial.steps;
  */
 export const TUTORIAL_SEED = 907872902;
 
-export const TUTORIAL_ROOM_CODE = "tutorial";
-
 export const TUTORIAL_PLAYER: Player = {
   id: "tutorial-player",
   name: strings.tutorial.names.player,
@@ -84,11 +82,9 @@ function buildTutorialDeck(): number[] {
 
 export const TUTORIAL_DECK: readonly number[] = buildTutorialDeck();
 
-type PlayerMove = Move extends infer M
-  ? M extends Move
-    ? Omit<M, "playerId">
-    : never
-  : never;
+type WithoutPlayer<M> = M extends unknown ? Omit<M, "playerId"> : never;
+
+type PlayerMove = WithoutPlayer<Exclude<Move, { type: "startGame" }>>;
 
 export interface Lesson {
   readonly step: TutorialStepId;
@@ -99,16 +95,23 @@ export interface Lesson {
 
 const { hints } = strings.tutorial;
 
-const STARTING_VIEW_SLOTS = [0, 1];
+const STARTING_VIEW_SLOTS: readonly number[] = [0, 1];
 const KEPT_SLOT = 0;
 const UNSEEN_SLOT = 2;
 const OPPONENT_LOW_SLOT = 1;
 const GROUP_SLOTS = [0, 2];
 const TAKEN_SLOT = 3;
+
+function positionOf(slot: number): number {
+  return slot + 1;
+}
+
 /**
- * Slots are counted in the table's order; the group leaves its higher slot empty.
+ * The table closes the gap the group leaves, so every slot behind the group moves up by one position.
  */
-const TAKEN_POSITION = 3;
+const TAKEN_POSITION_AFTER_GROUP = positionOf(
+  TAKEN_SLOT - (GROUP_SLOTS.length - 1),
+);
 
 const DRAW: Lesson = {
   step: "drawAgain",
@@ -130,13 +133,13 @@ export const TUTORIAL_PLAN: readonly Lesson[] = [
   {
     step: "keep",
     move: { type: "swapDrawnCard", slotIndices: [KEPT_SLOT] },
-    hint: hints.keepHighest(KEPT_SLOT + 1),
+    hint: hints.keepHighest(positionOf(KEPT_SLOT)),
   },
   DRAW,
   {
     step: "viewOwn",
     move: { type: "viewOwnCard", slotIndex: UNSEEN_SLOT },
-    hint: hints.lookAtUnseen(UNSEEN_SLOT + 1),
+    hint: hints.lookAtUnseen(positionOf(UNSEEN_SLOT)),
   },
   DRAW,
   {
@@ -146,8 +149,8 @@ export const TUTORIAL_PLAN: readonly Lesson[] = [
       targetPlayerId: TUTORIAL_OPPONENT.id,
       slotIndex: OPPONENT_LOW_SLOT,
     },
-    hint: hints.lookAtOpponentCard(OPPONENT_LOW_SLOT + 1),
-    position: OPPONENT_LOW_SLOT + 1,
+    hint: hints.lookAtOpponentCard(positionOf(OPPONENT_LOW_SLOT)),
+    position: positionOf(OPPONENT_LOW_SLOT),
   },
   DRAW,
   {
@@ -158,26 +161,28 @@ export const TUTORIAL_PLAN: readonly Lesson[] = [
       targetPlayerId: TUTORIAL_OPPONENT.id,
       targetSlotIndex: OPPONENT_LOW_SLOT,
     },
-    hint: hints.exchangeHighCard(UNSEEN_SLOT + 1, OPPONENT_LOW_SLOT + 1),
-    position: OPPONENT_LOW_SLOT + 1,
+    hint: hints.exchangeHighCard(
+      positionOf(UNSEEN_SLOT),
+      positionOf(OPPONENT_LOW_SLOT),
+    ),
+    position: positionOf(OPPONENT_LOW_SLOT),
   },
   DRAW,
   {
     step: "groupReplace",
     move: { type: "swapDrawnCard", slotIndices: GROUP_SLOTS },
-    hint: hints.replaceGroup(GROUP_SLOTS.map((slot) => slot + 1)),
+    hint: hints.replaceGroup(GROUP_SLOTS.map(positionOf)),
   },
   {
     step: "takeDiscard",
     move: { type: "swapDiscardCard", slotIndices: [TAKEN_SLOT] },
-    hint: hints.takeLowDiscard(TAKEN_POSITION),
+    hint: hints.takeLowDiscard(TAKEN_POSITION_AFTER_GROUP),
   },
   { step: "callEnd", move: { type: "callEnd" }, hint: hints.callEndNow },
 ];
 
-const OPPONENT_STARTING_VIEW_SLOTS: readonly number[] = [0, 1];
 const OPPONENT_UNSEEN_SLOTS: readonly number[] = [2, 3];
-const OPPONENT_KEEP_MAX = 4;
+export const OPPONENT_KEEP_MAX = 4;
 
 /**
  * Robin keeps a drawn card of up to 4 by swapping it onto the next card he has never seen and
@@ -206,7 +211,7 @@ export function nextOpponentMove(
       : {
           type: "viewStartingCards",
           playerId,
-          slotIndices: OPPONENT_STARTING_VIEW_SLOTS,
+          slotIndices: STARTING_VIEW_SLOTS,
         };
   }
   if (phase.kind !== "playing" || phase.currentPlayerId !== playerId) {

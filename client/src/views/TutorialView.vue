@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
+import TutorialCoach from "@/components/TutorialCoach.vue";
 import { useTutorial } from "@/composables/useTutorial";
 import { strings } from "@/data/strings";
 import { leaveRoom } from "@/utils/roomNavigation";
@@ -18,17 +19,7 @@ const {
 } = useTutorial();
 
 const game = computed(() => snapshot.value.log.state);
-const step = computed(() => guide.value?.step ?? null);
-const coach = computed(() => {
-  if (!step.value || !guide.value) {
-    return null;
-  }
-  const { title, text } = strings.tutorial.steps[step.value];
-  return {
-    title,
-    text: typeof text === "string" ? text : text(guide.value.position ?? 0),
-  };
-});
+const coach = computed(() => guide.value?.coach ?? null);
 </script>
 
 <template>
@@ -52,16 +43,7 @@ const coach = computed(() => {
     @play-again="restart"
   >
     <template v-if="coach" #coach>
-      <span class="coach-title">{{ coach.title }}</span>
-      <p>{{ coach.text }}</p>
-      <p v-if="notice" class="error">{{ notice }}</p>
+      <TutorialCoach :title="coach.title" :text="coach.text" :notice="notice" />
     </template>
   </GameTable>
 </template>
-
-<style scoped>
-.coach-title {
-  color: var(--color-accent);
-  font-weight: 700;
-}
-</style>

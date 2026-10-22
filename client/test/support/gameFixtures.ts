@@ -146,3 +146,10 @@ export function layoutOf(
 ): readonly Slot[] {
   return state.seats[seatIndex]?.layout ?? [];
 }
+
+export function layoutOfPlayer(
+  state: StartedGame,
+  playerId: string,
+): readonly Slot[] {
+  return state.seats.find((seat) => seat.player.id === playerId)?.layout ?? [];
+}

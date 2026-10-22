@@ -1,11 +1,11 @@
-export const TUTORIAL_HASH = "tutorial";
+export const TUTORIAL_ROOM_CODE = "tutorial";
 
 export function openRoom(roomCode: string): void {
   location.hash = roomCode;
 }
 
 export function openTutorial(): void {
-  location.hash = TUTORIAL_HASH;
+  location.hash = TUTORIAL_ROOM_CODE;
 }
 
 export function leaveRoom(): void {

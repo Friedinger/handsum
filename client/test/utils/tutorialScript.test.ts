@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-import { strings } from "@/data/strings";
 import {
   applyMove,
   type Card,
@@ -8,17 +7,16 @@ import {
   type Move,
   type StartedGame,
 } from "@/engine";
-import { arrangeDeck } from "@/engine/deck";
-import { guideFor } from "@/utils/tutorialGuide";
 import {
   nextOpponentMove,
+  OPPONENT_KEEP_MAX,
   TUTORIAL_DECK,
   TUTORIAL_OPPONENT,
   TUTORIAL_PLAYER,
   TUTORIAL_SEED,
 } from "@/utils/tutorialScript";
 
-import { expectStarted } from "@test/support/gameFixtures";
+import { expectStarted, layoutOfPlayer } from "@test/support/gameFixtures";
 import {
   type GuidedRound,
   guidedRounds,
@@ -27,17 +25,13 @@ import {
 } from "@test/support/guidedRound";
 import { knownOwnSlots, knowsAllOwnCards } from "@test/support/knownCards";
 
+// What the lessons call "low" and "high": a low card is worth keeping, a high one is worth giving away.
 const LOW_CARD_MAX = 2;
 const HIGH_CARD_MIN = 9;
-const OPPONENT_KEEP_MAX = 4;
 const MIN_LEAD_IN_SUM = 8;
 
 function playerTurns(round: GuidedRound, type: Move["type"]): PlayedMove[] {
   return playersMoves(round).filter(({ move }) => move.type === type);
-}
-
-function layoutOf(state: StartedGame, playerId: string) {
-  return state.seats.find((seat) => seat.player.id === playerId)?.layout ?? [];
 }
 
 function valuesAt(
@@ -45,7 +39,7 @@ function valuesAt(
   playerId: string,
   slotIndices: readonly number[],
 ): number[] {
-  const layout = layoutOf(state, playerId);
+  const layout = layoutOfPlayer(state, playerId);
   return slotIndices.flatMap((slotIndex) => {
     const card = layout[slotIndex];
     return card ? [card.value] : [];
@@ -59,15 +53,9 @@ function heldCard(state: StartedGame): Card | undefined {
     : undefined;
 }
 
-describe("tutorial deck", () => {
-  it("is exactly the standard deck", () => {
-    expect(arrangeDeck(TUTORIAL_DECK)).not.toBeNull();
-  });
-});
+const rounds = guidedRounds();
 
 describe("tutorial script", () => {
-  const rounds = guidedRounds();
-
   it("plays through to the end for every choice the guide allows", () => {
     expect(rounds.length).toBeGreaterThan(0);
     expect(rounds.every((round) => round.finished)).toBe(true);
@@ -233,7 +221,7 @@ describe("tutorial script", () => {
 
 describe("tutorial start", () => {
   it("lets the player start, because the lessons begin with the player's draw", () => {
-    const [round] = guidedRounds();
+    const [round] = rounds;
     const [firstTurn] = (round?.played ?? []).filter(
       ({ move }) => move.type === "drawFromDeck",
     );
@@ -242,31 +230,6 @@ describe("tutorial start", () => {
       firstTurn?.move.playerId,
       "TUTORIAL_SEED must make the player start; pick another seed if the starting player derivation changed",
     ).toBe(TUTORIAL_PLAYER.id);
-  });
-
-  it("names the position of the taken card as the table shows it after the group", () => {
-    for (const round of guidedRounds()) {
-      const [take] = playerTurns(round, "swapDiscardCard");
-      if (take?.move.type !== "swapDiscardCard") {
-        throw new Error("Expected taking the discard card");
-      }
-      const [slot = -1] = take.move.slotIndices;
-      const shownBefore = layoutOf(take.stateBefore, TUTORIAL_PLAYER.id)
-        .slice(0, slot + 1)
-        .filter((card) => card !== null);
-      const guide = guideFor(
-        take.movesBefore,
-        take.stateBefore,
-        TUTORIAL_PLAYER.id,
-      );
-
-      expect(
-        guide.hintAgainst({
-          type: "drawFromDeck",
-          playerId: TUTORIAL_PLAYER.id,
-        }),
-      ).toBe(strings.tutorial.hints.takeLowDiscard(shownBefore.length));
-    }
   });
 });
 
@@ -331,7 +294,7 @@ describe("tutorial opponent", () => {
   });
 
   it("keeps low cards on cards it has never seen and throws away the rest", () => {
-    const [round] = guidedRounds();
+    const [round] = rounds;
     const turns = (round?.played ?? []).filter(
       ({ move }) => move.playerId === TUTORIAL_OPPONENT.id,
     );

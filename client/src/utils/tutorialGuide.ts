@@ -1,3 +1,4 @@
+import { strings } from "@/data/strings";
 import { type Move, type PlayerId, type StartedGame } from "@/engine";
 import {
   type Lesson,
@@ -5,9 +6,14 @@ import {
   type TutorialStepId,
 } from "@/utils/tutorialScript";
 
+export interface CoachText {
+  readonly title: string;
+  readonly text: string;
+}
+
 export interface TutorialGuide {
   readonly step: TutorialStepId;
-  readonly position: number | null;
+  readonly coach: CoachText;
   readonly hintAgainst: (move: Move) => string | null;
 }
 
@@ -50,7 +56,6 @@ function matches(expected: Lesson["move"], move: Move): boolean {
     case "drawFromDeck":
     case "discardDrawnCard":
     case "callEnd":
-    case "startGame":
       return move.type === expected.type;
   }
 }
@@ -58,7 +63,7 @@ function matches(expected: Lesson["move"], move: Move): boolean {
 function stepOf(
   state: StartedGame,
   selfId: PlayerId,
-  lessonsDone: number,
+  playerMovesMade: number,
 ): TutorialStepId {
   const { phase } = state;
   if (phase.kind === "finished") {
@@ -69,12 +74,20 @@ function stepOf(
       ? phase.viewedPlayerIds.includes(selfId)
       : phase.currentPlayerId !== selfId;
   if (!waiting) {
-    return TUTORIAL_PLAN[lessonsDone]?.step ?? "lastRound";
+    return TUTORIAL_PLAN[playerMovesMade]?.step ?? "lastRound";
   }
-  if (lessonsDone >= TUTORIAL_PLAN.length) {
+  if (playerMovesMade >= TUTORIAL_PLAN.length) {
     return "lastRound";
   }
-  return lessonsDone <= 1 ? "remember" : "watchOpponent";
+  return phase.kind === "startingView" ? "remember" : "watchOpponent";
+}
+
+function coachTextOf(step: TutorialStepId, position: number | null): CoachText {
+  const { title, text } = strings.tutorial.steps[step];
+  return {
+    title,
+    text: typeof text === "string" ? text : text(position ?? 0),
+  };
 }
 
 export function guideFor(
@@ -82,13 +95,15 @@ export function guideFor(
   state: StartedGame,
   selfId: PlayerId,
 ): TutorialGuide {
-  const lessonsDone = moves.filter(
+  const playerMovesMade = moves.filter(
     (move) => move.playerId === selfId && move.type !== "startGame",
   ).length;
-  const lesson = TUTORIAL_PLAN[lessonsDone];
+  const lesson = TUTORIAL_PLAN[playerMovesMade];
+  const step = stepOf(state, selfId, playerMovesMade);
+  const position = lesson?.position ?? null;
   return {
-    step: stepOf(state, selfId, lessonsDone),
-    position: lesson?.position ?? null,
+    step,
+    coach: coachTextOf(step, position),
     hintAgainst: (move) =>
       !lesson || matches(lesson.move, move) ? null : lesson.hint,
   };

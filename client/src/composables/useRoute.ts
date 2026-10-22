@@ -1,7 +1,7 @@
 import { computed, type ComputedRef, onUnmounted, ref } from "vue";
 
 import { normalizeRoomCode } from "@/net/roomCode";
-import { TUTORIAL_HASH } from "@/utils/roomNavigation";
+import { TUTORIAL_ROOM_CODE } from "@/utils/roomNavigation";
 
 export type Route =
   | { readonly kind: "home" }
@@ -9,7 +9,7 @@ export type Route =
   | { readonly kind: "room"; readonly roomCode: string };
 
 export function parseRoute(hash: string): Route {
-  if (hash.replace(/^#/, "") === TUTORIAL_HASH) {
+  if (hash.replace(/^#/, "") === TUTORIAL_ROOM_CODE) {
     return { kind: "tutorial" };
   }
   const roomCode = normalizeRoomCode(hash);

@@ -75,7 +75,7 @@ describe("local room", () => {
     expect(late.updates.at(-1)).toMatchObject({ firstIndex: 0, moves: [move] });
   });
 
-  it("keeps rooms of separate tutorials apart", async () => {
+  it("keeps separate local rooms apart", async () => {
     const first = createLocalRoom()(
       "room",
       alice,

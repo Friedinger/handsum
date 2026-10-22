@@ -1,11 +1,6 @@
-import {
-  type GameState,
-  initialGameState,
-  type Move,
-  type PlayerId,
-  type StartedGame,
-  tryApplyMove,
-} from "@/engine";
+import type { Move, PlayerId, StartedGame } from "@/engine";
+
+import { layoutOfPlayer } from "@test/support/gameFixtures";
 
 /**
  * The own slots whose card the player has seen and not lost track of: every way of learning a
@@ -17,7 +12,6 @@ export function knownOwnSlots(
 ): Set<number> {
   const known = new Set<number>();
   const viewedOpponentSlots = new Set<number>();
-  let state: GameState = initialGameState;
   for (const move of moves) {
     if (move.playerId === selfId) {
       switch (move.type) {
@@ -50,11 +44,6 @@ export function knownOwnSlots(
           break;
       }
     }
-    const outcome = tryApplyMove(state, move);
-    if (!outcome.ok) {
-      break;
-    }
-    state = outcome.value;
   }
   return known;
 }
@@ -65,8 +54,7 @@ export function knowsAllOwnCards(
   selfId: PlayerId,
 ): boolean {
   const known = knownOwnSlots(moves, selfId);
-  const seat = state.seats.find((candidate) => candidate.player.id === selfId);
-  return (seat?.layout ?? []).every(
+  return layoutOfPlayer(state, selfId).every(
     (card, slotIndex) => card === null || known.has(slotIndex),
   );
 }

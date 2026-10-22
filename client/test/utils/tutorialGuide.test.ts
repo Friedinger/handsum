@@ -5,10 +5,12 @@ import { applyMove, initialGameState, type Move } from "@/engine";
 import { guideFor } from "@/utils/tutorialGuide";
 import { TUTORIAL_PLAYER, type TutorialStepId } from "@/utils/tutorialScript";
 
-import { expectStarted } from "@test/support/gameFixtures";
-import { guidedRounds } from "@test/support/guidedRound";
+import { expectStarted, layoutOfPlayer } from "@test/support/gameFixtures";
+import { guidedRounds, playersMoves } from "@test/support/guidedRound";
 
 const playerId = TUTORIAL_PLAYER.id;
+const rounds = guidedRounds();
+const firstRoundMoves = rounds[0]?.moves ?? [];
 
 function stepsAlong(moves: readonly Move[]): TutorialStepId[] {
   const steps = moves.map((_, index) => {
@@ -29,7 +31,7 @@ function guideBefore(moves: readonly Move[], index: number) {
  * The guide before the player's n-th move of the given type, plus that move.
  */
 function atPlayersMove(type: Move["type"], occurrence = 0) {
-  const moves = guidedRounds()[0]?.moves ?? [];
+  const moves = firstRoundMoves;
   const index = moves
     .map((move, moveIndex) =>
       move.type === type && move.playerId === playerId ? moveIndex : -1,
@@ -44,9 +46,7 @@ function atPlayersMove(type: Move["type"], occurrence = 0) {
 
 describe("tutorial guide", () => {
   it("walks through the lessons in order", () => {
-    const moves = guidedRounds()[0]?.moves ?? [];
-
-    expect(stepsAlong(moves)).toEqual([
+    expect(stepsAlong(firstRoundMoves)).toEqual([
       "lookAtCards",
       "draw",
       "keep",
@@ -72,7 +72,7 @@ describe("tutorial guide", () => {
   });
 
   it("asks the player to remember the cards while the opponent is not ready", () => {
-    const [start, , view] = guidedRounds()[0]?.moves ?? [];
+    const [start, , view] = firstRoundMoves;
     const played = start && view ? [start, view] : [];
     const state = expectStarted(played.reduce(applyMove, initialGameState));
 
@@ -171,6 +171,33 @@ describe("tutorial guide", () => {
     expect(guide.hintAgainst({ type: "drawFromDeck", playerId })).toMatch(
       /discard pile/,
     );
+  });
+
+  it("names the position of the taken card as the table shows it after the group", () => {
+    for (const round of rounds) {
+      const [take] = playersMoves(round).filter(
+        ({ move }) => move.type === "swapDiscardCard",
+      );
+      if (take?.move.type !== "swapDiscardCard") {
+        throw new Error("Expected taking the discard card");
+      }
+      const [slot = -1] = take.move.slotIndices;
+      const shownBefore = layoutOfPlayer(take.stateBefore, playerId)
+        .slice(0, slot + 1)
+        .filter((card) => card !== null);
+      const guide = guideFor(take.movesBefore, take.stateBefore, playerId);
+
+      expect(guide.hintAgainst({ type: "drawFromDeck", playerId })).toBe(
+        strings.tutorial.hints.takeLowDiscard(shownBefore.length),
+      );
+    }
+  });
+
+  it("names the opponent's card position in the coach text", () => {
+    const { guide } = atPlayersMove("viewOtherCard");
+
+    expect(guide.coach.title).toBe(strings.tutorial.steps.viewOther.title);
+    expect(guide.coach.text).toBe(strings.tutorial.steps.viewOther.text(2));
   });
 
   it("requires calling the end at the end", () => {

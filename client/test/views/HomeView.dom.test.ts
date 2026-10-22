@@ -4,6 +4,8 @@ import { afterEach, describe, expect, it } from "vitest";
 import { strings } from "@/data/strings";
 import HomeView from "@/views/HomeView.vue";
 
+import { buttonLabelled } from "@test/support/domQueries";
+
 describe("HomeView", () => {
   afterEach(() => {
     history.replaceState(null, "", "/");
@@ -20,10 +22,7 @@ describe("HomeView", () => {
   it("opens the tutorial", async () => {
     const wrapper = mount(HomeView);
 
-    await wrapper
-      .findAll("button")
-      .find((button) => button.text() === strings.tutorial.open)
-      ?.trigger("click");
+    await buttonLabelled(wrapper, strings.tutorial.open)?.trigger("click");
 
     expect(location.hash).toBe("#tutorial");
   });

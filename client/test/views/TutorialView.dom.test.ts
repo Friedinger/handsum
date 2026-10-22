@@ -5,11 +5,9 @@ import { OPPONENT_MOVE_DELAY_MS } from "@/composables/useTutorial";
 import { strings } from "@/data/strings";
 import TutorialView from "@/views/TutorialView.vue";
 
-const { tutorial } = strings;
+import { buttonLabelled } from "@test/support/domQueries";
 
-function buttonLabelled(wrapper: ReturnType<typeof mount>, label: string) {
-  return wrapper.findAll("button").find((button) => button.text() === label);
-}
+const { tutorial } = strings;
 
 describe("TutorialView", () => {
   beforeEach(() => {

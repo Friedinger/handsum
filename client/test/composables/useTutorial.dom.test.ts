@@ -6,12 +6,39 @@ import {
   useTutorial,
 } from "@/composables/useTutorial";
 import { strings } from "@/data/strings";
+import { situationOf } from "@/utils/tableIntent";
 import { TUTORIAL_PLAYER } from "@/utils/tutorialScript";
 
+import { guidedRounds } from "@test/support/guidedRound";
 import { mountComposable } from "@test/support/mountComposable";
+
+const MAX_WAITS_FOR_THE_ROUND = 60;
 
 async function waitForOpponent(): Promise<void> {
   await vi.advanceTimersByTimeAsync(OPPONENT_MOVE_DELAY_MS);
+}
+
+async function playRoundToTheEnd(
+  result: ReturnType<typeof useTutorial>,
+): Promise<void> {
+  const planned = (guidedRounds()[0]?.moves ?? []).filter(
+    (move) => move.playerId === TUTORIAL_PLAYER.id && move.type !== "startGame",
+  );
+  for (let wait = 0; wait < MAX_WAITS_FOR_THE_ROUND; wait++) {
+    const { state, moves } = result.snapshot.value.log;
+    if (state.status !== "started" || state.phase.kind === "finished") {
+      return;
+    }
+    const made = moves.filter(
+      (move) =>
+        move.playerId === TUTORIAL_PLAYER.id && move.type !== "startGame",
+    ).length;
+    const next = planned[made];
+    if (next && situationOf(state, TUTORIAL_PLAYER.id).kind !== "waiting") {
+      result.submitMove(next);
+    }
+    await vi.advanceTimersByTimeAsync(OPPONENT_MOVE_DELAY_MS);
+  }
 }
 
 describe("useTutorial", () => {
@@ -108,6 +135,22 @@ describe("useTutorial", () => {
     result.restart();
     await vi.advanceTimersByTimeAsync(0);
 
+    expect(result.snapshot.value.log.moves).toHaveLength(1);
+    expect(result.guide.value?.step).toBe("lookAtCards");
+  });
+
+  it("deals a new round from the start after the finished one", async () => {
+    const { result } = mountComposable(useTutorial);
+    result.start();
+    await vi.advanceTimersByTimeAsync(0);
+    await playRoundToTheEnd(result);
+    expect(result.guide.value?.step).toBe("results");
+    const finishedRound = result.round.value;
+
+    result.restart();
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(result.round.value).toBe(finishedRound + 1);
     expect(result.snapshot.value.log.moves).toHaveLength(1);
     expect(result.guide.value?.step).toBe("lookAtCards");
   });

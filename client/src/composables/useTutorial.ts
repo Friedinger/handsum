@@ -1,6 +1,6 @@
 import { computed, onUnmounted, ref, shallowRef, watch } from "vue";
 
-import type { Move, MoveRejection } from "@/engine";
+import type { Move, MoveRejection, Player } from "@/engine";
 import {
   createGameSession,
   type GameSession,
@@ -8,27 +8,60 @@ import {
   type SessionSnapshot,
 } from "@/net/gameSession";
 import { createLocalRoom } from "@/net/localTransport";
+import { TUTORIAL_ROOM_CODE } from "@/utils/roomNavigation";
 import { guideFor } from "@/utils/tutorialGuide";
 import {
   nextOpponentMove,
   TUTORIAL_DECK,
   TUTORIAL_OPPONENT,
   TUTORIAL_PLAYER,
-  TUTORIAL_ROOM_CODE,
   TUTORIAL_SEED,
 } from "@/utils/tutorialScript";
 
 export const OPPONENT_MOVE_DELAY_MS = 1200;
 export const NOTICE_MS = 5000;
 
-const PLAYER_HELLO = {
-  playerId: TUTORIAL_PLAYER.id,
-  name: TUTORIAL_PLAYER.name,
-};
-const OPPONENT_HELLO = {
-  playerId: TUTORIAL_OPPONENT.id,
-  name: TUTORIAL_OPPONENT.name,
-};
+function helloOf({ id, name }: Player) {
+  return { playerId: id, name };
+}
+
+interface OpponentPlanner {
+  readonly plan: (snapshot: SessionSnapshot) => void;
+  readonly cancel: () => void;
+}
+
+function createOpponentPlanner(submit: (move: Move) => void): OpponentPlanner {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let plannedAtMoveCount: number | null = null;
+
+  const cancel = () => {
+    clearTimeout(timer);
+    plannedAtMoveCount = null;
+  };
+
+  const plan = ({ log }: SessionSnapshot) => {
+    const { state, moves } = log;
+    if (state.status !== "started") {
+      cancel();
+      return;
+    }
+    const move = nextOpponentMove(state, moves);
+    if (!move) {
+      cancel();
+      return;
+    }
+    if (plannedAtMoveCount === state.moveCount) {
+      return;
+    }
+    clearTimeout(timer);
+    plannedAtMoveCount = state.moveCount;
+    timer = setTimeout(() => {
+      submit(move);
+    }, OPPONENT_MOVE_DELAY_MS);
+  };
+
+  return { plan, cancel };
+}
 
 interface RunningTutorial {
   readonly player: GameSession;
@@ -40,31 +73,13 @@ function startRunning(
 ): RunningTutorial {
   const connect = createLocalRoom();
   let stopped = false;
-  let opponentTimer: ReturnType<typeof setTimeout> | undefined;
-  let plannedAtMoveCount: number | null = null;
-
-  const planOpponentMove = (snapshot: SessionSnapshot) => {
-    const { state, moves } = snapshot.log;
-    const move =
-      state.status === "started" ? nextOpponentMove(state, moves) : null;
-    if (!move || state.status !== "started") {
-      clearTimeout(opponentTimer);
-      plannedAtMoveCount = null;
-      return;
-    }
-    if (plannedAtMoveCount === state.moveCount) {
-      return;
-    }
-    clearTimeout(opponentTimer);
-    plannedAtMoveCount = state.moveCount;
-    opponentTimer = setTimeout(() => {
-      opponent.submitMove(move);
-    }, OPPONENT_MOVE_DELAY_MS);
-  };
+  const planner = createOpponentPlanner((move) => {
+    opponent.submitMove(move);
+  });
 
   const player = createGameSession({
     roomCode: TUTORIAL_ROOM_CODE,
-    self: PLAYER_HELLO,
+    self: helloOf(TUTORIAL_PLAYER),
     connect,
     onChange: (next) => {
       if (!stopped) {
@@ -74,11 +89,11 @@ function startRunning(
   });
   const opponent = createGameSession({
     roomCode: TUTORIAL_ROOM_CODE,
-    self: OPPONENT_HELLO,
+    self: helloOf(TUTORIAL_OPPONENT),
     connect,
     onChange: (next) => {
       if (!stopped) {
-        planOpponentMove(next);
+        planner.plan(next);
       }
     },
   });
@@ -87,7 +102,7 @@ function startRunning(
     player,
     stop: () => {
       stopped = true;
-      clearTimeout(opponentTimer);
+      planner.cancel();
       opponent.leave();
       player.leave();
     },
@@ -96,7 +111,7 @@ function startRunning(
 
 export function useTutorial() {
   const snapshot = shallowRef<SessionSnapshot>(
-    initialSnapshot(TUTORIAL_ROOM_CODE, PLAYER_HELLO),
+    initialSnapshot(TUTORIAL_ROOM_CODE, helloOf(TUTORIAL_PLAYER)),
   );
   const lastRejection = ref<MoveRejection | null>(null);
   const notice = ref<string | null>(null);
@@ -109,7 +124,7 @@ export function useTutorial() {
   const guide = computed(() => {
     const { state, moves } = snapshot.value.log;
     return state.status === "started"
-      ? guideFor(moves, state, PLAYER_HELLO.playerId)
+      ? guideFor(moves, state, TUTORIAL_PLAYER.id)
       : null;
   });
 

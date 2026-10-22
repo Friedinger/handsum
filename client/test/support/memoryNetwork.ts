@@ -15,6 +15,7 @@ interface Room {
 
 /**
  * In-memory stand-in for the polling transport plus server: moves reach clients on deliverAll.
+ * Unlike the local transport of the tutorial, which delivers by itself, it lets a test decide when each client sees new moves.
  */
 export function createMemoryNetwork(): MemoryNetwork {
   const rooms = new Map<string, Room>();
