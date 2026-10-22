@@ -1,6 +1,6 @@
 # Privacy
 
-No accounts, no tracking, no external fonts or CDNs. A random player ID and your chosen name are stored in your browser's localStorage.
+No accounts, no tracking, no external fonts or CDNs. Your browser's localStorage keeps a random player ID, your chosen name, the room you last joined (so a reload rejoins it) and your language choice, if you picked one.
 
 The server stores only:
 
