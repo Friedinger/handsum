@@ -101,6 +101,10 @@ describe("arrangeDeck", () => {
     expect(arrangeDeck([...values.slice(0, -1), 99])).toBeNull();
   });
 
+  it("rejects a value that is not a whole number", () => {
+    expect(arrangeDeck([...values.slice(0, -1), 1.5])).toBeNull();
+  });
+
   it("rejects too few and too many cards", () => {
     expect(arrangeDeck(values.slice(1))).toBeNull();
     expect(arrangeDeck([...values, 0])).toBeNull();

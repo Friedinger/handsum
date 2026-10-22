@@ -60,9 +60,9 @@ export function buildDeck(cardTypes: readonly CardType[]): Card[] {
   return cardsWithoutIds.map((card, id) => ({ id, ...card }));
 }
 
-export const standardDeck: readonly Card[] = buildDeck(
-  parseCardTypes(cardData),
-);
+export const standardCardTypes: readonly CardType[] = parseCardTypes(cardData);
+
+export const standardDeck: readonly Card[] = buildDeck(standardCardTypes);
 
 /**
  * Gives every value its card from the standard deck, in the given order. Returns null unless
@@ -73,11 +73,13 @@ export function arrangeDeck(values: readonly number[]): Card[] | null {
   const arranged: Card[] = [];
   for (const value of values) {
     const index = unused.findIndex((card) => card.value === value);
-    const card = unused[index];
+    if (index === -1) {
+      return null;
+    }
+    const [card] = unused.splice(index, 1);
     if (!card) {
       return null;
     }
-    unused.splice(index, 1);
     arranged.push(card);
   }
   return arranged.length === standardDeck.length ? arranged : null;

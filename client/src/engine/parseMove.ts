@@ -28,12 +28,17 @@ function parseFields(
       if (!players || !isNumber(fields.seed)) {
         return null;
       }
-      if (fields.deck === undefined) {
-        return { type, playerId, players, seed: fields.seed };
+      const { deck } = fields;
+      if (deck !== undefined && !isNumberArray(deck)) {
+        return null;
       }
-      return isNumberArray(fields.deck)
-        ? { type, playerId, players, seed: fields.seed, deck: fields.deck }
-        : null;
+      return {
+        type,
+        playerId,
+        players,
+        seed: fields.seed,
+        ...(deck && { deck }),
+      };
     }
     case "drawFromDeck":
     case "discardDrawnCard":

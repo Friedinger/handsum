@@ -49,6 +49,7 @@ function dealGame(
     layout: deck.slice(seatIndex * LAYOUT_SIZE, (seatIndex + 1) * LAYOUT_SIZE),
   }));
   const [firstDiscard, ...drawPile] = deck.slice(players.length * LAYOUT_SIZE);
+  // Unreachable: even the smallest deck covers the maximum number of players. Only narrows the type.
   if (!firstDiscard) {
     throw new Error("Deck is too small to deal");
   }
