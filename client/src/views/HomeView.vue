@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
+import { disclaimerUrl } from "@/data/buildInfo";
 import { strings } from "@/data/strings";
 import { normalizeRoomCode, randomRoomCode } from "@/net/roomCode";
 import { openRoom, openTutorial } from "@/utils/roomNavigation";
@@ -45,7 +46,12 @@ function joinRoom(): void {
       {{ strings.tutorial.open }}
     </button>
   </section>
-  <p class="disclaimer">{{ strings.home.disclaimer }}</p>
+  <p class="disclaimer">
+    <a v-if="disclaimerUrl" :href="disclaimerUrl">{{
+      strings.home.disclaimer
+    }}</a>
+    <template v-else>{{ strings.home.disclaimer }}</template>
+  </p>
 </template>
 
 <style scoped>
@@ -54,5 +60,9 @@ function joinRoom(): void {
   color: var(--color-ink-muted);
   font-size: 0.85rem;
   text-align: center;
+}
+
+.disclaimer a {
+  color: inherit;
 }
 </style>

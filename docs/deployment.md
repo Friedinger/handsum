@@ -23,7 +23,7 @@ The site is mirrored into the root of the SFTP user. Everything else there is de
 
 The footer links to an imprint and a privacy policy only if the repository variables `IMPRINT_URL` and `PRIVACY_URL` (Settings → Secrets and variables → Actions → Variables) are set. They are baked into the build as `VITE_IMPRINT_URL` and `VITE_PRIVACY_URL`; a value is either a full `https://` address or a path on the same host such as `/imprint`. For a local build, put the same names into `client/.env.local`.
 
-The footer also shows the short hash of the commit the site was built from, linked to that commit on GitHub (the link is dead for visitors while the repository is private). The workflow sets it through `VITE_COMMIT_HASH` and `VITE_REPOSITORY_URL`; without them, for example in a local build, nothing is shown.
+The footer also shows the short hash of the commit the site was built from, linked to that commit on GitHub (the link is dead for visitors while the repository is private). The workflow sets it through `VITE_COMMIT_HASH` and `VITE_REPOSITORY_URL`; without them, for example in a local build, nothing is shown. The same repository address turns the disclaimer on the start page into a link to the disclaimer in the README.
 
 ## First deployment on a new host
 

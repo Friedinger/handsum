@@ -2,7 +2,7 @@ import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import AppFooter from "@/components/AppFooter.vue";
-import { buildInfoFrom } from "@/data/buildInfo";
+import { buildInfoFrom, disclaimerUrlFrom } from "@/data/buildInfo";
 import { legalLinksFrom } from "@/data/legalLinks";
 import { strings } from "@/data/strings";
 
@@ -136,5 +136,22 @@ describe("AppFooter build info", () => {
     const wrapper = mount(AppFooter, { props: { links } });
 
     expect(wrapper.text()).not.toMatch(/[0-9a-f]{7}/);
+  });
+});
+
+describe("disclaimerUrlFrom", () => {
+  it("links to the disclaimer in the README of the repository", () => {
+    expect(
+      disclaimerUrlFrom({
+        VITE_REPOSITORY_URL: "https://github.com/Friedinger/handsum/",
+      }),
+    ).toBe("https://github.com/Friedinger/handsum#-disclaimer");
+  });
+
+  it("gives no link without a valid https repository address", () => {
+    expect(disclaimerUrlFrom({})).toBeNull();
+    expect(
+      disclaimerUrlFrom({ VITE_REPOSITORY_URL: "javascript:alert(1)" }),
+    ).toBeNull();
   });
 });
