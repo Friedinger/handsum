@@ -130,7 +130,7 @@
 }
 
 .card-ready {
-  animation: card-ready 1.2s ease-in-out infinite;
+  animation: pulse-outline 1.2s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -148,7 +148,7 @@
   animation: card-peek 1.6s ease-in-out;
 }
 
-@keyframes card-ready {
+@keyframes pulse-outline {
   0%,
   100% {
     outline-color: var(--color-focus-soft);

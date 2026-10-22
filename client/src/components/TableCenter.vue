@@ -19,7 +19,9 @@ defineProps<{
   discardClickable: boolean;
   heldClickable: boolean;
   heldMarked: boolean;
-  discardConfirms: boolean;
+  discardReady: boolean;
+  drawHighlighted: boolean;
+  heldHighlighted: boolean;
   heldInFlight: boolean;
   heldIsTakenDiscard: boolean;
 }>();
@@ -36,6 +38,7 @@ const emit = defineEmits<{ draw: []; discard: []; held: [] }>();
         :data-anchor="DRAW_PILE_ANCHOR"
         :aria-label="strings.table.drawPile"
         :clickable="drawClickable"
+        :ready="drawHighlighted"
         @click="emit('draw')"
       />
       <span class="pile-label">{{
@@ -51,7 +54,7 @@ const emit = defineEmits<{ draw: []; discard: []; held: [] }>();
           heldIsTakenDiscard ? DISCARD_BELOW_ANCHOR : DISCARD_PILE_ANCHOR
         "
         :clickable="discardClickable"
-        :ready="discardConfirms"
+        :ready="discardReady"
         @click="emit('discard')"
       />
       <span class="pile-label">{{ strings.table.discardPile }}</span>
@@ -70,6 +73,7 @@ const emit = defineEmits<{ draw: []; discard: []; held: [] }>();
         size="large"
         :clickable="heldClickable"
         :marked="heldMarked"
+        :ready="heldHighlighted"
         :in-flight="heldInFlight"
         :data-anchor="heldIsTakenDiscard ? DISCARD_PILE_ANCHOR : HELD_ANCHOR"
         @click="emit('held')"

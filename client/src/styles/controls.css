@@ -137,9 +137,27 @@
   text-decoration: underline;
 }
 
+.button-next {
+  outline: 2px solid var(--color-focus-soft);
+  outline-offset: 2px;
+  animation: pulse-outline 1.2s ease-in-out infinite;
+}
+
 .button-confirming {
   outline: 2px solid var(--color-error);
   outline-offset: 2px;
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button-next {
+    outline: 3px solid var(--color-accent);
+    animation: none;
+  }
+
+  .button-confirming {
+    outline: 2px solid var(--color-error);
+  }
 }
 
 .link-quiet {

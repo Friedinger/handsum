@@ -39,6 +39,7 @@ const emit = defineEmits<{ select: [slotIndex: number] }>();
         :size="size"
         :clickable="slot.clickable"
         :marked="slot.marked"
+        :ready="slot.highlighted"
         :in-flight="slot.inFlight"
         :peeked="slot.peeked"
         :data-anchor="slot.anchor"

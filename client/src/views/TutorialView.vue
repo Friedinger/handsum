@@ -39,6 +39,7 @@ const coach = computed(() => guide.value?.coach ?? null);
     :snapshot="snapshot"
     :state="game"
     :rejection="lastRejection"
+    :highlight="guide?.highlight"
     @move="submitMove"
     @play-again="restart"
   >

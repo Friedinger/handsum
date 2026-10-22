@@ -27,8 +27,17 @@ import { recentMoveDescriptions } from "@/utils/moveDescription";
 import { isRevealed } from "@/utils/reveals";
 import { leaveRoom } from "@/utils/roomNavigation";
 import type { SlotView } from "@/utils/slotView";
+import {
+  type Highlight,
+  isHighlighted,
+  noHighlight,
+} from "@/utils/tableHighlight";
 import { hintFor } from "@/utils/tableHints";
-import { isSlotMarked } from "@/utils/tableIntent";
+import {
+  type ClickTarget,
+  type Intent,
+  isSlotMarked,
+} from "@/utils/tableIntent";
 import { arrangeOpponents } from "@/utils/tableLayout";
 
 const CONFIRMATION_MS = 3000;
@@ -37,10 +46,16 @@ const props = defineProps<{
   snapshot: SessionSnapshot;
   state: StartedGame;
   rejection: MoveRejection | null;
+  highlight?: ((intent: Intent) => Highlight) | undefined;
 }>();
 const emit = defineEmits<{ move: [move: Move]; playAgain: [] }>();
 
 const selfId = computed(() => props.snapshot.self.playerId);
+const highlighted = computed(
+  () => props.highlight?.(intent.value) ?? noHighlight,
+);
+const isTargetHighlighted = (target: ClickTarget) =>
+  isHighlighted(highlighted.value, target);
 const online = computed(() => onlinePlayerIds(props.snapshot));
 const reveals = useReveals(
   () => props.snapshot.log,
@@ -112,6 +127,12 @@ const discardConfirmsSwap = computed(
     hasSelection.value &&
     (situation.value.kind === "holding" || isTakingDiscard.value),
 );
+/** A given highlight is the only pulse on the discard pile, so it never doubles the swap confirmation. */
+const discardReady = computed(() =>
+  props.highlight
+    ? isTargetHighlighted({ kind: "discardPile" })
+    : discardConfirmsSwap.value,
+);
 const heldMarked = computed(() => intent.value.kind === "action");
 const heldInFlight = computed(() =>
   cardFlights.hiddenAnchors.value.has(HELD_ANCHOR),
@@ -136,6 +157,7 @@ function slotViews(seat: Seat): SlotView[] {
           isRevealed(reveals.value, props.state, seat.player.id, slotIndex),
         clickable: clickable({ kind: "slot", slot }),
         marked: isSlotMarked(intent.value, slot, selfId.value),
+        highlighted: isTargetHighlighted({ kind: "slot", slot }),
         anchor,
         inFlight: cardFlights.hiddenAnchors.value.has(anchor),
         peeked: cardFlights.peekedAnchor.value === anchor,
@@ -277,7 +299,9 @@ const results = computed(() =>
         :discard-clickable="clickable({ kind: 'discardPile' })"
         :held-clickable="clickable({ kind: 'heldCard' })"
         :held-marked="heldMarked"
-        :discard-confirms="discardConfirmsSwap"
+        :discard-ready="discardReady"
+        :draw-highlighted="isTargetHighlighted({ kind: 'drawPile' })"
+        :held-highlighted="isTargetHighlighted({ kind: 'heldCard' })"
         :held-in-flight="heldInFlight"
         :held-is-taken-discard="isTakingDiscard"
         @draw="click({ kind: 'drawPile' })"
@@ -316,7 +340,10 @@ const results = computed(() =>
           v-if="canCallEnd"
           type="button"
           class="button-call"
-          :class="{ 'button-confirming': callEndConfirmation.armed.value }"
+          :class="{
+            'button-confirming': callEndConfirmation.armed.value,
+            'button-next': highlighted.callEnd,
+          }"
           @click="callEnd"
         >
           {{

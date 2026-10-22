@@ -1,5 +1,8 @@
 import { strings } from "@/data/strings";
 import { type Move, type PlayerId, type StartedGame } from "@/engine";
+import { type Highlight, noHighlight } from "@/utils/tableHighlight";
+import type { Intent } from "@/utils/tableIntent";
+import { tutorialHighlight } from "@/utils/tutorialHighlight";
 import {
   type Lesson,
   TUTORIAL_PLAN,
@@ -15,6 +18,7 @@ export interface TutorialGuide {
   readonly step: TutorialStepId;
   readonly coach: CoachText;
   readonly hintAgainst: (move: Move) => string | null;
+  readonly highlight: (intent: Intent) => Highlight;
 }
 
 function sameSlots(
@@ -106,5 +110,9 @@ export function guideFor(
     coach: coachTextOf(step, position),
     hintAgainst: (move) =>
       !lesson || matches(lesson.move, move) ? null : lesson.hint,
+    highlight: (intent) =>
+      lesson
+        ? tutorialHighlight(lesson.move, intent, state, selfId)
+        : noHighlight,
   };
 }

@@ -6,6 +6,7 @@ export interface SlotView {
   readonly faceUp: boolean;
   readonly clickable: boolean;
   readonly marked: boolean;
+  readonly highlighted: boolean;
   readonly anchor: string;
   readonly inFlight: boolean;
   readonly peeked: boolean;

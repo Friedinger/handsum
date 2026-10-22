@@ -13,6 +13,7 @@ function slot(slotIndex: number, overrides: Partial<SlotView> = {}): SlotView {
     faceUp: false,
     clickable: true,
     marked: false,
+    highlighted: false,
     anchor: `slot:p:${String(slotIndex)}`,
     inFlight: false,
     peeked: false,
@@ -81,5 +82,21 @@ describe("PlayerSeat", () => {
     });
 
     expect(wrapper.find(".card").attributes("data-anchor")).toBe("slot:p:0");
+  });
+
+  it("pulses the highlighted cards only", () => {
+    const wrapper = mount(PlayerSeat, {
+      props: {
+        name: "Anna",
+        badges: [],
+        slots: [slot(0, { highlighted: true }), slot(1)],
+        active: false,
+        size: "large",
+      },
+    });
+    const [first, second] = wrapper.findAll(".card");
+
+    expect(first?.classes()).toContain("card-ready");
+    expect(second?.classes()).not.toContain("card-ready");
   });
 });

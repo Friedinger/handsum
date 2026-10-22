@@ -16,7 +16,9 @@ const baseProps = {
   discardClickable: true,
   heldClickable: false,
   heldMarked: false,
-  discardConfirms: false,
+  discardReady: false,
+  drawHighlighted: false,
+  heldHighlighted: false,
   heldInFlight: false,
   heldIsTakenDiscard: false,
 };
@@ -47,6 +49,16 @@ describe("TableCenter", () => {
     expect(wrapper.emitted("discard")).toHaveLength(1);
   });
 
+  it("pulses the piles the tutorial points at", () => {
+    const wrapper = mount(TableCenter, {
+      props: { ...baseProps, drawHighlighted: true, discardReady: true },
+    });
+    const [drawPile, discardPile] = wrapper.findAll("button");
+
+    expect(drawPile?.classes()).toContain("card-ready");
+    expect(discardPile?.classes()).toContain("card-ready");
+  });
+
   it("keeps the place for a held card free until someone draws", () => {
     const wrapper = mount(TableCenter, { props: baseProps });
 
@@ -69,5 +81,19 @@ describe("TableCenter", () => {
     expect(wrapper.find(".pile-held").text()).toContain(strings.table.yourCard);
     expect(wrapper.find(".pile-held").classes()).not.toContain("pile-vacant");
     expect(wrapper.emitted("held")).toHaveLength(1);
+  });
+
+  it("pulses the held card the tutorial points at", () => {
+    const wrapper = mount(TableCenter, {
+      props: {
+        ...baseProps,
+        heldCard: makeCard(7),
+        heldFaceUp: true,
+        heldClickable: true,
+        heldHighlighted: true,
+      },
+    });
+
+    expect(wrapper.find(".pile-held .card").classes()).toContain("card-ready");
   });
 });
