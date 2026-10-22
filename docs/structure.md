@@ -18,7 +18,7 @@ server/            PHP move log server
   index.php        entry point (api/index.php after the build)
   src/             Application (wiring), Housekeeping (cleanup), Config (all limits), ErrorLog
   src/Web/         request and response side: Api, RequestBody, Response, error codes
-  src/Room/        per-room data: Rooms (files), MoveLog, PlayerList, Player
+  src/Room/        per-room data: Rooms (files), MoveLog, RoomPlayers, Player
   src/RateLimit/   RateLimiter, per-network counters, client address handling
   src/Storage/     low-level files: LockedFile, LockedJsonFile, Filesystem, InstallationSecret
   tests/           tests, mirroring src/ (tests/support/ holds shared test helpers, loaded by tests/bootstrap.php)

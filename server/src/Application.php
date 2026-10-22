@@ -6,7 +6,7 @@ namespace Handsum;
 
 use Handsum\RateLimit\RateLimiter;
 use Handsum\Room\MoveLog;
-use Handsum\Room\PlayerList;
+use Handsum\Room\RoomPlayers;
 use Handsum\Room\Rooms;
 use Handsum\Storage\Filesystem;
 use Handsum\Storage\StorageException;
@@ -43,7 +43,7 @@ final class Application
             $api = new Api(
                 $rooms,
                 new MoveLog($rooms, $this->clock),
-                new PlayerList($rooms, $this->clock),
+                new RoomPlayers($rooms, $this->clock),
                 $limiter,
             );
             $response = $api->handle($method, $server, $query, $body, $ip);

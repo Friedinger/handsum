@@ -6,20 +6,20 @@ namespace Handsum\Tests\Room;
 
 use Handsum\Config;
 use Handsum\Room\Player;
-use Handsum\Room\PlayerList;
+use Handsum\Room\RoomPlayers;
 use Handsum\Room\Rooms;
 use Handsum\Tests\WithDataDir;
 use PHPUnit\Framework\TestCase;
 
-final class PlayerListTest extends TestCase
+final class RoomPlayersTest extends TestCase
 {
     use WithDataDir;
 
-    private PlayerList $players;
+    private RoomPlayers $players;
 
     protected function setUp(): void
     {
-        $this->players = new PlayerList(new Rooms($this->dataDir, $this->clock()), $this->clock());
+        $this->players = new RoomPlayers(new Rooms($this->dataDir, $this->clock()), $this->clock());
     }
 
     public function testSilentPlayersAreNotListed(): void

@@ -7,7 +7,7 @@ namespace Handsum\Tests\Web;
 use Handsum\Config;
 use Handsum\RateLimit\RateLimiter;
 use Handsum\Room\MoveLog;
-use Handsum\Room\PlayerList;
+use Handsum\Room\RoomPlayers;
 use Handsum\Room\Rooms;
 use Handsum\Tests\WithDataDir;
 use Handsum\Web\Api;
@@ -28,7 +28,7 @@ final class ApiTest extends TestCase
         $this->api = new Api(
             $rooms,
             new MoveLog($rooms, $this->clock()),
-            new PlayerList($rooms, $this->clock()),
+            new RoomPlayers($rooms, $this->clock()),
             new RateLimiter($this->dataDir, $this->clock()),
         );
     }

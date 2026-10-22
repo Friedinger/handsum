@@ -7,7 +7,7 @@ namespace Handsum\Tests\Room;
 use Handsum\Config;
 use Handsum\Room\MoveLog;
 use Handsum\Room\Player;
-use Handsum\Room\PlayerList;
+use Handsum\Room\RoomPlayers;
 use Handsum\Room\Rooms;
 use Handsum\Storage\StorageException;
 use Handsum\Tests\WithDataDir;
@@ -20,7 +20,7 @@ final class RoomsTest extends TestCase
     public function testARoomExistsOnceItHasAnyFile(): void
     {
         $rooms = new Rooms($this->dataDir, $this->clock());
-        (new PlayerList($rooms, $this->clock()))->join(self::roomId(self::PLAYERS_ROOM_CODE), new Player('p1', 'Anna'));
+        (new RoomPlayers($rooms, $this->clock()))->join(self::roomId(self::PLAYERS_ROOM_CODE), new Player('p1', 'Anna'));
 
         self::assertTrue($rooms->exists(self::roomId(self::PLAYERS_ROOM_CODE)));
         self::assertFalse($rooms->exists(self::roomId('NONE22')));
@@ -38,7 +38,7 @@ final class RoomsTest extends TestCase
     {
         $rooms = new Rooms($this->dataDir, $this->clock());
         (new MoveLog($rooms, $this->clock()))->append(self::roomId(), 0, '{"type":"a"}');
-        (new PlayerList($rooms, $this->clock()))->join(self::roomId(), new Player('p1', 'Anna'));
+        (new RoomPlayers($rooms, $this->clock()))->join(self::roomId(), new Player('p1', 'Anna'));
 
         self::assertSame(1, $rooms->count());
     }
@@ -47,7 +47,7 @@ final class RoomsTest extends TestCase
     {
         $rooms = new Rooms($this->dataDir, $this->clock());
         (new MoveLog($rooms, $this->clock()))->append(self::roomId(), 0, '{"type":"a"}');
-        (new PlayerList($rooms, $this->clock()))->join(self::roomId(self::PLAYERS_ROOM_CODE), new Player('p1', 'Anna'));
+        (new RoomPlayers($rooms, $this->clock()))->join(self::roomId(self::PLAYERS_ROOM_CODE), new Player('p1', 'Anna'));
         $this->now += Config::ROOM_IDLE_SECONDS + 1;
 
         $rooms->deleteIdle();
@@ -63,7 +63,7 @@ final class RoomsTest extends TestCase
         $roomId = self::roomId();
         $log->append($roomId, 0, '{"type":"a"}');
         $this->now += Config::ROOM_IDLE_SECONDS - 1;
-        (new PlayerList($rooms, $this->clock()))->join($roomId, new Player('p1', 'Anna'));
+        (new RoomPlayers($rooms, $this->clock()))->join($roomId, new Player('p1', 'Anna'));
         $this->now += 2;
 
         $rooms->deleteIdle();

@@ -8,7 +8,7 @@ use Handsum\Config;
 use Handsum\RateLimit\RateLimiter;
 use Handsum\Room\AppendStatus;
 use Handsum\Room\MoveLog;
-use Handsum\Room\PlayerList;
+use Handsum\Room\RoomPlayers;
 use Handsum\Room\Rooms;
 
 final class Api
@@ -19,7 +19,7 @@ final class Api
     public function __construct(
         private readonly Rooms $rooms,
         private readonly MoveLog $moveLog,
-        private readonly PlayerList $playerList,
+        private readonly RoomPlayers $roomPlayers,
         private readonly RateLimiter $limiter,
     ) {}
 
@@ -57,7 +57,7 @@ final class Api
                 static fn(string $line): mixed => json_decode($line),
                 array_slice($log, (int) $since),
             ),
-            'players' => $this->playerList->active($roomId),
+            'players' => $this->roomPlayers->active($roomId),
         ]);
     }
 
@@ -92,7 +92,7 @@ final class Api
         if ($denied !== null) {
             return $denied;
         }
-        $players = $this->playerList->join($roomId, $player);
+        $players = $this->roomPlayers->join($roomId, $player);
         return $players === null ? Response::error(409, ErrorCode::RoomFull) : Response::ok(['players' => $players]);
     }
 

@@ -8,7 +8,7 @@ use Handsum\Config;
 use Handsum\Storage\LockedJsonFile;
 
 /** Who is currently in each room; players keep their entry alive by joining again. */
-final class PlayerList
+final class RoomPlayers
 {
     private const EXTENSION = 'players';
 
