@@ -5,6 +5,7 @@ import {
 import { moveLog } from "@/data/strings/moveLog";
 import { rejectionMessages } from "@/data/strings/rejections";
 import { rules } from "@/data/strings/rules";
+import { tutorial } from "@/data/strings/tutorial";
 import { MAX_PLAYERS, MIN_PLAYERS } from "@/engine";
 
 export const strings = {
@@ -28,6 +29,7 @@ export const strings = {
   },
   cardSymbol: "◆",
   rules,
+  tutorial,
   home: {
     tagline: `A card game for ${String(MIN_PLAYERS)} to ${String(MAX_PLAYERS)} players in the browser.`,
     createRoom: "Create a room",

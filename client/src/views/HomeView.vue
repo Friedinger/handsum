@@ -3,7 +3,7 @@ import { ref } from "vue";
 
 import { strings } from "@/data/strings";
 import { normalizeRoomCode, randomRoomCode } from "@/net/roomCode";
-import { openRoom } from "@/utils/roomNavigation";
+import { openRoom, openTutorial } from "@/utils/roomNavigation";
 
 const codeInput = ref("");
 const showInvalidCode = ref(false);
@@ -41,6 +41,9 @@ function joinRoom(): void {
     <p v-if="showInvalidCode" class="error">
       {{ strings.home.invalidRoomCode }}
     </p>
+    <button type="button" class="button-secondary" @click="openTutorial">
+      {{ strings.tutorial.open }}
+    </button>
   </section>
   <p class="disclaimer">{{ strings.home.disclaimer }}</p>
 </template>

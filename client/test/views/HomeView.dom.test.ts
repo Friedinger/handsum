@@ -17,6 +17,17 @@ describe("HomeView", () => {
     expect(location.hash).toMatch(/^#[A-Z2-9]{6}$/);
   });
 
+  it("opens the tutorial", async () => {
+    const wrapper = mount(HomeView);
+
+    await wrapper
+      .findAll("button")
+      .find((button) => button.text() === strings.tutorial.open)
+      ?.trigger("click");
+
+    expect(location.hash).toBe("#tutorial");
+  });
+
   it("joins an existing room, ignoring case and spaces", async () => {
     const wrapper = mount(HomeView);
 

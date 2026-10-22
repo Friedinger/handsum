@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import AppFooter from "@/components/AppFooter.vue";
 import CardFan from "@/components/CardFan.vue";
-import { useRoomCode } from "@/composables/useRoomCode";
+import { useRoute } from "@/composables/useRoute";
 import { strings } from "@/data/strings";
 import HomeView from "@/views/HomeView.vue";
 import RoomView from "@/views/RoomView.vue";
+import TutorialView from "@/views/TutorialView.vue";
 
-const roomCode = useRoomCode();
+const route = useRoute();
 </script>
 
 <template>
@@ -16,7 +17,12 @@ const roomCode = useRoomCode();
       <CardFan />
     </header>
     <main>
-      <RoomView v-if="roomCode" :key="roomCode" :room-code="roomCode" />
+      <RoomView
+        v-if="route.kind === 'room'"
+        :key="route.roomCode"
+        :room-code="route.roomCode"
+      />
+      <TutorialView v-else-if="route.kind === 'tutorial'" />
       <HomeView v-else />
     </main>
     <AppFooter />

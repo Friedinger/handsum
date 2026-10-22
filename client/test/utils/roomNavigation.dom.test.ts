@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { leaveRoom, openRoom } from "@/utils/roomNavigation";
+import { leaveRoom, openRoom, openTutorial } from "@/utils/roomNavigation";
 
 describe("room navigation", () => {
   afterEach(() => {
@@ -11,6 +11,12 @@ describe("room navigation", () => {
     openRoom("ABCDEF");
 
     expect(location.hash).toBe("#ABCDEF");
+  });
+
+  it("opens the tutorial through the URL hash", () => {
+    openTutorial();
+
+    expect(location.hash).toBe("#tutorial");
   });
 
   it("leaves the room by clearing the hash and announcing the change", () => {

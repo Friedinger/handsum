@@ -247,7 +247,15 @@ const results = computed(() =>
 </script>
 
 <template>
-  <div ref="tableElement" class="game-table" @click="cancelOnEmptyClick">
+  <div
+    ref="tableElement"
+    class="game-table"
+    :class="{ 'table-with-coach': $slots.coach }"
+    @click="cancelOnEmptyClick"
+  >
+    <div v-if="$slots.coach" class="table-coach">
+      <slot name="coach" />
+    </div>
     <button
       type="button"
       class="button-quiet table-leave"
