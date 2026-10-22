@@ -1,19 +1,31 @@
 <script setup lang="ts">
 import PlayingCard from "@/components/PlayingCard.vue";
-import type { Card } from "@/engine";
+import { type Card, standardDeck } from "@/engine";
 
 interface FanCard {
   readonly card: Card;
   readonly tiltDegrees: number;
 }
 
-const fan: readonly FanCard[] = [
-  { card: { id: 1, value: 1, points: 1, action: null }, tiltDegrees: -16 },
-  { card: { id: 2, value: 7, points: 7, action: "viewOwn" }, tiltDegrees: -8 },
-  { card: { id: 3, value: 5, points: 5, action: null }, tiltDegrees: 0 },
-  { card: { id: 4, value: 9, points: 9, action: "viewOther" }, tiltDegrees: 8 },
-  { card: { id: 5, value: 12, points: 12, action: null }, tiltDegrees: 16 },
-];
+const FAN_SHAPE = [
+  { value: 0, tiltDegrees: -12 },
+  { value: 5, tiltDegrees: -4 },
+  { value: 9, tiltDegrees: 4 },
+  { value: 13, tiltDegrees: 12 },
+] as const;
+
+function cardOfValue(value: number): Card {
+  const card = standardDeck.find((candidate) => candidate.value === value);
+  if (!card) {
+    throw new Error(`The deck has no card with value ${String(value)}`);
+  }
+  return card;
+}
+
+const fan: readonly FanCard[] = FAN_SHAPE.map(({ value, tiltDegrees }) => ({
+  card: cardOfValue(value),
+  tiltDegrees,
+}));
 </script>
 
 <template>
