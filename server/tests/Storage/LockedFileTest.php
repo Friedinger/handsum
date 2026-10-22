@@ -6,6 +6,7 @@ namespace Handsum\Tests\Storage;
 
 use Handsum\Storage\LockedFile;
 use Handsum\Storage\StorageException;
+use Handsum\Tests\FailingStream;
 use Handsum\Tests\WithDataDir;
 use PHPUnit\Framework\TestCase;
 
@@ -17,6 +18,7 @@ final class LockedFileTest extends TestCase
 
     protected function tearDown(): void
     {
+        FailingStream::unregister();
         if ($this->errorHandlerInstalled) {
             restore_error_handler();
         }
@@ -63,6 +65,57 @@ final class LockedFileTest extends TestCase
         $this->expectException(StorageException::class);
 
         LockedFile::withExclusiveLock('/dev/full', fn($handle) => LockedFile::append($handle, 'data', '/dev/full'));
+    }
+
+    public function testAFailedAppendCutsOffTheWrittenPart(): void
+    {
+        FailingStream::register("one\n", capacity: 10);
+
+        try {
+            LockedFile::withExclusiveLock(FailingStream::path(), fn($handle) => LockedFile::append($handle, "two-too-long\n", FailingStream::path()));
+            self::fail('Expected a StorageException');
+        } catch (StorageException) {
+            self::assertSame("one\n", FailingStream::$contents);
+        }
+    }
+
+    public function testAFailedReplacementPutsTheOldContentsBack(): void
+    {
+        FailingStream::register('old-content', capacity: 12);
+
+        try {
+            LockedFile::withExclusiveLock(FailingStream::path(), fn($handle) => LockedFile::replaceContents($handle, 'new-and-much-longer', FailingStream::path()));
+            self::fail('Expected a StorageException');
+        } catch (StorageException) {
+            self::assertSame('old-content', FailingStream::$contents);
+        }
+    }
+
+    public function testAnAppendThatFitsIsKept(): void
+    {
+        FailingStream::register("one\n", capacity: 100);
+
+        LockedFile::withExclusiveLock(FailingStream::path(), fn($handle) => LockedFile::append($handle, "two\n", FailingStream::path()));
+
+        self::assertSame("one\ntwo\n", FailingStream::$contents);
+    }
+
+    public function testAnExclusiveLockThatCannotBeTakenRaisesAStorageException(): void
+    {
+        FailingStream::register(locksSucceed: false);
+
+        $this->expectException(StorageException::class);
+
+        LockedFile::withExclusiveLock(FailingStream::path(), static fn(): null => null);
+    }
+
+    public function testASharedLockThatCannotBeTakenRaisesAStorageException(): void
+    {
+        FailingStream::register('data', locksSucceed: false);
+
+        $this->expectException(StorageException::class);
+
+        LockedFile::readShared(FailingStream::path());
     }
 
     public function testAFileThatCannotBeOpenedRaisesAStorageException(): void

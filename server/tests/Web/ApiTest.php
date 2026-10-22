@@ -172,6 +172,23 @@ final class ApiTest extends TestCase
         self::assertSame(400, $this->call('GET', $server, [], '')->status);
     }
 
+    public function testAMoveThatDoesNotFitIntoAFullRoomIsRefused(): void
+    {
+        $pad = str_repeat('x', Config::MAX_BYTES_PER_MOVE - 100);
+        $response = null;
+        for ($sequence = 0; $sequence <= Config::MAX_BYTES_PER_ROOM / strlen($pad); $sequence++) {
+            $body = json_encode(['sequence' => $sequence, 'move' => ['type' => 'a', 'pad' => $pad]], JSON_THROW_ON_ERROR);
+            $response = $this->call('POST', self::roomHeader(), ['action' => 'move'], $body);
+            if ($response->status !== 200) {
+                break;
+            }
+        }
+
+        self::assertNotNull($response);
+        self::assertSame(413, $response->status);
+        self::assertSame(ErrorCode::RoomFull->value, self::wire($response)['error']);
+    }
+
     public function testOversizedMoveIsRejected(): void
     {
         $body = json_encode(['sequence' => 2, 'move' => ['type' => 'a', 'pad' => str_repeat('x', Config::MAX_BYTES_PER_MOVE)]], JSON_THROW_ON_ERROR);

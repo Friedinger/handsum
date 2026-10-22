@@ -21,7 +21,7 @@ server/            PHP move log server
   src/Room/        per-room data: Rooms (files), MoveLog, PlayerList, Player
   src/RateLimit/   RateLimiter, per-network counters, client address handling
   src/Storage/     low-level files: LockedFile, LockedJsonFile, Filesystem, InstallationSecret
-  tests/           tests, mirroring src/ (tests/with_data_dir.php is the shared test helper, loaded by tests/bootstrap.php)
+  tests/           tests, mirroring src/ (tests/with_data_dir.php and tests/failing_stream.php are shared test helpers, loaded by tests/bootstrap.php)
 docs/              this documentation
 ```
 

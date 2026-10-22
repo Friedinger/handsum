@@ -6,6 +6,7 @@ namespace Handsum\Tests\Storage;
 
 use Handsum\Storage\LockedJsonFile;
 use Handsum\Storage\StorageException;
+use Handsum\Tests\FailingStream;
 use Handsum\Tests\WithDataDir;
 use PHPUnit\Framework\TestCase;
 
@@ -13,9 +14,26 @@ final class LockedJsonFileTest extends TestCase
 {
     use WithDataDir;
 
+    protected function tearDown(): void
+    {
+        FailingStream::unregister();
+    }
+
     public function testReadingAMissingFileGivesNothing(): void
     {
         self::assertNull(LockedJsonFile::read($this->path()));
+    }
+
+    public function testAFailedUpdateKeepsTheStoredData(): void
+    {
+        FailingStream::register('{"a":1}', capacity: 8);
+
+        try {
+            LockedJsonFile::update(FailingStream::path(), $this->now, static fn(): array => ['count' => 123456]);
+            self::fail('Expected a StorageException');
+        } catch (StorageException) {
+            self::assertSame('{"a":1}', FailingStream::$contents);
+        }
     }
 
     public function testStoredDataCanBeRead(): void
