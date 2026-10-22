@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Handsum;
+namespace Handsum\Web;
 
-use Handsum\Storage\AppendStatus;
-use Handsum\Storage\Player;
-use Handsum\Storage\RoomStore;
+use Handsum\Config;
+use Handsum\RateLimit\RateLimiter;
+use Handsum\Room\AppendStatus;
+use Handsum\Room\Player;
+use Handsum\Room\RoomStore;
 
 final class Api
 {

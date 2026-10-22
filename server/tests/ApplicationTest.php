@@ -6,8 +6,8 @@ namespace Handsum\Tests;
 
 use Handsum\Application;
 use Handsum\Config;
-use Handsum\ErrorCode;
 use Handsum\Tests\Support\DataDirTestCase;
+use Handsum\Web\ErrorCode;
 
 final class ApplicationTest extends DataDirTestCase
 {

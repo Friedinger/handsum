@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Handsum\Storage;
+namespace Handsum\Room;
 
 final class PlayerPresence
 {

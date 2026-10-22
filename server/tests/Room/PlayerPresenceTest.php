@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Handsum\Tests\Storage;
+namespace Handsum\Tests\Room;
 
-use Handsum\Storage\Player;
-use Handsum\Storage\PlayerPresence;
+use Handsum\Room\Player;
+use Handsum\Room\PlayerPresence;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 

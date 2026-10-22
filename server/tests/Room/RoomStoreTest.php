@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Handsum\Tests\Storage;
+namespace Handsum\Tests\Room;
 
 use Handsum\Config;
-use Handsum\Storage\AppendStatus;
-use Handsum\Storage\Player;
-use Handsum\Storage\RoomStore;
+use Handsum\Room\AppendStatus;
+use Handsum\Room\Player;
+use Handsum\Room\RoomStore;
 use Handsum\Storage\StorageException;
 use Handsum\Tests\Support\DataDirTestCase;
 

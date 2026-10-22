@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Handsum;
+namespace Handsum\RateLimit;
 
+use Handsum\Config;
 use Handsum\Storage\Filesystem;
 use Handsum\Storage\InstallationSecret;
 use Handsum\Storage\LockedJsonFile;

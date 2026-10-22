@@ -2,9 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Handsum\Storage;
+namespace Handsum\Room;
 
 use Handsum\Config;
+use Handsum\Storage\Filesystem;
+use Handsum\Storage\LockedJsonFile;
+use Handsum\Storage\StorageException;
 
 final class RoomStore
 {

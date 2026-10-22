@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Handsum\Tests;
+namespace Handsum\Tests\RateLimit;
 
-use Handsum\ClientAddress;
+use Handsum\RateLimit\ClientAddress;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 

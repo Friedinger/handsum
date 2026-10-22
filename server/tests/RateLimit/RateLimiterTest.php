@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Handsum\Tests;
+namespace Handsum\Tests\RateLimit;
 
 use Handsum\Config;
-use Handsum\RateLimiter;
+use Handsum\RateLimit\RateLimiter;
 use Handsum\Tests\Support\DataDirTestCase;
 
 final class RateLimiterTest extends DataDirTestCase

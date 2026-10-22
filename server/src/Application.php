@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace Handsum;
 
+use Handsum\RateLimit\RateLimiter;
+use Handsum\Room\RoomStore;
 use Handsum\Storage\Filesystem;
-use Handsum\Storage\RoomStore;
 use Handsum\Storage\StorageException;
+use Handsum\Web\Api;
+use Handsum\Web\ErrorCode;
+use Handsum\Web\Response;
 
 final class Application
 {

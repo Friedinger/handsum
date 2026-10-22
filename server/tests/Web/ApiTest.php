@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Handsum\Tests;
+namespace Handsum\Tests\Web;
 
-use Handsum\Api;
 use Handsum\Config;
-use Handsum\ErrorCode;
-use Handsum\RateLimiter;
-use Handsum\Response;
-use Handsum\Storage\RoomStore;
+use Handsum\RateLimit\RateLimiter;
+use Handsum\Room\RoomStore;
 use Handsum\Tests\Support\DataDirTestCase;
+use Handsum\Web\Api;
+use Handsum\Web\ErrorCode;
+use Handsum\Web\Response;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 final class ApiTest extends DataDirTestCase

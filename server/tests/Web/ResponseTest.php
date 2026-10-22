@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Handsum\Tests;
+namespace Handsum\Tests\Web;
 
-use Handsum\ErrorCode;
-use Handsum\Response;
+use Handsum\Web\ErrorCode;
+use Handsum\Web\Response;
 use PHPUnit\Framework\TestCase;
 
 final class ResponseTest extends TestCase

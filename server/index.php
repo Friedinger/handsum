@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Handsum;
 
+use Handsum\Web\ErrorCode;
+use Handsum\Web\Response;
+
 require __DIR__ . '/src/autoload.php';
 
 function failOnPhpErrors(): void

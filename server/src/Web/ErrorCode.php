@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Handsum;
+namespace Handsum\Web;
 
 enum ErrorCode: string
 {
