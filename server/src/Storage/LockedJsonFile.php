@@ -14,10 +14,10 @@ final class LockedJsonFile
      */
     public static function update(string $path, int $now, \Closure $change): mixed
     {
-        return LockedFile::withExclusiveLock($path, static function ($handle) use ($path, $now, $change): mixed {
-            $updated = $change(json_decode(LockedFile::readAll($handle), true));
+        return LockedFile::withExclusiveLock($path, static function (LockedFile $file) use ($path, $now, $change): mixed {
+            $updated = $change(json_decode($file->readAll(), true));
             if ($updated !== null) {
-                LockedFile::replaceContents($handle, json_encode($updated, JSON_THROW_ON_ERROR), $path);
+                $file->replace(json_encode($updated, JSON_THROW_ON_ERROR));
                 touch($path, $now);
             }
             return $updated;

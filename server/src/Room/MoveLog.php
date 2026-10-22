@@ -26,8 +26,8 @@ final class MoveLog
     public function append(string $roomId, int $sequence, string $moveJson): AppendResult
     {
         $path = $this->rooms->path($roomId, self::EXTENSION);
-        return LockedFile::withExclusiveLock($path, function ($handle) use ($path, $sequence, $moveJson): AppendResult {
-            $existing = LockedFile::readAll($handle);
+        return LockedFile::withExclusiveLock($path, function (LockedFile $file) use ($path, $sequence, $moveJson): AppendResult {
+            $existing = $file->readAll();
             $length = $existing === '' ? 0 : substr_count($existing, "\n");
             if ($sequence !== $length) {
                 return new AppendResult(AppendStatus::Conflict, $length);
@@ -35,7 +35,7 @@ final class MoveLog
             if ($length >= Config::MAX_MOVES_PER_ROOM || strlen($existing) + strlen($moveJson) + 1 > Config::MAX_BYTES_PER_ROOM) {
                 return new AppendResult(AppendStatus::RoomFull, $length);
             }
-            LockedFile::append($handle, $moveJson . "\n", $path);
+            $file->append($moveJson . "\n");
             touch($path, ($this->clock)());
             return new AppendResult(AppendStatus::Appended, $length + 1);
         });

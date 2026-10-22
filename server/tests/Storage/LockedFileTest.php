@@ -31,17 +31,17 @@ final class LockedFileTest extends TestCase
 
     public function testAppendedDataCanBeRead(): void
     {
-        LockedFile::withExclusiveLock($this->path(), fn($handle) => LockedFile::append($handle, "one\n", $this->path()));
-        LockedFile::withExclusiveLock($this->path(), fn($handle) => LockedFile::append($handle, "two\n", $this->path()));
+        LockedFile::withExclusiveLock($this->path(), fn(LockedFile $file) => $file->append("one\n"));
+        LockedFile::withExclusiveLock($this->path(), fn(LockedFile $file) => $file->append("two\n"));
 
         self::assertSame("one\ntwo\n", LockedFile::readShared($this->path()));
     }
 
     public function testReplacedContentsLeaveNoOldTail(): void
     {
-        LockedFile::withExclusiveLock($this->path(), fn($handle) => LockedFile::replaceContents($handle, str_repeat('x', 50), $this->path()));
+        LockedFile::withExclusiveLock($this->path(), fn(LockedFile $file) => $file->replace(str_repeat('x', 50)));
 
-        LockedFile::withExclusiveLock($this->path(), fn($handle) => LockedFile::replaceContents($handle, 'short', $this->path()));
+        LockedFile::withExclusiveLock($this->path(), fn(LockedFile $file) => $file->replace('short'));
 
         self::assertSame('short', LockedFile::readShared($this->path()));
     }
@@ -64,7 +64,7 @@ final class LockedFileTest extends TestCase
 
         $this->expectException(StorageException::class);
 
-        LockedFile::withExclusiveLock('/dev/full', fn($handle) => LockedFile::append($handle, 'data', '/dev/full'));
+        LockedFile::withExclusiveLock('/dev/full', fn(LockedFile $file) => $file->append('data'));
     }
 
     public function testAFailedAppendCutsOffTheWrittenPart(): void
@@ -72,7 +72,7 @@ final class LockedFileTest extends TestCase
         FailingStream::register("one\n", capacity: 10);
 
         try {
-            LockedFile::withExclusiveLock(FailingStream::path(), fn($handle) => LockedFile::append($handle, "two-too-long\n", FailingStream::path()));
+            LockedFile::withExclusiveLock(FailingStream::path(), fn(LockedFile $file) => $file->append("two-too-long\n"));
             self::fail('Expected a StorageException');
         } catch (StorageException) {
             self::assertSame("one\n", FailingStream::$contents);
@@ -84,7 +84,7 @@ final class LockedFileTest extends TestCase
         FailingStream::register('old-content', capacity: 12);
 
         try {
-            LockedFile::withExclusiveLock(FailingStream::path(), fn($handle) => LockedFile::replaceContents($handle, 'new-and-much-longer', FailingStream::path()));
+            LockedFile::withExclusiveLock(FailingStream::path(), fn(LockedFile $file) => $file->replace('new-and-much-longer'));
             self::fail('Expected a StorageException');
         } catch (StorageException) {
             self::assertSame('old-content', FailingStream::$contents);
@@ -95,7 +95,7 @@ final class LockedFileTest extends TestCase
     {
         FailingStream::register("one\n", capacity: 100);
 
-        LockedFile::withExclusiveLock(FailingStream::path(), fn($handle) => LockedFile::append($handle, "two\n", FailingStream::path()));
+        LockedFile::withExclusiveLock(FailingStream::path(), fn(LockedFile $file) => $file->append("two\n"));
 
         self::assertSame("one\ntwo\n", FailingStream::$contents);
     }

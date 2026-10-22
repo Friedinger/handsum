@@ -7,12 +7,17 @@ namespace Handsum\Storage;
 /**
  * The one place that opens, locks and writes the data files (rooms, counters, secret), so every writer
  * rolls back a failed write the same way and every reader waits for a running update.
+ *
+ * An instance is the file while its exclusive lock is held; it only exists inside `withExclusiveLock`.
  */
 final class LockedFile
 {
+    /** @param resource $handle */
+    private function __construct(private readonly mixed $handle, private readonly string $path) {}
+
     /**
      * @template T
-     * @param \Closure(resource): T $action receives the handle while the exclusive lock is held
+     * @param \Closure(self): T $action receives the file while the exclusive lock is held
      * @return T
      */
     public static function withExclusiveLock(string $path, \Closure $action): mixed
@@ -25,7 +30,7 @@ final class LockedFile
             if (!flock($handle, LOCK_EX)) {
                 throw new StorageException('Cannot lock a file in ' . self::folderOf($path));
             }
-            return $action($handle);
+            return $action(new self($handle, $path));
         } finally {
             fclose($handle);
         }
@@ -48,73 +53,61 @@ final class LockedFile
         }
     }
 
-    /** @param resource $handle */
-    public static function readAll($handle): string
+    public function readAll(): string
     {
-        rewind($handle);
-        return (string) stream_get_contents($handle);
+        rewind($this->handle);
+        return (string) stream_get_contents($this->handle);
     }
 
     /**
      * Writes before truncating, so the file is never empty in between. If the write fails, the
      * previous content is put back as well as possible.
-     *
-     * @param resource $handle
      */
-    public static function replaceContents($handle, string $data, string $path): void
+    public function replace(string $data): void
     {
-        $previous = self::readAll($handle);
-        rewind($handle);
-        if (self::writeFully($handle, $data) && self::truncateTo($handle, strlen($data))) {
+        $previous = $this->readAll();
+        rewind($this->handle);
+        if ($this->writeFully($data) && $this->truncateTo(strlen($data))) {
             return;
         }
-        rewind($handle);
-        self::writeFully($handle, $previous);
-        self::truncateTo($handle, strlen($previous));
-        throw new StorageException('Cannot write a file in ' . self::folderOf($path));
+        rewind($this->handle);
+        $this->writeFully($previous);
+        $this->truncateTo(strlen($previous));
+        throw new StorageException('Cannot write a file in ' . self::folderOf($this->path));
     }
 
-    /**
-     * A short write (full disk, quota) is cut off again, so the next line is never glued to half a one.
-     *
-     * @param resource $handle
-     */
-    public static function append($handle, string $data, string $path): void
+    /** A short write (full disk, quota) is cut off again, so the next line is never glued to half a one. */
+    public function append(string $data): void
     {
-        fseek($handle, 0, SEEK_END);
-        $sizeBefore = ftell($handle);
+        fseek($this->handle, 0, SEEK_END);
+        $sizeBefore = ftell($this->handle);
         if ($sizeBefore === false) {
-            throw new StorageException('Cannot write a file in ' . self::folderOf($path));
+            throw new StorageException('Cannot write a file in ' . self::folderOf($this->path));
         }
-        if (!self::writeFully($handle, $data)) {
-            self::truncateTo($handle, max(0, $sizeBefore));
-            throw new StorageException('Cannot write a file in ' . self::folderOf($path));
+        if (!$this->writeFully($data)) {
+            $this->truncateTo(max(0, $sizeBefore));
+            throw new StorageException('Cannot write a file in ' . self::folderOf($this->path));
         }
     }
 
     /**
      * The error handler of the entry point turns the notice of a failed write into an exception, so
      * a short write is only visible when it is caught here.
-     *
-     * @param resource $handle
      */
-    private static function writeFully($handle, string $data): bool
+    private function writeFully(string $data): bool
     {
         try {
-            return fwrite($handle, $data) === strlen($data) && fflush($handle);
+            return fwrite($this->handle, $data) === strlen($data) && fflush($this->handle);
         } catch (\ErrorException) {
             return false;
         }
     }
 
-    /**
-     * @param resource $handle
-     * @param int<0, max> $size
-     */
-    private static function truncateTo($handle, int $size): bool
+    /** @param int<0, max> $size */
+    private function truncateTo(int $size): bool
     {
         try {
-            return ftruncate($handle, $size);
+            return ftruncate($this->handle, $size);
         } catch (\ErrorException) {
             return false;
         }
