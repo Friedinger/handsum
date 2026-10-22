@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, ref } from "vue";
 
 import FlightLayer from "@/components/FlightLayer.vue";
 import PlayerSeat from "@/components/PlayerSeat.vue";
@@ -8,6 +8,7 @@ import TableCenter from "@/components/TableCenter.vue";
 import { useCardFlights } from "@/composables/useCardFlights";
 import { useConfirmation } from "@/composables/useConfirmation";
 import { useReveals } from "@/composables/useReveals";
+import { useTableIntent } from "@/composables/useTableIntent";
 import { useTurnAlert } from "@/composables/useTurnAlert";
 import { strings } from "@/data/strings";
 import {
@@ -27,16 +28,10 @@ import { isRevealed } from "@/utils/reveals";
 import { leaveRoom } from "@/utils/roomNavigation";
 import type { SlotView } from "@/utils/slotView";
 import { hintFor } from "@/utils/tableHints";
-import {
-  type ClickTarget,
-  type Intent,
-  isSlotMarked,
-  noIntent,
-  selectedOwnSlots,
-  situationOf,
-} from "@/utils/tableIntent";
-import { handleClick, isClickable } from "@/utils/tableInteraction";
+import { isSlotMarked } from "@/utils/tableIntent";
 import { arrangeOpponents } from "@/utils/tableLayout";
+
+const CONFIRMATION_MS = 3000;
 
 const props = defineProps<{
   snapshot: SessionSnapshot;
@@ -57,55 +52,28 @@ const cardFlights = useCardFlights(
   () => props.snapshot.log,
   props.snapshot.self.playerId,
 );
-const situation = computed(() => situationOf(props.state, selfId.value));
+const {
+  intent,
+  situation,
+  hasSelection,
+  isTakingDiscard,
+  targetsOpponents,
+  clickable,
+  click,
+  cancelOnEmptyClick,
+} = useTableIntent({
+  state: () => props.state,
+  selfId: () => selfId.value,
+  onMove: (move) => {
+    emit("move", move);
+  },
+});
 
 useTurnAlert(
   () =>
     props.state.phase.kind === "playing" &&
     props.state.phase.currentPlayerId === selfId.value,
 );
-
-const intent = ref<Intent>(noIntent);
-/**
- * Only a change of the own situation drops a half-made selection, not moves by others.
- */
-const intentContext = computed(() =>
-  situation.value.kind === "startingView"
-    ? situation.value.kind
-    : `${situation.value.kind}:${String(props.state.moveCount)}`,
-);
-watch(intentContext, () => {
-  intent.value = noIntent;
-});
-
-const CONFIRMATION_MS = 3000;
-
-const CANCELLABLE_SITUATIONS = ["choosing", "holding"];
-
-function cancelIntent(): void {
-  if (CANCELLABLE_SITUATIONS.includes(situation.value.kind)) {
-    intent.value = noIntent;
-  }
-}
-
-function cancelOnEscape(event: KeyboardEvent): void {
-  if (event.key === "Escape") {
-    cancelIntent();
-  }
-}
-
-function cancelOnEmptyClick(event: MouseEvent): void {
-  if (event.target instanceof Element && !event.target.closest("button")) {
-    cancelIntent();
-  }
-}
-
-onMounted(() => {
-  document.addEventListener("keydown", cancelOnEscape);
-});
-onUnmounted(() => {
-  document.removeEventListener("keydown", cancelOnEscape);
-});
 
 const opponentAreas = computed(() => {
   const { left, top, right } = arrangeOpponents(
@@ -125,7 +93,6 @@ const currentPlayerId = computed(() =>
     ? props.state.phase.currentPlayerId
     : null,
 );
-const isTakingDiscard = computed(() => intent.value.kind === "takingDiscard");
 const held = computed(() =>
   shownHeldCard(props.state, selfId.value, isTakingDiscard.value),
 );
@@ -139,25 +106,14 @@ const discardTop = computed(() => {
 const heldLabel = computed(() =>
   heldCardLabel(props.state, selfId.value, held.value, isTakingDiscard.value),
 );
-const hasSelection = computed(() => selectedOwnSlots(intent.value).length > 0);
+const heldFaceUp = computed(() => held.value?.holderId === selfId.value);
+const heldMarked = computed(() => intent.value.kind === "action");
+const heldInFlight = computed(() =>
+  cardFlights.hiddenAnchors.value.has(HELD_ANCHOR),
+);
 const recentMoves = computed(() =>
   recentMoveDescriptions(props.state, props.snapshot.log.moves),
 );
-const targetsOpponents = computed(
-  () => intent.value.kind === "action" && intent.value.action !== "viewOwn",
-);
-
-function clickable(target: ClickTarget): boolean {
-  return isClickable(props.state, selfId.value, intent.value, target);
-}
-
-function click(target: ClickTarget): void {
-  const outcome = handleClick(props.state, selfId.value, intent.value, target);
-  intent.value = outcome.intent;
-  if (outcome.move) {
-    emit("move", outcome.move);
-  }
-}
 
 function slotViews(seat: Seat): SlotView[] {
   return seat.layout.flatMap((card, slotIndex) => {
@@ -238,6 +194,15 @@ const canCallEnd = computed(
     tryApplyMove(props.state, { type: "callEnd", playerId: selfId.value }).ok,
 );
 
+const bannerText = computed(() =>
+  props.state.endCallerId
+    ? strings.hints.lastRound(displayName(props.state, props.state.endCallerId))
+    : "",
+);
+const bannerHidden = computed(
+  () => !props.state.endCallerId || isFinished.value,
+);
+
 const results = computed(() =>
   props.state.phase.kind === "finished" ? props.state.phase.results : [],
 );
@@ -285,15 +250,8 @@ const results = computed(() =>
     </div>
 
     <div class="table-area area-center">
-      <p
-        class="banner"
-        :class="{ 'banner-hidden': !state.endCallerId || isFinished }"
-      >
-        {{
-          state.endCallerId
-            ? strings.hints.lastRound(displayName(state, state.endCallerId))
-            : ""
-        }}
+      <p class="banner" :class="{ 'banner-hidden': bannerHidden }">
+        {{ bannerText }}
       </p>
       <ResultsPanel
         v-if="isFinished"
@@ -309,13 +267,13 @@ const results = computed(() =>
         :discard-top="discardTop"
         :held-card="held?.card ?? null"
         :held-label="heldLabel"
-        :held-face-up="held?.holderId === selfId"
+        :held-face-up="heldFaceUp"
         :draw-clickable="clickable({ kind: 'drawPile' })"
         :discard-clickable="clickable({ kind: 'discardPile' })"
         :held-clickable="clickable({ kind: 'heldCard' })"
-        :held-marked="intent.kind === 'action'"
+        :held-marked="heldMarked"
         :discard-confirms="hasSelection"
-        :held-in-flight="cardFlights.hiddenAnchors.value.has(HELD_ANCHOR)"
+        :held-in-flight="heldInFlight"
         :held-is-taken-discard="isTakingDiscard"
         @draw="click({ kind: 'drawPile' })"
         @discard="click({ kind: 'discardPile' })"
@@ -375,9 +333,10 @@ const results = computed(() =>
 .game-table {
   display: grid;
   position: relative;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: var(--coach-rows,) auto 1fr auto;
   grid-template-columns: auto minmax(0, 1fr) auto;
   grid-template-areas:
+    var(--coach-areas,)
     "top top top"
     "left center right"
     "hand hand hand";
@@ -397,12 +356,8 @@ const results = computed(() =>
 
 /* The tutorial coach is a row of the table itself, so the cards below it never get pushed out of view. */
 .table-with-coach {
-  grid-template-rows: auto auto 1fr auto;
-  grid-template-areas:
-    "coach coach coach"
-    "top top top"
-    "left center right"
-    "hand hand hand";
+  --coach-rows: auto;
+  --coach-areas: "coach coach coach";
   overflow-y: auto;
   gap: var(--space-2);
 }
@@ -414,23 +369,10 @@ const results = computed(() =>
 }
 
 .table-coach {
-  display: flex;
   grid-area: coach;
-  flex-direction: column;
   /* Leaves room on both sides for the leave button, so the coach needs no row of its own above. */
   max-width: min(44rem, 100% - 10rem);
   margin: 0 auto;
-  padding: var(--space-2) var(--space-3);
-  gap: 0.15rem;
-  border: 1px solid var(--color-accent-border);
-  border-radius: var(--radius);
-  background: var(--color-surface-dim);
-  font-size: 0.9rem;
-  line-height: 1.3;
-}
-
-.table-coach > :slotted(*) {
-  margin: 0;
 }
 
 .table-area {
@@ -477,7 +419,7 @@ const results = computed(() =>
   min-height: 2.2em;
   margin: 0;
   padding: 0.4rem var(--space-4);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--color-surface-dim);
   color: var(--color-accent);
   font-weight: 600;
@@ -503,7 +445,7 @@ const results = computed(() =>
   margin: 0;
   padding: var(--space-1) var(--space-4);
   border: 1px solid transparent;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   color: var(--color-ink-muted);
   line-height: 1.3;
   text-align: center;
@@ -540,11 +482,6 @@ const results = computed(() =>
   gap: var(--space-3);
 }
 
-.button-confirming {
-  outline: 2px solid var(--color-error);
-  outline-offset: 2px;
-}
-
 /* Phones: one column, opponents above the table. */
 @media (max-width: 40rem) {
   .game-table {
@@ -552,6 +489,7 @@ const results = computed(() =>
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
       "leave"
+      var(--coach-areas,)
       "top"
       "left"
       "right"
@@ -563,19 +501,10 @@ const results = computed(() =>
   }
 
   .table-with-coach {
-    grid-template-rows: none;
-    grid-template-areas:
-      "leave"
-      "coach"
-      "top"
-      "left"
-      "right"
-      "center"
-      "hand";
+    --coach-areas: "coach";
   }
 
-  .table-leave,
-  .table-with-coach .table-leave {
+  .table-leave {
     position: static;
     grid-area: leave;
     justify-self: end;
@@ -585,7 +514,6 @@ const results = computed(() =>
   .table-coach {
     max-width: none;
     margin: 0;
-    font-size: 0.9rem;
   }
 
   .area-top,
