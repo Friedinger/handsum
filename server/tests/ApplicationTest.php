@@ -62,6 +62,18 @@ final class ApplicationTest extends TestCase
         self::assertFileExists($this->dataDir . '/rooms/' . self::roomId() . '.log');
     }
 
+    public function testAFailingCleanupDoesNotTurnTheRequestIntoAnError(): void
+    {
+        $application = new Application($this->dataDir, $this->clock(), static function (): int {
+            throw new \RuntimeException('the cleanup broke');
+        });
+
+        $response = $application->handle('GET', self::roomHeader(), [], '', '1.1.1.1');
+
+        self::assertSame(200, $response->status);
+        self::assertStringContainsString('the cleanup broke', (string) file_get_contents($this->dataDir . '/' . Config::ERROR_LOG_FILE));
+    }
+
     public function testUnwritableStorageIsReportedAndLogged(): void
     {
         file_put_contents($this->dataDir . '/rooms', 'blocks the rooms directory');

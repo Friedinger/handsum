@@ -17,18 +17,27 @@ final class FailingStream
     public static string $contents = '';
     public static int $capacity = PHP_INT_MAX;
     public static bool $locksSucceed = true;
+    public static bool $noticeOnShortWrite = false;
+    public static bool $flushSucceeds = true;
 
     /** @var resource|null */
     public $context;
     private int $position = 0;
 
-    public static function register(string $contents = '', int $capacity = PHP_INT_MAX, bool $locksSucceed = true): void
-    {
+    public static function register(
+        string $contents = '',
+        int $capacity = PHP_INT_MAX,
+        bool $locksSucceed = true,
+        bool $noticeOnShortWrite = false,
+        bool $flushSucceeds = true,
+    ): void {
         self::unregister();
         stream_wrapper_register(self::PROTOCOL, self::class);
         self::$contents = $contents;
         self::$capacity = $capacity;
         self::$locksSucceed = $locksSucceed;
+        self::$noticeOnShortWrite = $noticeOnShortWrite;
+        self::$flushSucceeds = $flushSucceeds;
     }
 
     public static function unregister(): void
@@ -63,6 +72,9 @@ final class FailingStream
             . substr($data, 0, $accepted)
             . substr(self::$contents, $this->position + $accepted);
         $this->position += $accepted;
+        if ($accepted < strlen($data) && self::$noticeOnShortWrite) {
+            trigger_error('Write of ' . strlen($data) . ' bytes failed', E_USER_NOTICE);
+        }
         return $accepted;
     }
 
@@ -94,7 +106,7 @@ final class FailingStream
 
     public function stream_flush(): bool // NOSONAR php:S100
     {
-        return true;
+        return self::$flushSucceeds;
     }
 
     public function stream_lock(int $operation): bool // NOSONAR php:S100

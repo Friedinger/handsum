@@ -15,12 +15,14 @@ final class LockedFileTest extends TestCase
     use WithDataDir;
 
     private bool $errorHandlerInstalled = false;
+    private int $errorReportingBefore = 0;
 
     protected function tearDown(): void
     {
         FailingStream::unregister();
         if ($this->errorHandlerInstalled) {
             restore_error_handler();
+            error_reporting($this->errorReportingBefore);
         }
     }
 
@@ -91,6 +93,44 @@ final class LockedFileTest extends TestCase
         }
     }
 
+    public function testAFailedAppendIsRolledBackWhenPhpRaisesAnException(): void
+    {
+        $this->failOnPhpErrors();
+        FailingStream::register("one\n", capacity: 10, noticeOnShortWrite: true);
+
+        try {
+            LockedFile::withExclusiveLock(FailingStream::path(), fn(LockedFile $file) => $file->append("two-too-long\n"));
+            self::fail('Expected a StorageException');
+        } catch (StorageException) {
+            self::assertSame("one\n", FailingStream::$contents);
+        }
+    }
+
+    public function testAFailedReplacementIsRolledBackWhenPhpRaisesAnException(): void
+    {
+        $this->failOnPhpErrors();
+        FailingStream::register('old-content', capacity: 12, noticeOnShortWrite: true);
+
+        try {
+            LockedFile::withExclusiveLock(FailingStream::path(), fn(LockedFile $file) => $file->replace('new-and-much-longer'));
+            self::fail('Expected a StorageException');
+        } catch (StorageException) {
+            self::assertSame('old-content', FailingStream::$contents);
+        }
+    }
+
+    public function testAnAppendThatCannotBeFlushedIsRolledBack(): void
+    {
+        FailingStream::register("one\n", flushSucceeds: false);
+
+        try {
+            LockedFile::withExclusiveLock(FailingStream::path(), fn(LockedFile $file) => $file->append("two\n"));
+            self::fail('Expected a StorageException');
+        } catch (StorageException) {
+            self::assertSame("one\n", FailingStream::$contents);
+        }
+    }
+
     public function testAnAppendThatFitsIsKept(): void
     {
         FailingStream::register("one\n", capacity: 100);
@@ -142,10 +182,11 @@ final class LockedFileTest extends TestCase
         return $this->dataDir . '/file';
     }
 
-    /** Like the entry point, which turns every notice and warning into an exception. */
+    /** Like the entry point, which reports everything and turns every notice and warning into an exception. */
     private function failOnPhpErrors(): void
     {
         $this->errorHandlerInstalled = true;
+        $this->errorReportingBefore = error_reporting(E_ALL);
         set_error_handler(static function (int $severity, string $message, string $file, int $line): bool {
             if ((error_reporting() & $severity) === 0) {
                 return false;

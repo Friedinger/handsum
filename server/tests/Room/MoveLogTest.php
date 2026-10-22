@@ -54,6 +54,36 @@ final class MoveLogTest extends TestCase
         self::assertSame($this->now, filemtime($this->dataDir . '/rooms/' . $roomId . '.log'));
     }
 
+    public function testTheMoveCountIsCapped(): void
+    {
+        $roomId = self::roomId('MANY22');
+        for ($sequence = 0; $sequence < Config::MAX_MOVES_PER_ROOM; $sequence++) {
+            self::assertSame(AppendStatus::Appended, $this->log->append($roomId, $sequence, '{"type":"a"}')->status);
+        }
+
+        $result = $this->log->append($roomId, Config::MAX_MOVES_PER_ROOM, '{"type":"a"}');
+
+        self::assertSame(AppendStatus::RoomFull, $result->status);
+    }
+
+    public function testTheByteLimitAcceptsTheExactSizeAndRefusesOneByteMore(): void
+    {
+        $lineBytes = 1000;
+        self::assertSame(0, Config::MAX_BYTES_PER_ROOM % $lineBytes);
+        $fitting = json_encode(['type' => 'a', 'pad' => str_repeat('x', $lineBytes - 1 - strlen('{"type":"a","pad":""}'))], JSON_THROW_ON_ERROR);
+        self::assertSame($lineBytes - 1, strlen($fitting));
+        $roomId = self::roomId('EDGE22');
+        $moves = Config::MAX_BYTES_PER_ROOM / $lineBytes;
+        for ($sequence = 0; $sequence < $moves - 1; $sequence++) {
+            $this->log->append($roomId, $sequence, $fitting);
+        }
+        $oneByteTooMuch = $fitting . ' ';
+
+        self::assertSame(AppendStatus::RoomFull, $this->log->append($roomId, $moves - 1, $oneByteTooMuch)->status);
+        self::assertSame(AppendStatus::Appended, $this->log->append($roomId, $moves - 1, $fitting)->status);
+        self::assertSame(AppendStatus::RoomFull, $this->log->append($roomId, $moves, '{"type":"a"}')->status);
+    }
+
     public function testRoomSizeIsCapped(): void
     {
         $roomId = self::roomId('FULL22');
