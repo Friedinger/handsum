@@ -5,7 +5,7 @@ import {
   highestCardValue,
   lowestCardValue,
   powerValues,
-} from "@/data/strings/deckOverview";
+} from "@/data/strings/en/deckOverview";
 import { standardDeck } from "@/engine/deck";
 
 describe("deck overview", () => {

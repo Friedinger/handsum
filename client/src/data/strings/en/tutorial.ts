@@ -1,12 +1,12 @@
 import {
   cardActionDescriptions,
   cardActionNames,
-} from "@/data/strings/cardActions";
+} from "@/data/strings/en/cardActions";
 import {
   highestCardValue,
   lowestCardValue,
   powerValues,
-} from "@/data/strings/deckOverview";
+} from "@/data/strings/en/deckOverview";
 import {
   CALLER_PENALTY,
   LAYOUT_SIZE,

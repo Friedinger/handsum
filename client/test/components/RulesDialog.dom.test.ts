@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import RulesDialog from "@/components/RulesDialog.vue";
 import { strings } from "@/data/strings";
-import { deckOverview } from "@/data/strings/deckOverview";
+import { deckOverview } from "@/data/strings/en/deckOverview";
 
 import { buttonLabelled } from "@test/support/domQueries";
 

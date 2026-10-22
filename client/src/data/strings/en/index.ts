@@ -1,15 +1,19 @@
 import {
   cardActionDescriptions,
   cardActionNames,
-} from "@/data/strings/cardActions";
-import { moveLog } from "@/data/strings/moveLog";
-import { rejectionMessages } from "@/data/strings/rejections";
-import { rules } from "@/data/strings/rules";
-import { tutorial } from "@/data/strings/tutorial";
+} from "@/data/strings/en/cardActions";
+import { moveLog } from "@/data/strings/en/moveLog";
+import { rejectionMessages } from "@/data/strings/en/rejections";
+import { rules } from "@/data/strings/en/rules";
+import { tutorial } from "@/data/strings/en/tutorial";
 import { MAX_PLAYERS, MIN_PLAYERS } from "@/engine";
 
-export const strings = {
+export const en = {
   appTitle: "Handsum",
+  language: {
+    label: "Language",
+    names: { en: "English", de: "Deutsch" },
+  },
   cardActionNames,
   cardActionDescriptions,
   rejectionMessages,

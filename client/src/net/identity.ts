@@ -1,8 +1,10 @@
+import type { Language } from "@/data/strings";
 import type { PlayerId } from "@/engine";
 
 const PLAYER_ID_KEY = "handsum.playerId";
 const PLAYER_NAME_KEY = "handsum.playerName";
 const JOINED_ROOM_KEY = "handsum.joinedRoom";
+const LANGUAGE_KEY = "handsum.language";
 const PLAYER_LOCK_PREFIX = "handsum.player.";
 
 function readItem(storage: Storage, key: string): string | null {
@@ -93,4 +95,12 @@ export function rememberJoinedRoom(roomCode: string): void {
 
 export function hasJoinedRoom(roomCode: string): boolean {
   return readItem(sessionStorage, JOINED_ROOM_KEY) === roomCode;
+}
+
+export function loadSavedLanguage(): string | null {
+  return readItem(localStorage, LANGUAGE_KEY);
+}
+
+export function saveLanguage(language: Language): void {
+  writeItem(localStorage, LANGUAGE_KEY, language);
 }

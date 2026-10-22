@@ -4,7 +4,13 @@ import { computed } from "vue";
 import RulesDialog from "@/components/RulesDialog.vue";
 import { type BuildInfo, buildInfo } from "@/data/buildInfo";
 import { type LegalLinks, legalLinks } from "@/data/legalLinks";
-import { strings } from "@/data/strings";
+import {
+  activeLanguage,
+  type Language,
+  LANGUAGES,
+  strings,
+} from "@/data/strings";
+import { saveLanguage } from "@/net/identity";
 
 const props = withDefaults(
   defineProps<{ links?: LegalLinks; build?: BuildInfo | null }>(),
@@ -19,6 +25,16 @@ const entries = computed(() => {
     ...(privacyUrl ? [{ label: strings.legal.privacy, url: privacyUrl }] : []),
   ];
 });
+
+/* Named in its own language, so it can be found without reading the current one. */
+const otherLanguages = LANGUAGES.filter(
+  (language) => language !== activeLanguage,
+);
+
+function switchLanguage(language: Language): void {
+  saveLanguage(language);
+  location.reload();
+}
 </script>
 
 <template>
@@ -31,6 +47,17 @@ const entries = computed(() => {
       :href="entry.url"
       >{{ entry.label }}</a
     >
+    <button
+      v-for="language in otherLanguages"
+      :key="language"
+      type="button"
+      class="link-quiet"
+      :lang="language"
+      :title="strings.language.label"
+      @click="switchLanguage(language)"
+    >
+      {{ strings.language.names[language] }}
+    </button>
     <template v-if="shownBuild">
       <a
         v-if="shownBuild.commitUrl"

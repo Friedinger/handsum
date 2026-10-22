@@ -3,7 +3,7 @@ import {
   describeDeck,
   valuesWithPower,
 } from "@/data/deckDescription";
-import { cardActionNames } from "@/data/strings/cardActions";
+import { cardActionNames } from "@/data/strings/en/cardActions";
 import { standardCardTypes } from "@/engine/deck";
 
 export const deckWording: DeckWording = {

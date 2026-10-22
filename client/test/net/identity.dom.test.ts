@@ -64,6 +64,22 @@ describe("player identity", () => {
     });
   });
 
+  describe("language", () => {
+    it("is unset until a choice was saved", async () => {
+      const { loadSavedLanguage } = await loadIdentity();
+
+      expect(loadSavedLanguage()).toBeNull();
+    });
+
+    it("is kept in the browser", async () => {
+      const { loadSavedLanguage, saveLanguage } = await loadIdentity();
+
+      saveLanguage("de");
+
+      expect(loadSavedLanguage()).toBe("de");
+    });
+  });
+
   describe("joined room", () => {
     it("is remembered per tab and room", async () => {
       const { hasJoinedRoom, rememberJoinedRoom } = await loadIdentity();

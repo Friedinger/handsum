@@ -1,5 +1,5 @@
 import { mount } from "@vue/test-utils";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import AppFooter from "@/components/AppFooter.vue";
 import { buildInfoFrom } from "@/data/buildInfo";
@@ -48,6 +48,33 @@ describe("AppFooter", () => {
     });
     expect(wrapper.find("a").exists()).toBe(false);
     expect(buttonLabelled(wrapper, strings.rules.open)).toBeDefined();
+  });
+});
+
+describe("AppFooter language switch", () => {
+  const links = { imprintUrl: null, privacyUrl: null };
+
+  afterEach(() => {
+    localStorage.clear();
+    vi.unstubAllGlobals();
+  });
+
+  it("offers only the other language, named in that language", () => {
+    const wrapper = mount(AppFooter, { props: { links } });
+
+    expect(buttonLabelled(wrapper, "Deutsch")?.attributes("lang")).toBe("de");
+    expect(buttonLabelled(wrapper, "English")).toBeUndefined();
+  });
+
+  it("saves the choice and reloads the page", async () => {
+    const reload = vi.fn();
+    vi.stubGlobal("location", { reload });
+    const wrapper = mount(AppFooter, { props: { links } });
+
+    await buttonLabelled(wrapper, "Deutsch")?.trigger("click");
+
+    expect(localStorage.getItem("handsum.language")).toBe("de");
+    expect(reload).toHaveBeenCalledOnce();
   });
 });
 

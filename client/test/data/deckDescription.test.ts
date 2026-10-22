@@ -5,7 +5,7 @@ import {
   describeValues,
   valuesWithPower,
 } from "@/data/deckDescription";
-import { deckWording } from "@/data/strings/deckOverview";
+import { deckWording } from "@/data/strings/en/deckOverview";
 
 describe("describeValues", () => {
   it("names single values, pairs and ranges", () => {
