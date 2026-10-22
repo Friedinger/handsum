@@ -16,6 +16,7 @@ client/            Vue 3 app (own package.json, Vite, Vitest, ESLint)
   test/            tests, mirroring src/ (test/support/ holds shared helpers)
 server/            PHP move log server
   index.php        entry point (api/index.php after the build)
+  src/             Application (wiring), Housekeeping (cleanup), Config (all limits), ErrorLog
   src/Web/         request and response side: Api, RequestBody, Response, error codes
   src/Room/        per-room data: Rooms (files), MoveLog, PlayerList, Player
   src/RateLimit/   RateLimiter, per-network counters, client address handling
@@ -36,7 +37,7 @@ The API has a single entry point, `api/index.php`. The room is identified by the
 
 ## Server layers
 
-`Application` (with `index.php`) wires everything together and turns exceptions into generic error responses; `Housekeeping` deletes expired data now and then. Below that the dependencies point one way: `Web` may use `Room` and `RateLimit`, both may use `Storage`, and `Storage` uses none of them. Everyone may read `Config`, where all limits and patterns live. A file is only ever opened through `LockedFile`, so locking and the rollback of failed writes exist once.
+`Application` (with `index.php`) and `Housekeeping` wire everything together and turns exceptions into generic error responses; `Housekeeping` deletes expired data now and then. Below that the dependencies point one way: `Web` may use `Room` and `RateLimit`, both may use `Storage`, and `Storage` uses none of them. Everyone may read `Config`, where all limits and patterns live. The data files (rooms, counters, secret) are only ever opened through `LockedFile`, so locking and the rollback of failed writes exist once.
 
 ## Security model
 
