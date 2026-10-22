@@ -44,9 +44,10 @@ abstract class DataDirTestCase extends TestCase
         return [Config::ROOM_ID_HEADER => self::roomId($code)];
     }
 
-    private static function removeTree(string $dir): void
+    protected static function removeTree(string $dir): void
     {
-        foreach (glob($dir . '/*') ?: [] as $path) {
+        foreach (array_diff(scandir($dir) ?: [], ['.', '..']) as $entry) {
+            $path = $dir . '/' . $entry;
             is_dir($path) ? self::removeTree($path) : unlink($path);
         }
         rmdir($dir);

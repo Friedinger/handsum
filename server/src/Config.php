@@ -9,6 +9,7 @@ final class Config
     public const DEFAULT_DATA_DIR = __DIR__ . '/../data';
     public const LOCAL_CONFIG_FILE = __DIR__ . '/../config.local.php';
     public const ERROR_LOG_FILE = 'error.log';
+    public const DATA_DIR_PROTECTION_FILE = '.htaccess';
     public const MAX_ERROR_LOG_BYTES = 100_000;
 
     public const ROOM_ID_PATTERN = '/^[0-9a-f]{64}$/';

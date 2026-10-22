@@ -30,8 +30,8 @@ final class RoomStore
     /** @return list<string> the whole move log as JSON-encoded moves, the index in the list being the sequence number */
     public function moves(string $roomId): array
     {
-        $raw = @file_get_contents($this->logPath($roomId));
-        return $raw === false || $raw === '' ? [] : explode("\n", rtrim($raw, "\n"));
+        $raw = LockedJsonFile::readRaw($this->logPath($roomId));
+        return $raw === null || $raw === '' ? [] : explode("\n", rtrim($raw, "\n"));
     }
 
     /** Appends only if $sequence is the next free index, so duplicates and gaps are rejected. */
@@ -39,29 +39,39 @@ final class RoomStore
     {
         $handle = @fopen($this->logPath($roomId), 'c+');
         if ($handle === false) {
-            throw new StorageException('Cannot open room log');
+            throw new StorageException('Cannot open a room log');
         }
-        flock($handle, LOCK_EX);
-        $existing = stream_get_contents($handle);
-        $length = $existing === '' ? 0 : substr_count((string) $existing, "\n");
-        $size = strlen((string) $existing);
-        $result = match (true) {
-            $sequence !== $length => new AppendResult(AppendStatus::Conflict, $length),
-            $length >= Config::MAX_MOVES_PER_ROOM,
-            $size + strlen($moveJson) + 1 > Config::MAX_BYTES_PER_ROOM => new AppendResult(AppendStatus::RoomFull, $length),
-            default => $this->write($handle, $roomId, $moveJson, $length),
-        };
-        flock($handle, LOCK_UN);
-        fclose($handle);
-        return $result;
+        try {
+            if (!flock($handle, LOCK_EX)) {
+                throw new StorageException('Cannot lock a room log');
+            }
+            $existing = (string) stream_get_contents($handle);
+            $length = $existing === '' ? 0 : substr_count($existing, "\n");
+            $size = strlen($existing);
+            return match (true) {
+                $sequence !== $length => new AppendResult(AppendStatus::Conflict, $length),
+                $length >= Config::MAX_MOVES_PER_ROOM,
+                $size + strlen($moveJson) + 1 > Config::MAX_BYTES_PER_ROOM => new AppendResult(AppendStatus::RoomFull, $length),
+                default => $this->write($handle, $roomId, $moveJson, $length, $size),
+            };
+        } finally {
+            fclose($handle);
+        }
     }
 
-    /** @param resource $handle */
-    private function write($handle, string $roomId, string $moveJson, int $length): AppendResult
+    /**
+     * A short write (full disk, quota) is cut off again, so the next move never gets glued to half a line.
+     *
+     * @param resource $handle
+     * @param int<0, max> $sizeBefore
+     */
+    private function write($handle, string $roomId, string $moveJson, int $length, int $sizeBefore): AppendResult
     {
         fseek($handle, 0, SEEK_END);
-        fwrite($handle, $moveJson . "\n");
-        fflush($handle);
+        if (!Filesystem::writeFully($handle, $moveJson . "\n")) {
+            Filesystem::truncateTo($handle, $sizeBefore);
+            throw new StorageException('Cannot write a room log');
+        }
         touch($this->logPath($roomId), ($this->clock)());
         return new AppendResult(AppendStatus::Appended, $length + 1);
     }
@@ -93,8 +103,7 @@ final class RoomStore
     /** @return list<Player> */
     public function activePlayers(string $roomId): array
     {
-        $raw = @file_get_contents($this->playersPath($roomId));
-        $stored = json_decode($raw === false ? '' : $raw, true);
+        $stored = LockedJsonFile::read($this->playersPath($roomId));
         return $this->players($this->stillActive($stored, ($this->clock)()));
     }
 
@@ -103,9 +112,9 @@ final class RoomStore
     {
         $threshold = ($this->clock)() - Config::ROOM_IDLE_SECONDS;
         foreach ($this->roomFiles() as $paths) {
-            $lastChange = max(array_map(filemtime(...), $paths));
-            if ($lastChange < $threshold) {
-                array_map(unlink(...), $paths);
+            $modified = array_filter(array_map(static fn(string $path): int|false => @filemtime($path), $paths), is_int(...));
+            if ($modified !== [] && max($modified) < $threshold) {
+                array_map(static fn(string $path): bool => @unlink($path), $paths);
             }
         }
     }

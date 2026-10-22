@@ -10,6 +10,28 @@ use Handsum\Tests\Support\DataDirTestCase;
 
 final class FilesystemTest extends DataDirTestCase
 {
+    private bool $errorHandlerInstalled = false;
+
+    protected function tearDown(): void
+    {
+        if ($this->errorHandlerInstalled) {
+            restore_error_handler();
+        }
+        parent::tearDown();
+    }
+
+    /** Like the entry point, which turns every notice and warning into an exception. */
+    private function failOnPhpErrors(): void
+    {
+        $this->errorHandlerInstalled = true;
+        set_error_handler(static function (int $severity, string $message, string $file, int $line): bool {
+            if ((error_reporting() & $severity) === 0) {
+                return false;
+            }
+            throw new \ErrorException($message, 0, $severity, $file, $line);
+        });
+    }
+
     public function testMissingDirectoryIsCreatedRecursively(): void
     {
         Filesystem::ensureDirectory($this->dataDir . '/a/b');
@@ -33,6 +55,64 @@ final class FilesystemTest extends DataDirTestCase
 
         self::assertFileDoesNotExist($this->dataDir . '/old');
         self::assertFileExists($this->dataDir . '/fresh');
+    }
+
+    public function testWebAccessIsDeniedForTheDirectory(): void
+    {
+        Filesystem::denyWebAccess($this->dataDir);
+
+        self::assertSame("Require all denied\n", file_get_contents($this->dataDir . '/.htaccess'));
+        self::assertSame(0644, fileperms($this->dataDir . '/.htaccess') & 0777);
+    }
+
+    public function testAnExistingProtectionFileIsNotOverwritten(): void
+    {
+        file_put_contents($this->dataDir . '/.htaccess', 'custom');
+
+        Filesystem::denyWebAccess($this->dataDir);
+
+        self::assertSame('custom', file_get_contents($this->dataDir . '/.htaccess'));
+    }
+
+    public function testAFailedWriteIsReportedInsteadOfThrown(): void
+    {
+        $handle = fopen('/dev/full', 'w');
+        self::assertNotFalse($handle);
+        $this->failOnPhpErrors();
+
+        self::assertFalse(Filesystem::writeFully($handle, 'data'));
+        fclose($handle);
+    }
+
+    public function testASuccessfulWriteIsReported(): void
+    {
+        $handle = fopen($this->dataDir . '/out', 'c+');
+        self::assertNotFalse($handle);
+
+        self::assertTrue(Filesystem::writeFully($handle, 'data'));
+        fclose($handle);
+        self::assertSame('data', file_get_contents($this->dataDir . '/out'));
+    }
+
+    public function testAFileThatVanishedDuringTheCleanupIsSkipped(): void
+    {
+        symlink($this->dataDir . '/gone', $this->dataDir . '/dangling');
+        $this->failOnPhpErrors();
+
+        Filesystem::deleteFilesOlderThan($this->dataDir, PHP_INT_MAX);
+
+        self::assertTrue(is_link($this->dataDir . '/dangling'));
+    }
+
+    public function testFilesDeletedByAnotherCleanupAreSkipped(): void
+    {
+        file_put_contents($this->dataDir . '/old', 'x');
+        touch($this->dataDir . '/old', 100);
+
+        Filesystem::deleteFilesOlderThan($this->dataDir, 200);
+        Filesystem::deleteFilesOlderThan($this->dataDir, 200);
+
+        self::assertFileDoesNotExist($this->dataDir . '/old');
     }
 
     public function testSubdirectoriesAreKept(): void

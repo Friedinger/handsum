@@ -16,19 +16,68 @@ final class LockedJsonFile
     {
         $handle = @fopen($path, 'c+');
         if ($handle === false) {
-            throw new StorageException("Cannot open $path");
+            throw new StorageException('Cannot open a file in ' . self::folderOf($path));
         }
-        flock($handle, LOCK_EX);
-        $updated = $change(json_decode((string) stream_get_contents($handle), true));
-        if ($updated !== null) {
-            ftruncate($handle, 0);
-            rewind($handle);
-            fwrite($handle, json_encode($updated, JSON_THROW_ON_ERROR));
-            fflush($handle);
-            touch($path, $now);
+        try {
+            if (!flock($handle, LOCK_EX)) {
+                throw new StorageException('Cannot lock a file in ' . self::folderOf($path));
+            }
+            $previous = (string) stream_get_contents($handle);
+            $updated = $change(json_decode($previous, true));
+            if ($updated !== null) {
+                self::overwrite($handle, json_encode($updated, JSON_THROW_ON_ERROR), $previous, $path);
+                touch($path, $now);
+            }
+            return $updated;
+        } finally {
+            fclose($handle);
         }
-        flock($handle, LOCK_UN);
-        fclose($handle);
-        return $updated;
+    }
+
+    /** Waits for a running update, so a reader never sees a half-written file. */
+    public static function readRaw(string $path): ?string
+    {
+        $handle = @fopen($path, 'r');
+        if ($handle === false) {
+            return null;
+        }
+        try {
+            if (!flock($handle, LOCK_SH)) {
+                throw new StorageException('Cannot lock a file in ' . self::folderOf($path));
+            }
+            $raw = stream_get_contents($handle);
+            return $raw === false ? null : $raw;
+        } finally {
+            fclose($handle);
+        }
+    }
+
+    public static function read(string $path): mixed
+    {
+        return json_decode((string) self::readRaw($path), true);
+    }
+
+    /**
+     * Writes before truncating, so the file is never empty in between. If the write fails halfway, the
+     * previous content is put back as well as possible.
+     *
+     * @param resource $handle
+     */
+    private static function overwrite($handle, string $json, string $previous, string $path): void
+    {
+        rewind($handle);
+        if (Filesystem::writeFully($handle, $json) && Filesystem::truncateTo($handle, strlen($json))) {
+            return;
+        }
+        rewind($handle);
+        Filesystem::writeFully($handle, $previous);
+        Filesystem::truncateTo($handle, strlen($previous));
+        throw new StorageException('Cannot write a file in ' . self::folderOf($path));
+    }
+
+    /** Error messages are logged, so they name the folder and never the room or address hash in the file name. */
+    private static function folderOf(string $path): string
+    {
+        return basename(dirname($path));
     }
 }
