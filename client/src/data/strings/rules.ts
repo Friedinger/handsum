@@ -1,8 +1,9 @@
+import type { DeckFact } from "@/data/deckDescription";
 import {
   cardActionDescriptions,
   cardActionNames,
 } from "@/data/strings/cardActions";
-import { type DeckFact, deckOverview } from "@/data/strings/deckOverview";
+import { deckOverview } from "@/data/strings/deckOverview";
 import {
   CALLER_PENALTY,
   LAYOUT_SIZE,
