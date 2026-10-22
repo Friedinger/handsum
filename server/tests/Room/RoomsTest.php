@@ -26,6 +26,14 @@ final class RoomsTest extends TestCase
         self::assertFalse($rooms->exists(self::roomId('NONE22')));
     }
 
+    public function testAFolderOrAForeignNameIsNoRoom(): void
+    {
+        $rooms = new Rooms($this->dataDir, $this->clock());
+        mkdir($this->dataDir . '/rooms/' . self::roomId() . '.log');
+
+        self::assertFalse($rooms->exists(self::roomId()));
+    }
+
     public function testRoomsAreCountedOnceEvenWithSeveralFiles(): void
     {
         $rooms = new Rooms($this->dataDir, $this->clock());

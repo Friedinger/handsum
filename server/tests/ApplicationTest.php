@@ -48,6 +48,21 @@ final class ApplicationTest extends TestCase
         self::assertNotSame([], glob($this->dataDir . '/rooms/*'));
     }
 
+    public function testARequestThatReachedTheCreationLimitDoesNotTriggerACleanup(): void
+    {
+        $this->createIdleRoom();
+        $limitFiller = new Application($this->dataDir, $this->clock(), static fn(): int => 100);
+        for ($i = 0; $i < Config::ROOM_CREATIONS_PER_IP_PER_WINDOW; $i++) {
+            $limitFiller->handle('POST', self::roomHeader("NEW$i"), ['action' => 'move'], '{"sequence":0,"move":{"type":"a"}}', '3.3.3.3');
+        }
+        $cleaning = new Application($this->dataDir, $this->clock(), static fn(): int => 1);
+
+        $limited = $cleaning->handle('POST', self::roomHeader('NEWEST'), ['action' => 'move'], '{"sequence":0,"move":{"type":"a"}}', '3.3.3.3');
+
+        self::assertSame(429, $limited->status);
+        self::assertFileExists($this->dataDir . '/rooms/' . self::roomId() . '.log');
+    }
+
     public function testUnwritableStorageIsReportedAndLogged(): void
     {
         file_put_contents($this->dataDir . '/rooms', 'blocks the rooms directory');

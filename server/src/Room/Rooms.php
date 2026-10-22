@@ -30,7 +30,7 @@ final class Rooms
 
     public function exists(string $roomId): bool
     {
-        return glob($this->directory . '/' . $roomId . '.*') !== [];
+        return array_filter(glob($this->directory . '/' . $roomId . '.*') ?: [], is_file(...)) !== [];
     }
 
     public function count(): int

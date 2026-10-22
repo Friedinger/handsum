@@ -27,7 +27,7 @@ final class MoveLog
     {
         $path = $this->rooms->path($roomId, self::EXTENSION);
         return LockedFile::withExclusiveLock($path, function ($handle) use ($path, $sequence, $moveJson): AppendResult {
-            $existing = LockedFile::contents($handle);
+            $existing = LockedFile::readAll($handle);
             $length = $existing === '' ? 0 : substr_count($existing, "\n");
             if ($sequence !== $length) {
                 return new AppendResult(AppendStatus::Conflict, $length);

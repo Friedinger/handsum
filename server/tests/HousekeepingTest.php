@@ -45,9 +45,9 @@ final class HousekeepingTest extends TestCase
 
     public function testTheRandomRollStaysWithinTheDice(): void
     {
-        for ($i = 0; $i < 200; $i++) {
-            self::assertGreaterThanOrEqual(1, Housekeeping::randomRoll());
-            self::assertLessThanOrEqual(100, Housekeeping::randomRoll());
-        }
+        $rolls = array_map(static fn(): int => Housekeeping::randomRoll(), range(1, 500));
+
+        self::assertGreaterThanOrEqual(1, min($rolls));
+        self::assertLessThanOrEqual(100, max($rolls));
     }
 }

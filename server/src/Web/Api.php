@@ -30,7 +30,7 @@ final class Api
     public function handle(string $method, array $server, array $query, string $body, string $ip): Response
     {
         if (!$this->limiter->allow($ip, self::REQUEST_BUCKET, Config::REQUESTS_PER_IP_PER_WINDOW, Config::REQUEST_WINDOW_SECONDS)) {
-            return Response::error(429, ErrorCode::RateLimited);
+            return Response::rateLimited();
         }
         $roomId = $server[Config::ROOM_ID_HEADER] ?? '';
         if (preg_match(Config::ROOM_ID_PATTERN, $roomId) !== 1) {
@@ -105,6 +105,6 @@ final class Api
             return Response::error(503, ErrorCode::TooManyRooms);
         }
         $allowed = $this->limiter->allow($ip, self::CREATION_BUCKET, Config::ROOM_CREATIONS_PER_IP_PER_WINDOW, Config::ROOM_CREATION_WINDOW_SECONDS);
-        return $allowed ? null : Response::error(429, ErrorCode::RateLimited);
+        return $allowed ? null : Response::rateLimited();
     }
 }

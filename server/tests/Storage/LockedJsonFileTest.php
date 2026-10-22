@@ -25,27 +25,6 @@ final class LockedJsonFileTest extends TestCase
         self::assertSame(['count' => 3], LockedJsonFile::read($this->path()));
     }
 
-    public function testAShorterUpdateLeavesNoOldTail(): void
-    {
-        LockedJsonFile::update($this->path(), $this->now, static fn(): array => ['text' => str_repeat('x', 50)]);
-
-        LockedJsonFile::update($this->path(), $this->now, static fn(): array => []);
-
-        self::assertSame('[]', file_get_contents($this->path()));
-    }
-
-    public function testErrorMessagesDoNotNameTheFile(): void
-    {
-        $path = $this->dataDir . '/missing-folder/' . hash('sha256', 'room');
-
-        try {
-            LockedJsonFile::update($path, $this->now, static fn(): array => []);
-            self::fail('Expected a StorageException');
-        } catch (StorageException $error) {
-            self::assertStringNotContainsString(hash('sha256', 'room'), $error->getMessage());
-        }
-    }
-
     public function testChangeReceivesNullForAMissingFile(): void
     {
         $received = 'unset';

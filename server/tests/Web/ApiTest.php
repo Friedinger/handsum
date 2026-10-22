@@ -346,7 +346,6 @@ final class ApiTest extends TestCase
 
     public function testRequestRateLimitTriggers(): void
     {
-        $status = 200;
         for ($i = 0; $i <= Config::REQUESTS_PER_IP_PER_WINDOW; $i++) {
             $response = $this->call('GET', self::roomHeader(), [], '', '4.4.4.4');
         }

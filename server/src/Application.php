@@ -16,8 +16,6 @@ use Handsum\Web\Response;
 
 final class Application
 {
-    private const RATE_LIMITED = 429;
-
     private readonly \Closure $roll;
 
     /**
@@ -49,13 +47,26 @@ final class Application
                 $limiter,
             );
             $response = $api->handle($method, $server, $query, $body, $ip);
-            if ($response->status !== self::RATE_LIMITED) {
-                (new Housekeeping($rooms, $limiter, $this->roll))->maybeRun();
+            if (!$response->isRateLimited()) {
+                $this->runHousekeeping(new Housekeeping($rooms, $limiter, $this->roll));
             }
             return $response;
         } catch (\Throwable $error) {
             ErrorLog::write($error, $this->dataDir);
             return Response::error(500, $error instanceof StorageException ? ErrorCode::StorageNotWritable : ErrorCode::ServerError);
+        }
+    }
+
+    /**
+     * A request that was turned away for sending too much must not cause extra work, and a failing
+     * cleanup must not turn a request that already succeeded into an error.
+     */
+    private function runHousekeeping(Housekeeping $housekeeping): void
+    {
+        try {
+            $housekeeping->maybeRun();
+        } catch (\Throwable $error) {
+            ErrorLog::write($error, $this->dataDir);
         }
     }
 }

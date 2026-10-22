@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Handsum\Storage;
 
 /**
- * The one place that opens, locks and writes files, so every writer rolls back a failed write the
- * same way and every reader waits for a running update.
+ * The one place that opens, locks and writes the data files (rooms, counters, secret), so every writer
+ * rolls back a failed write the same way and every reader waits for a running update.
  */
 final class LockedFile
 {
@@ -49,7 +49,7 @@ final class LockedFile
     }
 
     /** @param resource $handle */
-    public static function contents($handle): string
+    public static function readAll($handle): string
     {
         rewind($handle);
         return (string) stream_get_contents($handle);
@@ -63,7 +63,7 @@ final class LockedFile
      */
     public static function replaceContents($handle, string $data, string $path): void
     {
-        $previous = self::contents($handle);
+        $previous = self::readAll($handle);
         rewind($handle);
         if (self::writeFully($handle, $data) && self::truncateTo($handle, strlen($data))) {
             return;
@@ -83,11 +83,13 @@ final class LockedFile
     {
         fseek($handle, 0, SEEK_END);
         $sizeBefore = ftell($handle);
-        if (self::writeFully($handle, $data)) {
-            return;
+        if ($sizeBefore === false) {
+            throw new StorageException('Cannot write a file in ' . self::folderOf($path));
         }
-        self::truncateTo($handle, is_int($sizeBefore) ? max(0, $sizeBefore) : 0);
-        throw new StorageException('Cannot write a file in ' . self::folderOf($path));
+        if (!self::writeFully($handle, $data)) {
+            self::truncateTo($handle, max(0, $sizeBefore));
+            throw new StorageException('Cannot write a file in ' . self::folderOf($path));
+        }
     }
 
     /**
