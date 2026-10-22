@@ -277,6 +277,10 @@ button {
   text-decoration: underline;
 }
 
+.commit-hash {
+  color: var(--color-ink-muted);
+}
+
 .disclaimer {
   margin-top: 2rem;
   color: var(--color-ink-muted);

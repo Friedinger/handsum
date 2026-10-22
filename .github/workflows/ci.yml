@@ -42,6 +42,8 @@ jobs:
 
       - name: Build client
         env:
+          VITE_COMMIT_HASH: ${{ github.sha }}
+          VITE_REPOSITORY_URL: ${{ github.server_url }}/${{ github.repository }}
           VITE_IMPRINT_URL: ${{ vars.IMPRINT_URL }}
           VITE_PRIVACY_URL: ${{ vars.PRIVACY_URL }}
         run: npm run client:build

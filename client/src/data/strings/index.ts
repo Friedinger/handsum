@@ -16,6 +16,9 @@ export const strings = {
     offline: "No connection to the server. Retrying …",
   },
   moveLog,
+  build: {
+    commitTitle: "Open this version on GitHub",
+  },
   legal: {
     imprint: "Imprint",
     privacy: "Privacy policy",
