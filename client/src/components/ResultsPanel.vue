@@ -20,7 +20,7 @@ const headline = computed(() => {
   return strings.table.playerWins(
     winners
       .map((winner) => displayName(props.state, winner.playerId))
-      .join(" & "),
+      .join(strings.table.winnerSeparator),
   );
 });
 

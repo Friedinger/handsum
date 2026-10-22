@@ -84,6 +84,38 @@ describe("LobbyView", () => {
     expect(copy.text()).toBe(strings.lobby.copyLink);
   });
 
+  it("restarts the confirmation time when the link is copied again", async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal("navigator", {
+      clipboard: { writeText: vi.fn(() => Promise.resolve()) },
+    });
+    const wrapper = mountLobby(snapshotWith([]));
+    const copy = wrapper.find(".inline-form button");
+
+    await copy.trigger("click");
+    await vi.advanceTimersByTimeAsync(1500);
+    await copy.trigger("click");
+    await vi.advanceTimersByTimeAsync(1500);
+    expect(copy.text()).toBe(strings.lobby.copied);
+    await vi.advanceTimersByTimeAsync(500);
+
+    expect(copy.text()).toBe(strings.lobby.copyLink);
+  });
+
+  it("leaves no timer behind when unmounted", async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal("navigator", {
+      clipboard: { writeText: vi.fn(() => Promise.resolve()) },
+    });
+    const wrapper = mountLobby(snapshotWith([]));
+
+    await wrapper.find(".inline-form button").trigger("click");
+    await vi.advanceTimersByTimeAsync(0);
+    wrapper.unmount();
+
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
   it("offers sharing only where the browser can share", () => {
     const buttonLabels = () =>
       mountLobby(snapshotWith([]))

@@ -109,6 +109,7 @@ export const strings = {
     winner: "Winner",
     youWin: "You win!",
     playerWins: (player: string) => `${player} wins!`,
+    winnerSeparator: " & ",
     playAgain: "Play again",
   },
   roomFull: {

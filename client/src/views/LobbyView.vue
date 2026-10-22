@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onUnmounted, ref } from "vue";
 
 import { strings } from "@/data/strings";
 import { MAX_PLAYERS, MIN_PLAYERS, type MoveRejection } from "@/engine";
@@ -25,12 +25,19 @@ const canStart = computed(
 );
 const copyResult = ref<"idle" | "copied" | "failed">("idle");
 
+let copyResultTimer: ReturnType<typeof setTimeout> | undefined;
+
 async function copyLink(): Promise<void> {
   copyResult.value = (await copyText(link.value)) ? "copied" : "failed";
-  setTimeout(() => {
+  clearTimeout(copyResultTimer);
+  copyResultTimer = setTimeout(() => {
     copyResult.value = "idle";
   }, COPIED_NOTICE_MS);
 }
+
+onUnmounted(() => {
+  clearTimeout(copyResultTimer);
+});
 
 async function share(): Promise<void> {
   const result = await shareLink(link.value, strings.lobby.shareTitle);
@@ -125,7 +132,7 @@ async function share(): Promise<void> {
 
 .player-list li {
   padding: 0.3rem var(--space-3);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--color-surface-dim);
 }
 </style>
