@@ -54,6 +54,6 @@ Browser-based multiplayer card game prototype (2–8 players, join via link). No
 
 ## Legal
 
-- Never use the original game's name, text from its rulebook or its graphics — in code, README or UI. Rules only in our own words.
+- Never use the original game's name, text from its rulebook or its graphics — in code, UI, page title, meta tags or repo name/description/topics. Rules only in our own words. Only exception: the disclaimer section at the end of the README names the original game, its authors and publisher once, factually.
 - This includes identifiers: use neutral own terms (e.g. card actions `viewOwn`, `viewOther`, `exchangeBlind`), not terms resembling the original rulebook.
 - Cards are rendered with HTML/CSS only (number + neutral placeholder symbol) until own artwork exists.

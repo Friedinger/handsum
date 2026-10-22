@@ -5,7 +5,7 @@
 
 A browser-based multiplayer card game prototype for 2 to 8 players. Players join a round via a shared link; the browser clients exchange moves through a small PHP server that only stores the move log.
 
-> **Unofficial fan project, not affiliated with the original publisher.**
+> **Unofficial fan project, not affiliated with the original publisher.** See the [disclaimer](#-disclaimer).
 
 ## ✨ Features
 
@@ -71,3 +71,7 @@ npm run fix    # autofix where possible
 ## 📄 License
 
 The code is licensed under the [MIT License](LICENSE).
+
+## 📜 Disclaimer
+
+Handsum is an unofficial, non-commercial fan project based on the game mechanics of the card game Cabo by Mandy Henning and Melissa Limes, published by Smiling Monster Games. It is not affiliated with or endorsed by the authors or the publisher. Only the mechanics are adopted; all names, rule texts, card designs and artwork in this project are original. If you are a rights holder and have concerns, please open an issue.
