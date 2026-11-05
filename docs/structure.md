@@ -24,7 +24,6 @@ server/            PHP move log server
   src/Storage/     low-level files: LockedFile, LockedJsonFile, Filesystem, InstallationSecret
   tests/           tests, mirroring src/ (tests/support/ holds shared test helpers, loaded by tests/bootstrap.php)
 docs/              this documentation
-scripts/           dev.mjs: runs the PHP API and the Vite dev server together
 ```
 
 The root `package.json` delegates to `client/`, runs the PHP helpers and formats the files outside `client/`. Install the dependencies with `npm install` and `npm --prefix client install`.

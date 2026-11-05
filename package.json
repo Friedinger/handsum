@@ -14,7 +14,7 @@
   "license": "MIT",
   "author": "Friedinger",
   "scripts": {
-    "dev": "node scripts/dev.mjs",
+    "dev": "npm --prefix client exec -- run-p --race --print-label server:dev client:dev",
     "lint": "npm run client:lint && npm run root:lint && npm run server:lint",
     "fix": "npm run client:fix && npm run root:fix && npm run server:fix",
     "test": "npm run client:test && npm run server:test",
