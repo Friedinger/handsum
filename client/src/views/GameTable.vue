@@ -1,46 +1,37 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 
+import ConfirmButton from "@/components/ConfirmButton.vue";
 import FlightLayer from "@/components/FlightLayer.vue";
+import LastRoundBanner from "@/components/LastRoundBanner.vue";
+import MoveLog from "@/components/MoveLog.vue";
 import PlayerSeat from "@/components/PlayerSeat.vue";
 import ResultsPanel from "@/components/ResultsPanel.vue";
 import TableCenter from "@/components/TableCenter.vue";
+import TableHand from "@/components/TableHand.vue";
 import { useCardFlights } from "@/composables/useCardFlights";
-import { useConfirmation } from "@/composables/useConfirmation";
 import { useReveals } from "@/composables/useReveals";
 import { useTableIntent } from "@/composables/useTableIntent";
 import { useTurnAlert } from "@/composables/useTurnAlert";
 import { strings } from "@/data/strings";
-import {
-  findSeat,
-  type Move,
-  type MoveRejection,
-  type Seat,
-  type StartedGame,
-  tryApplyMove,
-} from "@/engine";
+import type { Move, MoveRejection, StartedGame } from "@/engine";
 import { onlinePlayerIds, type SessionSnapshot } from "@/net/gameSession";
-import { anchorKey, HELD_ANCHOR } from "@/utils/cardFlights";
 import { displayName } from "@/utils/displayName";
-import { heldCardLabel, shownHeldCard } from "@/utils/heldCard";
 import { recentMoveDescriptions } from "@/utils/moveDescription";
-import { isRevealed } from "@/utils/reveals";
 import { leaveRoom } from "@/utils/roomNavigation";
-import type { SlotView } from "@/utils/slotView";
 import {
   type Highlight,
   isHighlighted,
   noHighlight,
 } from "@/utils/tableHighlight";
-import { hintFor } from "@/utils/tableHints";
-import {
-  type ClickTarget,
-  type Intent,
-  isSlotMarked,
-} from "@/utils/tableIntent";
+import type { ClickTarget, Intent } from "@/utils/tableIntent";
 import { arrangeOpponents } from "@/utils/tableLayout";
-
-const CONFIRMATION_MS = 3000;
+import {
+  centerView,
+  handView,
+  seatView,
+  type TableViewContext,
+} from "@/utils/tableView";
 
 const props = defineProps<{
   snapshot: SessionSnapshot;
@@ -51,12 +42,6 @@ const props = defineProps<{
 const emit = defineEmits<{ move: [move: Move]; playAgain: [] }>();
 
 const selfId = computed(() => props.snapshot.self.playerId);
-const highlighted = computed(
-  () => props.highlight?.(intent.value) ?? noHighlight,
-);
-const isTargetHighlighted = (target: ClickTarget) =>
-  isHighlighted(highlighted.value, target);
-const online = computed(() => onlinePlayerIds(props.snapshot));
 const reveals = useReveals(
   () => props.snapshot.log,
   props.snapshot.self.playerId,
@@ -70,8 +55,6 @@ const cardFlights = useCardFlights(
 const {
   intent,
   situation,
-  hasSelection,
-  isTakingDiscard,
   targetsOpponents,
   clickable,
   click,
@@ -90,144 +73,63 @@ useTurnAlert(
     props.state.phase.currentPlayerId === selfId.value,
 );
 
+const highlighted = computed(
+  () => props.highlight?.(intent.value) ?? noHighlight,
+);
+const isFinished = computed(() => props.state.phase.kind === "finished");
+
+const viewContext = computed<TableViewContext>(() => ({
+  state: props.state,
+  selfId: selfId.value,
+  intent: intent.value,
+  situation: situation.value,
+  reveals: reveals.value,
+  onlineIds: onlinePlayerIds(props.snapshot),
+  isClickable: clickable,
+  isHighlighted: (target: ClickTarget) =>
+    isHighlighted(highlighted.value, target),
+  hasGivenHighlight: props.highlight !== undefined,
+  hiddenAnchors: cardFlights.hiddenAnchors.value,
+  peekedAnchor: cardFlights.peekedAnchor.value,
+  discardTopWhileFlying: cardFlights.discardTopWhileFlying.value,
+}));
+
 const opponentAreas = computed(() => {
   const { left, top, right } = arrangeOpponents(
     props.state.seats,
     selfId.value,
   );
+  const views = (seats: typeof top) =>
+    seats.map((seat) => ({
+      id: seat.player.id,
+      view: seatView(seat, viewContext.value),
+    }));
   return [
-    { area: "area-top", seats: top },
-    { area: "area-left", seats: left },
-    { area: "area-right", seats: right },
+    { area: "area-top", seats: views(top) },
+    { area: "area-left", seats: views(left) },
+    { area: "area-right", seats: views(right) },
   ];
 });
-const ownSeat = computed(() => findSeat(props.state, selfId.value));
-const isFinished = computed(() => props.state.phase.kind === "finished");
-const currentPlayerId = computed(() =>
-  props.state.phase.kind === "playing"
-    ? props.state.phase.currentPlayerId
-    : null,
-);
-const held = computed(() =>
-  shownHeldCard(props.state, selfId.value, isTakingDiscard.value),
-);
-const discardTop = computed(() => {
-  const whileFlying = cardFlights.discardTopWhileFlying.value;
-  if (whileFlying !== undefined) {
-    return whileFlying;
-  }
-  return props.state.discardPile[isTakingDiscard.value ? 1 : 0] ?? null;
-});
-const heldLabel = computed(() =>
-  heldCardLabel(props.state, selfId.value, held.value, isTakingDiscard.value),
-);
-const heldFaceUp = computed(() => held.value?.holderId === selfId.value);
-const discardConfirmsSwap = computed(
-  () =>
-    hasSelection.value &&
-    (situation.value.kind === "holding" || isTakingDiscard.value),
-);
-/** A given highlight is the only pulse on the discard pile, so it never doubles the swap confirmation. */
-const discardReady = computed(() =>
-  props.highlight
-    ? isTargetHighlighted({ kind: "discardPile" })
-    : discardConfirmsSwap.value,
-);
-const heldMarked = computed(() => intent.value.kind === "action");
-const heldInFlight = computed(() =>
-  cardFlights.hiddenAnchors.value.has(HELD_ANCHOR),
-);
-const recentMoves = computed(() =>
-  recentMoveDescriptions(props.state, props.snapshot.log.moves),
-);
+const center = computed(() => centerView(viewContext.value));
 
-function slotViews(seat: Seat): SlotView[] {
-  return seat.layout.flatMap((card, slotIndex) => {
-    if (!card) {
-      return [];
-    }
-    const slot = { playerId: seat.player.id, slotIndex };
-    const anchor = anchorKey({ kind: "slot", slot });
-    return [
-      {
-        slotIndex,
-        card,
-        faceUp:
-          isFinished.value ||
-          isRevealed(reveals.value, props.state, seat.player.id, slotIndex),
-        clickable: clickable({ kind: "slot", slot }),
-        marked: isSlotMarked(intent.value, slot, selfId.value),
-        highlighted: isTargetHighlighted({ kind: "slot", slot }),
-        anchor,
-        inFlight: cardFlights.hiddenAnchors.value.has(anchor),
-        peeked: cardFlights.peekedAnchor.value === anchor,
-      },
-    ];
-  });
+function selectSlot(playerId: string, slotIndex: number): void {
+  click({ kind: "slot", slot: { playerId, slotIndex } });
 }
 
-function badges(seat: Seat): string[] {
-  return [
-    online.value.has(seat.player.id) ? null : strings.table.offline,
-    props.state.endCallerId === seat.player.id ? strings.table.calledEnd : null,
-  ].filter((badge) => badge !== null);
-}
-
-function selectSlot(seat: Seat, slotIndex: number): void {
-  click({ kind: "slot", slot: { playerId: seat.player.id, slotIndex } });
-}
-
-function selectOwnSlot(slotIndex: number): void {
-  click({ kind: "slot", slot: { playerId: selfId.value, slotIndex } });
-}
-
-const showRememberNotice = computed(() =>
-  reveals.value.some((reveal) => reveal.reason === "startingView"),
-);
-
-const hint = computed(() => hintFor(props.state, selfId.value, intent.value));
-
-/**
- * One line for errors, reminders and hints, so the hand below never moves when the text changes.
- */
-const message = computed(() => {
-  if (props.rejection) {
-    return strings.rejectionMessages[props.rejection];
-  }
-  return showRememberNotice.value ? strings.hints.rememberCards : hint.value;
-});
-
-const leaveConfirmation = useConfirmation(CONFIRMATION_MS);
-const callEndConfirmation = useConfirmation(CONFIRMATION_MS);
-
-function leaveTable(): void {
-  if (isFinished.value) {
-    leaveRoom();
-    return;
-  }
-  leaveConfirmation.request(leaveRoom);
-}
+const hand = computed(() => handView(viewContext.value, props.rejection));
 
 function callEnd(): void {
-  callEndConfirmation.request(() => {
-    emit("move", { type: "callEnd", playerId: selfId.value });
-  });
+  emit("move", { type: "callEnd", playerId: selfId.value });
 }
-
-const canCallEnd = computed(
-  () =>
-    situation.value.kind === "choosing" &&
-    intent.value.kind === "none" &&
-    tryApplyMove(props.state, { type: "callEnd", playerId: selfId.value }).ok,
-);
 
 const bannerText = computed(() =>
   props.state.endCallerId
     ? strings.hints.lastRound(displayName(props.state, props.state.endCallerId))
     : "",
 );
-const bannerHidden = computed(
-  () => !props.state.endCallerId || isFinished.value,
+
+const recentMoves = computed(() =>
+  recentMoveDescriptions(props.state, props.snapshot.log.moves),
 );
 
 const results = computed(() =>
@@ -245,18 +147,13 @@ const results = computed(() =>
     <div v-if="$slots.coach" class="table-coach">
       <slot name="coach" />
     </div>
-    <button
-      type="button"
+    <ConfirmButton
       class="button-quiet table-leave"
-      :class="{ 'button-confirming': leaveConfirmation.armed.value }"
-      @click="leaveTable"
-    >
-      {{
-        leaveConfirmation.armed.value
-          ? strings.table.confirmLeave
-          : strings.table.leave
-      }}
-    </button>
+      :label="strings.table.leave"
+      :confirm-label="strings.table.confirmLeave"
+      :needs-confirmation="!isFinished"
+      @confirm="leaveRoom"
+    />
     <div
       v-for="{ area, seats } in opponentAreas"
       :key="area"
@@ -264,22 +161,21 @@ const results = computed(() =>
       :class="area"
     >
       <PlayerSeat
-        v-for="seat in seats"
-        :key="seat.player.id"
-        :name="seat.player.name"
-        :badges="badges(seat)"
-        :slots="slotViews(seat)"
-        :active="seat.player.id === currentPlayerId"
+        v-for="{ id, view } in seats"
+        :key="id"
+        v-bind="view"
         size="small"
         :compact="!targetsOpponents && !isFinished"
-        @select="(slotIndex) => selectSlot(seat, slotIndex)"
+        @select="(slotIndex) => selectSlot(id, slotIndex)"
       />
     </div>
 
     <div class="table-area area-center">
-      <p class="banner" :class="{ 'banner-hidden': bannerHidden }">
-        {{ bannerText }}
-      </p>
+      <LastRoundBanner
+        v-if="!$slots.coach"
+        :text="bannerText"
+        :visible="state.endCallerId !== null && !isFinished"
+      />
       <ResultsPanel
         v-if="isFinished"
         :state="state"
@@ -290,70 +186,26 @@ const results = computed(() =>
       />
       <TableCenter
         v-else
-        :draw-pile-count="state.drawPile.length"
-        :discard-top="discardTop"
-        :held-card="held?.card ?? null"
-        :held-label="heldLabel"
-        :held-face-up="heldFaceUp"
-        :draw-clickable="clickable({ kind: 'drawPile' })"
-        :discard-clickable="clickable({ kind: 'discardPile' })"
-        :held-clickable="clickable({ kind: 'heldCard' })"
-        :held-marked="heldMarked"
-        :discard-ready="discardReady"
-        :draw-highlighted="isTargetHighlighted({ kind: 'drawPile' })"
-        :held-highlighted="isTargetHighlighted({ kind: 'heldCard' })"
-        :held-in-flight="heldInFlight"
-        :held-is-taken-discard="isTakingDiscard"
+        v-bind="center"
         @draw="click({ kind: 'drawPile' })"
         @discard="click({ kind: 'discardPile' })"
         @held="click({ kind: 'heldCard' })"
       />
 
-      <ul v-if="!isFinished" class="move-log">
-        <li v-for="(description, index) in recentMoves" :key="index">
-          {{ description }}
-        </li>
-      </ul>
+      <MoveLog
+        v-if="!isFinished && !$slots.coach"
+        :descriptions="recentMoves"
+      />
     </div>
 
-    <div class="table-area area-hand">
-      <p
-        class="hint"
-        :class="{
-          'hint-active': situation.kind !== 'waiting',
-          'hint-error': rejection,
-        }"
-      >
-        {{ message }}
-      </p>
-      <PlayerSeat
-        v-if="ownSeat"
-        :name="`${ownSeat.player.name} (${strings.table.you})`"
-        :badges="badges(ownSeat)"
-        :slots="slotViews(ownSeat)"
-        :active="ownSeat.player.id === currentPlayerId"
-        size="large"
-        @select="selectOwnSlot"
-      />
-      <div class="hand-actions">
-        <button
-          v-if="canCallEnd"
-          type="button"
-          class="button-call"
-          :class="{
-            'button-confirming': callEndConfirmation.armed.value,
-            'button-next': highlighted.callEnd,
-          }"
-          @click="callEnd"
-        >
-          {{
-            callEndConfirmation.armed.value
-              ? strings.table.confirmCallEnd
-              : strings.table.callEnd
-          }}
-        </button>
-      </div>
-    </div>
+    <TableHand
+      class="area-hand"
+      v-bind="hand"
+      :show-message="!$slots.coach"
+      :call-end-highlighted="highlighted.callEnd"
+      @select="(slotIndex) => selectSlot(selfId, slotIndex)"
+      @call-end="callEnd"
+    />
     <FlightLayer
       :flights="cardFlights.flights.value"
       @land="cardFlights.land"
@@ -392,12 +244,6 @@ const results = computed(() =>
   --coach-areas: "coach coach coach";
   overflow-y: auto;
   gap: var(--space-2);
-}
-
-.table-with-coach .move-log,
-.table-with-coach .hint,
-.table-with-coach .banner {
-  display: none;
 }
 
 .table-coach {
@@ -439,60 +285,6 @@ const results = computed(() =>
 
 .area-hand {
   grid-area: hand;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.banner-hidden {
-  visibility: hidden;
-}
-
-.banner {
-  min-height: 2.2em;
-  margin: 0;
-  padding: 0.4rem var(--space-4);
-  border-radius: var(--radius-pill);
-  background: var(--color-surface-dim);
-  color: var(--color-accent);
-  font-weight: 600;
-}
-
-.move-log {
-  min-height: 3.9em;
-  margin: 0;
-  padding: 0;
-  color: var(--color-ink-muted);
-  font-size: 0.85rem;
-  line-height: 1.3;
-  list-style: none;
-  text-align: center;
-}
-
-.hint {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  max-width: 40rem;
-  min-height: 2.6em;
-  margin: 0;
-  padding: var(--space-1) var(--space-4);
-  border: 1px solid transparent;
-  border-radius: var(--radius-pill);
-  color: var(--color-ink-muted);
-  line-height: 1.3;
-  text-align: center;
-}
-
-.hint-active {
-  border-color: var(--color-accent-border);
-  background: var(--color-accent-tint);
-  color: var(--color-ink);
-  font-weight: 600;
-}
-
-.hint-error {
-  color: var(--color-error);
-  font-weight: 600;
 }
 
 .table-leave {
@@ -505,13 +297,6 @@ const results = computed(() =>
 
 .table-with-coach .table-leave {
   top: var(--space-4);
-}
-
-.hand-actions {
-  display: flex;
-  align-items: center;
-  min-height: var(--control-height);
-  gap: var(--space-3);
 }
 
 /* Phones: one column, opponents above the table. */
@@ -558,10 +343,6 @@ const results = computed(() =>
   .area-left:empty,
   .area-right:empty {
     display: none;
-  }
-
-  .hint {
-    font-size: 0.9rem;
   }
 }
 </style>
