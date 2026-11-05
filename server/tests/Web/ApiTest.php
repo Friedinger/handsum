@@ -386,7 +386,12 @@ final class ApiTest extends TestCase
     {
         $decoded = json_decode(json_encode($response->payload, JSON_THROW_ON_ERROR), true, flags: JSON_THROW_ON_ERROR);
         self::assertIsArray($decoded);
-        return $decoded;
+        $body = [];
+        foreach ($decoded as $key => $value) {
+            self::assertIsString($key);
+            $body[$key] = $value;
+        }
+        return $body;
     }
 
     /** @return array<mixed> */

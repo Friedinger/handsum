@@ -21,6 +21,23 @@ function failOnPhpErrors(): void
     });
 }
 
+/**
+ * Query parameters like ?0=x arrive with integer keys, which the application does not expect.
+ *
+ * @param array<mixed> $values
+ * @return array<string, string>
+ */
+function stringEntries(array $values): array
+{
+    $entries = [];
+    foreach ($values as $key => $value) {
+        if (is_string($key) && is_string($value)) {
+            $entries[$key] = $value;
+        }
+    }
+    return $entries;
+}
+
 function respond(Response $response, string $dataDir): void
 {
     header('Content-Type: application/json');
@@ -43,11 +60,11 @@ ob_start();
 $dataDir = Config::dataDir();
 $application = new Application($dataDir, static fn(): int => time());
 $body = (string) file_get_contents('php://input', length: Config::MAX_REQUEST_BYTES + 1);
-$server = array_filter($_SERVER, 'is_string');
+$server = stringEntries($_SERVER);
 $response = $application->handle(
     $server['REQUEST_METHOD'] ?? 'GET',
     $server,
-    array_filter($_GET, 'is_string'),
+    stringEntries($_GET),
     $body,
     $server['REMOTE_ADDR'] ?? '',
 );
