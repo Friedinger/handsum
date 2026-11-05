@@ -15,7 +15,19 @@ const PROBED_SLOT_INDICES = Array.from(
   (_, index) => index - 1,
 );
 const MAX_PLAYOUT_MOVES = 200;
+const END_CALL_MOVE_INDEX = 150;
+/** An array replacer fixes the key order, so the order fields are written in does not matter. */
+const MOVE_KEY_FIELDS = [
+  "type",
+  "playerId",
+  "slotIndex",
+  "slotIndices",
+  "ownSlotIndex",
+  "targetPlayerId",
+  "targetSlotIndex",
+];
 
+/** Kept apart from the engine's own subset helper so the oracle shares no code with what it checks. */
 function subsets(items: readonly number[]): number[][] {
   return items.reduce<number[][]>(
     (all, item) => [...all, ...all.map((subset) => [...subset, item])],
@@ -67,9 +79,9 @@ function probedMoves(state: StartedGame, playerId: PlayerId): Move[] {
 function moveKey(move: Move): string {
   if ("slotIndices" in move) {
     const sorted = [...move.slotIndices].sort((a, b) => a - b);
-    return JSON.stringify({ ...move, slotIndices: sorted });
+    return JSON.stringify({ ...move, slotIndices: sorted }, MOVE_KEY_FIELDS);
   }
-  return JSON.stringify(move);
+  return JSON.stringify(move, MOVE_KEY_FIELDS);
 }
 
 function acceptedKeys(state: StartedGame, playerId: PlayerId): string[] {
@@ -77,10 +89,6 @@ function acceptedKeys(state: StartedGame, playerId: PlayerId): string[] {
     (move) => tryApplyMove(state, move).ok,
   );
   return [...new Set(accepted.map(moveKey))].sort();
-}
-
-function listedKeys(state: StartedGame, playerId: PlayerId): string[] {
-  return [...new Set(legalMoves(state, playerId).map(moveKey))].sort();
 }
 
 function actingPlayerId(state: StartedGame): PlayerId | null {
@@ -97,7 +105,10 @@ function actingPlayerId(state: StartedGame): PlayerId | null {
   return null;
 }
 
-/** The states a seeded random game passes through, so every phase and card power comes up. */
+/**
+ * The states a seeded random game passes through, so every phase and card power comes up.
+ * The end is called late so the playout first covers enough turns, then runs through the last round.
+ */
 function playoutStates(playerCount: number, seed: number): StartedGame[] {
   const random = createMulberry32(seed);
   const states = [startedGame(playerCount, seed)];
@@ -107,10 +118,13 @@ function playoutStates(playerCount: number, seed: number): StartedGame[] {
     if (!state || !playerId) {
       break;
     }
-    const options = legalMoves(state, playerId).filter(
-      (move) => move.type !== "callEnd",
-    );
-    const chosen = options[Math.floor(random() * options.length)];
+    const options = legalMoves(state, playerId);
+    const endCall = options.find((move) => move.type === "callEnd");
+    const otherOptions = options.filter((move) => move.type !== "callEnd");
+    const chosen =
+      step >= END_CALL_MOVE_INDEX && endCall
+        ? endCall
+        : otherOptions[Math.floor(random() * otherOptions.length)];
     if (!chosen) {
       break;
     }
@@ -119,7 +133,7 @@ function playoutStates(playerCount: number, seed: number): StartedGame[] {
   return states;
 }
 
-const PLAYED_MOVE_TYPES: readonly MoveType[] = [
+const LISTED_MOVE_TYPES: readonly MoveType[] = [
   "viewStartingCards",
   "drawFromDeck",
   "discardDrawnCard",
@@ -139,16 +153,21 @@ describe("legalMoves", () => {
     "lists exactly the moves the engine accepts (%i players, seed %i)",
     (playerCount, seed) => {
       const listedTypes = new Set<MoveType>();
-      for (const state of playoutStates(playerCount, seed)) {
+      const states = playoutStates(playerCount, seed);
+      for (const [step, state] of states.entries()) {
         for (const seat of state.seats) {
-          const listed = listedKeys(state, seat.player.id);
-          expect(listed).toEqual(acceptedKeys(state, seat.player.id));
-          for (const move of legalMoves(state, seat.player.id)) {
+          const context = `step ${String(step)}, ${seat.player.id}, ${state.phase.kind}`;
+          const moves = legalMoves(state, seat.player.id);
+          const listed = [...new Set(moves.map(moveKey))].sort();
+          expect(moves, context).toHaveLength(listed.length);
+          expect(listed, context).toEqual(acceptedKeys(state, seat.player.id));
+          for (const move of moves) {
             listedTypes.add(move.type);
           }
         }
       }
-      expect([...listedTypes].sort()).toEqual([...PLAYED_MOVE_TYPES].sort());
+      expect(states.at(-1)?.phase.kind).toBe("finished");
+      expect([...listedTypes].sort()).toEqual([...LISTED_MOVE_TYPES].sort());
     },
   );
 
