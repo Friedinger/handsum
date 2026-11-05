@@ -40,6 +40,7 @@ function stringEntries(array $values): array
 
 function respond(Response $response, string $dataDir): void
 {
+    header_remove('X-Powered-By');
     header('Content-Type: application/json');
     header('Cache-Control: no-store');
     header('X-Content-Type-Options: nosniff');
