@@ -30,6 +30,8 @@ function bundleServer(): Plugin {
 export default defineConfig({
   plugins: [vue(), bundleServer()],
   base: "./",
+  // All components use <script setup>, so the Options API support can be dropped from the bundle.
+  define: { __VUE_OPTIONS_API__: false },
   resolve: {
     alias: {
       "@": "/src",
