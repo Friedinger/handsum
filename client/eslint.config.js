@@ -1,33 +1,66 @@
 import jsEslintConfig from "@eslint/js";
 import { vueTsConfigs, withVueTs } from "@vue/eslint-config-typescript";
-import { ESLint } from "eslint";
 import { globalIgnores } from "eslint/config";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 import pluginVue from "eslint-plugin-vue";
 
-const VUE_IMPORTS = ["vue", "vue/*", "@vue/*", "*.vue"];
-const folder = (name) => [`@/${name}`, `@/${name}/**`];
-const NET = folder("net");
-const COMPONENTS = folder("components");
-const COMPOSABLES = folder("composables");
-const VIEWS = folder("views");
-const UTILS = folder("utils");
-const APP = ["@/App.vue"];
+const folderPatterns = (name) => [`@/${name}`, `@/${name}/**`];
 
-function restrictImports(files, patterns) {
-  return {
-    files,
-    rules: {
-      "no-restricted-imports": [
-        "error",
-        {
-          patterns: patterns.map(({ group, message }) => ({ group, message })),
-        },
-      ],
-    },
-  };
-}
+const MODULES = {
+  vue: ["vue", "vue/*", "@vue/*", "*.vue"],
+  engine: folderPatterns("engine"),
+  data: folderPatterns("data"),
+  strings: folderPatterns("data/strings"),
+  net: folderPatterns("net"),
+  utils: folderPatterns("utils"),
+  composables: folderPatterns("composables"),
+  components: folderPatterns("components"),
+  views: folderPatterns("views"),
+  app: ["@/App.vue"],
+};
+
+const LOGIC = ["engine", "data", "strings"];
+const UI_BASE = ["vue", ...LOGIC, "net", "utils"];
+
+const LAYERS = [
+  {
+    folder: "engine",
+    allows: ["data"],
+    reason:
+      "The engine is pure game logic and depends on nothing but its own folder and the card data.",
+  },
+  {
+    folder: "data",
+    allows: ["engine", "strings"],
+    reason: "Data may only depend on the engine types.",
+  },
+  {
+    folder: "net",
+    allows: LOGIC,
+    reason: "The network layer must not depend on the UI.",
+  },
+  {
+    folder: "utils",
+    allows: LOGIC,
+    reason: "Utils are framework-free and may only use the engine and data.",
+  },
+  {
+    folder: "composables",
+    allows: UI_BASE,
+    reason: "Composables must not depend on components or views.",
+  },
+  {
+    folder: "components",
+    allows: [...UI_BASE, "composables"],
+    reason: "Components must not depend on views.",
+  },
+  {
+    folder: "views",
+    allows: [...UI_BASE, "composables", "components"],
+    reason: "Views must not depend on the app shell.",
+  },
+];
 
 const RELATIVE_IMPORTS = {
   group: ["./*", "./**", "../*", "../**"],
@@ -38,19 +71,7 @@ const TEST_ALIAS_IMPORTS = {
   message: "Production code must not import from test/.",
 };
 
-function layer(folderName, layerDescription, ...forbidden) {
-  return restrictImports(
-    [`src/${folderName}/**`],
-    [
-      RELATIVE_IMPORTS,
-      TEST_ALIAS_IMPORTS,
-      { group: forbidden.flat(), message: layerDescription },
-    ],
-  );
-}
-
 export default withVueTs(
-  ESLint.defaultConfig,
   jsEslintConfig.configs.recommended,
   pluginVue.configs["flat/recommended"],
   vueTsConfigs.strictTypeChecked,
@@ -87,60 +108,38 @@ export default withVueTs(
       "simple-import-sort/exports": "warn",
     },
   },
-  layer(
-    "engine",
-    "The engine is pure game logic and depends on nothing but its own folder and the card data.",
-    VUE_IMPORTS,
-    NET,
-    COMPONENTS,
-    COMPOSABLES,
-    VIEWS,
-    UTILS,
-    APP,
-    ["@/data/strings"],
-  ),
-  layer(
-    "data",
-    "Data may only depend on the engine types.",
-    VUE_IMPORTS,
-    NET,
-    COMPONENTS,
-    COMPOSABLES,
-    VIEWS,
-    UTILS,
-    APP,
-  ),
-  layer(
-    "net",
-    "The network layer must not depend on the UI.",
-    VUE_IMPORTS,
-    COMPONENTS,
-    COMPOSABLES,
-    VIEWS,
-    UTILS,
-    APP,
-  ),
-  layer(
-    "utils",
-    "Utils are framework-free and may only use the engine and data.",
-    VUE_IMPORTS,
-    NET,
-    COMPONENTS,
-    COMPOSABLES,
-    VIEWS,
-    APP,
-  ),
-  layer(
-    "composables",
-    "Composables must not depend on components or views.",
-    COMPONENTS,
-    VIEWS,
-    APP,
-  ),
-  layer("components", "Components must not depend on views.", VIEWS, APP),
-  layer("views", "Views must not depend on the app shell.", APP),
+  ...LAYERS.map(layerRule),
   restrictImports(["src/*.{ts,vue}"], [RELATIVE_IMPORTS, TEST_ALIAS_IMPORTS]),
   restrictImports(["test/**"], [RELATIVE_IMPORTS]),
   eslintConfigPrettier,
   globalIgnores(["dist", "node_modules"]),
 );
+
+function restrictImports(files, patterns) {
+  return {
+    files,
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: patterns.map(({ group, message }) => ({ group, message })),
+        },
+      ],
+    },
+  };
+}
+
+function layerRule({ folder, allows, reason }) {
+  const allowed = new Set([folder, ...allows]);
+  const forbidden = Object.entries(MODULES)
+    .filter(([name]) => !allowed.has(name))
+    .flatMap(([, patterns]) => patterns);
+  return restrictImports(
+    [`src/${folder}/**`],
+    [
+      RELATIVE_IMPORTS,
+      TEST_ALIAS_IMPORTS,
+      { group: forbidden, message: reason },
+    ],
+  );
+}
