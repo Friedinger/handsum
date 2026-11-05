@@ -26,10 +26,9 @@ jobs:
         with:
           node-version-file: mise.toml
           cache: npm
-          cache-dependency-path: client/package-lock.json
 
       - name: Install dependencies
-        run: npm --prefix client ci
+        run: npm ci
 
       - name: Lint code
         run: npm run client:lint

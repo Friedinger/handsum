@@ -29,7 +29,6 @@ A browser-based multiplayer card game prototype for 2 to 8 players. Players join
 
 ```bash
 npm install
-npm --prefix client install
 ```
 
 ### 🖥️ Start development server

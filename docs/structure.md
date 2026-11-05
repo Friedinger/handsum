@@ -26,7 +26,7 @@ server/            PHP move log server
 docs/              this documentation
 ```
 
-The root `package.json` delegates to `client/`, runs the PHP helpers and formats the files outside `client/`. Install the dependencies with `npm install` and `npm --prefix client install`.
+The root `package.json` is an npm workspace with `client/` as its only member: one `npm install` in the root installs everything into the root `node_modules/` and `package-lock.json`. It delegates to `client/`, runs the PHP helpers and formats the files outside `client/`.
 
 ## How it works
 
