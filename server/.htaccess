@@ -1,5 +1,3 @@
-# Only the API entry point is reachable; sources and stored data are not.
-Require all denied
-<FilesMatch "^index\.php$">
-    Require all granted
+<FilesMatch "^(?!index\.php$)">
+    Require all denied
 </FilesMatch>
