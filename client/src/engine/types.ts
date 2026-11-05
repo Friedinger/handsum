@@ -24,17 +24,17 @@ export interface Seat {
 export type TurnStep =
   { readonly kind: "awaitingChoice" } | HoldingDrawnCardStep;
 
-export interface HoldingDrawnCardStep {
+interface HoldingDrawnCardStep {
   readonly kind: "holdingDrawnCard";
   readonly card: Card;
 }
 
-export interface StartingViewPhase {
+interface StartingViewPhase {
   readonly kind: "startingView";
   readonly viewedPlayerIds: readonly PlayerId[];
 }
 
-export interface PlayingPhase {
+interface PlayingPhase {
   readonly kind: "playing";
   readonly currentPlayerId: PlayerId;
   readonly step: TurnStep;
@@ -47,7 +47,7 @@ export interface PlayerResult {
   readonly isWinner: boolean;
 }
 
-export interface FinishedPhase {
+interface FinishedPhase {
   readonly kind: "finished";
   readonly results: readonly PlayerResult[];
 }
@@ -71,7 +71,7 @@ export type GameEvent =
       readonly card: Card;
     };
 
-export interface NotStartedGame {
+interface NotStartedGame {
   readonly status: "notStarted";
 }
 

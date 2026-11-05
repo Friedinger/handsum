@@ -3,7 +3,7 @@ import { computed, type ComputedRef, onUnmounted, ref } from "vue";
 import { normalizeRoomCode } from "@/net/roomCode";
 import { TUTORIAL_ROOM_CODE } from "@/utils/roomNavigation";
 
-export type Route =
+type Route =
   | { readonly kind: "home" }
   | { readonly kind: "tutorial" }
   | { readonly kind: "room"; readonly roomCode: string };

@@ -1,4 +1,4 @@
-export type ShareResult = "shared" | "cancelled" | "failed";
+type ShareResult = "shared" | "cancelled" | "failed";
 
 export function canShareLink(): boolean {
   return typeof navigator.share === "function";

@@ -44,7 +44,7 @@ export interface PageVisibility {
   ) => void;
 }
 
-export interface PollingOptions {
+interface PollingOptions {
   readonly fetch: typeof fetch;
   readonly page: PageVisibility;
   readonly apiUrl?: string;
@@ -55,7 +55,7 @@ interface Reply {
   readonly body: unknown;
 }
 
-export function pollDelay(failures: number, quietMs: number): number {
+function pollDelay(failures: number, quietMs: number): number {
   if (failures > 0) {
     return Math.min(FIRST_RETRY_MS * 2 ** (failures - 1), MAX_RETRY_MS);
   }

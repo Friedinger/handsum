@@ -11,7 +11,7 @@ export interface SyncedLog {
   readonly state: GameState;
 }
 
-export type AppendOutcome =
+type AppendOutcome =
   | { readonly kind: "accepted"; readonly log: SyncedLog }
   | { readonly kind: "rejected"; readonly reason: MoveRejection };
 

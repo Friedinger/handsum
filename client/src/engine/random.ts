@@ -2,7 +2,7 @@ const UINT32_RANGE = 2 ** 32;
 const MULBERRY32_INCREMENT = 0x6d2b79f5;
 const GOLDEN_RATIO_32 = 0x9e3779b9;
 
-export type RandomSource = () => number;
+type RandomSource = () => number;
 
 export function isValidSeed(seed: number): boolean {
   return Number.isInteger(seed) && seed >= 0 && seed < UINT32_RANGE;

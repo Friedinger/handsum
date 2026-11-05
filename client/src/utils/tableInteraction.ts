@@ -15,7 +15,7 @@ import {
   type TakingDiscardIntent,
 } from "@/utils/tableIntent";
 
-export interface ClickOutcome {
+interface ClickOutcome {
   readonly intent: Intent;
   readonly move: Move | null;
 }

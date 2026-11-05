@@ -1,6 +1,6 @@
 import type { PlayerId, Seat } from "@/engine";
 
-export interface TableSides {
+interface TableSides {
   readonly left: readonly Seat[];
   readonly top: readonly Seat[];
   readonly right: readonly Seat[];

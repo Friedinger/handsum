@@ -11,11 +11,11 @@ export type ClickTarget =
   | { readonly kind: "discardPile" }
   | { readonly kind: "heldCard" };
 
-export interface NoIntent {
+interface NoIntent {
   readonly kind: "none";
 }
 
-export interface PickStartingCardsIntent {
+interface PickStartingCardsIntent {
   readonly kind: "pickStartingCards";
   readonly slotIndices: readonly number[];
 }
@@ -25,7 +25,7 @@ export interface TakingDiscardIntent {
   readonly slotIndices: readonly number[];
 }
 
-export interface SelectingSwapCardsIntent {
+interface SelectingSwapCardsIntent {
   readonly kind: "selectingSwapCards";
   readonly slotIndices: readonly number[];
 }

@@ -23,7 +23,7 @@ import {
 export const FLIGHT_MS = 450;
 const PEEK_MS = 1600;
 
-export interface Box {
+interface Box {
   readonly left: number;
   readonly top: number;
   readonly width: number;

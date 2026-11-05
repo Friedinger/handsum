@@ -9,12 +9,12 @@ import {
   type TutorialStepId,
 } from "@/utils/tutorialScript";
 
-export interface CoachText {
+interface CoachText {
   readonly title: string;
   readonly text: string;
 }
 
-export interface TutorialGuide {
+interface TutorialGuide {
   readonly step: TutorialStepId;
   readonly coach: CoachText;
   readonly hintAgainst: (move: Move) => string | null;

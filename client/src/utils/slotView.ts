@@ -14,7 +14,7 @@ export interface SlotView {
 
 export type CardSize = "large" | "medium" | "small";
 
-export type ValueTier = "low" | "middle" | "action" | "plain-high";
+type ValueTier = "low" | "middle" | "action" | "plain-high";
 
 const LOW_VALUE_LIMIT = 3;
 const MIDDLE_VALUE_LIMIT = 6;

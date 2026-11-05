@@ -13,7 +13,7 @@ const FAILED_SWAP_REVEAL_MS = 4000;
 
 type CardsRevealedEvent = Extract<GameEvent, { type: "cardsRevealed" }>;
 
-export type RevealReason = "startingView" | "viewed" | "failedSwap";
+type RevealReason = "startingView" | "viewed" | "failedSwap";
 
 export interface Reveal {
   readonly reason: RevealReason;
