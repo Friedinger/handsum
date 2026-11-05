@@ -5,7 +5,6 @@ import { globalIgnores } from "eslint/config";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 import pluginVue from "eslint-plugin-vue";
-import globals from "globals";
 
 const VUE_IMPORTS = ["vue", "vue/*", "@vue/*", "*.vue"];
 const folder = (name) => [`@/${name}`, `@/${name}/**`];
@@ -39,7 +38,6 @@ const TEST_ALIAS_IMPORTS = {
   message: "Production code must not import from test/.",
 };
 
-// Later config blocks replace this rule entirely, so each layer lists everything it forbids.
 function layer(folderName, layerDescription, ...forbidden) {
   return restrictImports(
     [`src/${folderName}/**`],
@@ -58,7 +56,6 @@ export default withVueTs(
   vueTsConfigs.strictTypeChecked,
   vueTsConfigs.stylisticTypeChecked,
   {
-    languageOptions: { globals: globals.browser },
     linterOptions: {
       reportUnusedDisableDirectives: "error",
       reportUnusedInlineConfigs: "error",
@@ -70,7 +67,6 @@ export default withVueTs(
   {
     files: ["**/*.js"],
     extends: [vueTsConfigs.disableTypeChecked],
-    languageOptions: { globals: globals.node },
   },
   {
     plugins: { "simple-import-sort": simpleImportSort },
