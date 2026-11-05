@@ -44,7 +44,7 @@ Browser-based multiplayer card game prototype (2–8 players, join via link). No
 
 - Work in milestones (M0–M4). After each milestone: stop, summarize in at most 10 lines, describe how to test, wait for approval.
 - Ambiguous rules: choose the simplest solution and mention it in the milestone report (not documented in the repo).
-- Before committing: `npm run lint` (type check, Prettier, ESLint) and `npm test`; `npm run fix` repairs formatting and lint issues.
+- Before committing: `npm run lint` (type check, ESLint, Prettier, PHP checks) and `npm test`; `npm run fix` repairs formatting and lint issues.
 
 ## Git
 

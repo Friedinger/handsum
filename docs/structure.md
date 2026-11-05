@@ -26,7 +26,7 @@ server/            PHP move log server
 docs/              this documentation
 ```
 
-The root `package.json` is an npm workspace with `client/` as its only member: one `npm install` in the root installs everything into the root `node_modules/` and `package-lock.json`. It delegates to `client/`, runs the PHP helpers and formats the files outside `client/`.
+The root `package.json` is an npm workspace with `client/` as its only member: one `npm install` in the root installs everything into the root `node_modules/` and `package-lock.json`. It delegates to `client/`, runs the PHP helpers and formats all files with Prettier.
 
 ## How it works
 
@@ -65,18 +65,18 @@ Whoever knows a room link can read and write that room: the server does not auth
 | Command                  | Purpose                                                     |
 | ------------------------ | ----------------------------------------------------------- |
 | `npm run dev`            | Start the PHP API and the Vite dev server together          |
-| `npm run lint`           | Run all lint checks (client, other files, server)           |
-| `npm run fix`            | Run all fixes (client, other files, server)                 |
+| `npm run lint`           | Run all lint checks (client, formatting, server)            |
+| `npm run fix`            | Run all fixes (client, formatting, server)                  |
 | `npm test`               | Run client and server tests                                 |
 | `npm run client:dev`     | Start the Vite dev server                                   |
 | `npm run client:build`   | Type-check and build the deployable site to `client/dist/`  |
 | `npm run client:test`    | Run the client unit tests                                   |
-| `npm run client:lint`    | Type-check, check formatting and lint                       |
-| `npm run client:fix`     | Format, fix lint issues and type-check                      |
+| `npm run client:lint`    | Type-check and lint                                         |
+| `npm run client:fix`     | Fix lint issues and type-check                              |
 | `npm run server:dev`     | Start the PHP API on port 8080 (Compose)                    |
 | `npm run server:install` | Install the PHP test dependencies (Composer in a container) |
 | `npm run server:lint`    | Check the PHP code style and static analysis (Compose)      |
 | `npm run server:fix`     | Fix the PHP code style (Compose)                            |
 | `npm run server:test`    | Run the PHP server tests (PHPUnit, Compose)                 |
-| `npm run root:lint`      | Check the formatting of the files outside `client/`         |
-| `npm run root:fix`       | Format the files outside `client/`                          |
+| `npm run format:check`   | Check the formatting of all files (Prettier)                |
+| `npm run format:fix`     | Format all files (Prettier)                                 |

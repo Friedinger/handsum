@@ -15,8 +15,8 @@
   "author": "Friedinger",
   "scripts": {
     "dev": "run-p --race --print-label server:dev client:dev",
-    "lint": "npm run client:lint && npm run root:lint && npm run server:lint",
-    "fix": "npm run client:fix && npm run root:fix && npm run server:fix",
+    "lint": "npm run client:lint && npm run format:check && npm run server:lint",
+    "fix": "npm run client:fix && npm run format:fix && npm run server:fix",
     "test": "npm run client:test && npm run server:test",
     "client:dev": "npm -w client run dev",
     "client:build": "npm -w client run build",
@@ -28,8 +28,8 @@
     "server:lint": "npm run server:install && docker compose run --rm php-lint",
     "server:fix": "npm run server:install && docker compose run --rm php-fix",
     "server:test": "npm run server:install && docker compose run --rm php-test",
-    "root:lint": "prettier . --check",
-    "root:fix": "prettier . --write"
+    "format:check": "prettier . --check",
+    "format:fix": "prettier . --write"
   },
   "workspaces": [
     "client"

@@ -8,8 +8,8 @@
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "lint": "vue-tsc && prettier . --check && eslint . --max-warnings 0",
-    "fix": "prettier . --write && eslint . --fix && vue-tsc"
+    "lint": "vue-tsc && eslint . --max-warnings 0",
+    "fix": "eslint . --fix && vue-tsc"
   },
   "dependencies": {
     "vue": "3.5.44"

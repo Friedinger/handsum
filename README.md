@@ -58,7 +58,7 @@ npm test   # client and server tests
 ### ✅ Lint
 
 ```bash
-npm run lint   # client, other files and server
+npm run lint   # client, formatting and server
 npm run fix    # autofix where possible
 ```
 
