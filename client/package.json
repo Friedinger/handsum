@@ -12,7 +12,7 @@
     "fix": "eslint . --fix && vue-tsc"
   },
   "dependencies": {
-    "vue": "3.5.44"
+    "vue": "3.5.45"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
