@@ -1,5 +1,5 @@
 x-php: &php
-  image: php:8.5.12-cli-alpine@sha256:1b2f8f7eae55247515bd34586bf6f8eeba70cc3d11a606aaeb26613c44c6e968
+  image: php:8.5.12-cli-alpine@sha256:84378a65d97b18c8f4fd716b8837e1ca0a3c5ec1ea4d3731e2129049e8487c16
   volumes:
     - ./server:/server:Z
 
