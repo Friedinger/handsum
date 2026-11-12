@@ -19,7 +19,7 @@ defineProps<{
   display: flex;
   flex-direction: column;
   padding: var(--space-2) var(--space-3);
-  gap: 0.15rem;
+  gap: var(--space-1);
   border: 1px solid var(--color-accent-border);
   border-radius: var(--radius);
   background: var(--color-surface-dim);

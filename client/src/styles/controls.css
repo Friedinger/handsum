@@ -176,7 +176,7 @@
 
 /* A short status note beside a name, such as "offline". */
 .badge {
-  padding: 0.05rem 0.45rem;
+  padding: 0 var(--space-2);
   border-radius: var(--radius-pill);
   background: var(--color-surface-dim);
   color: var(--color-ink-muted);

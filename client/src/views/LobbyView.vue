@@ -126,12 +126,12 @@ async function share(): Promise<void> {
   flex-wrap: wrap;
   margin: 0;
   padding: 0;
-  gap: 0.4rem;
+  gap: var(--space-2);
   list-style: none;
 }
 
 .player-list li {
-  padding: 0.3rem var(--space-3);
+  padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-pill);
   background: var(--color-surface-dim);
 }

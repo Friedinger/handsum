@@ -10,7 +10,7 @@ defineProps<{ text: string; visible: boolean }>();
 .banner {
   min-height: 2.2em;
   margin: 0;
-  padding: 0.4rem var(--space-4);
+  padding: var(--space-1) var(--space-4);
   border-radius: var(--radius-pill);
   background: var(--color-surface-dim);
   color: var(--color-accent);

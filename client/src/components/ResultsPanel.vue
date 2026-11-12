@@ -133,7 +133,7 @@ const showsTotals = computed(() => props.finishedRounds.length > 1);
 
 .results th,
 .results td {
-  padding: 0.4rem;
+  padding: var(--space-2);
   text-align: left;
 }
 
@@ -156,7 +156,7 @@ const showsTotals = computed(() => props.finishedRounds.length > 1);
   display: inline-flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.25rem 0.4rem;
+  gap: var(--space-1) var(--space-2);
 }
 
 .result-winner td {
@@ -181,7 +181,7 @@ const showsTotals = computed(() => props.finishedRounds.length > 1);
 
   .results th,
   .results td {
-    padding: 0.4rem 0.25rem;
+    padding: var(--space-2) var(--space-1);
   }
 
   .results td:first-child {

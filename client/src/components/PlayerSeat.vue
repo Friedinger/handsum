@@ -71,7 +71,7 @@ const emit = defineEmits<{ select: [slotIndex: number] }>();
   display: flex;
   align-items: center;
   max-width: 100%;
-  gap: 0.4rem;
+  gap: var(--space-2);
   font-size: 0.9rem;
   white-space: nowrap;
 }
@@ -125,15 +125,11 @@ const emit = defineEmits<{ select: [slotIndex: number] }>();
 
 @media (max-width: 40rem) {
   .player-seat {
-    padding: var(--space-1) 0.35rem;
+    padding: var(--space-1) var(--space-2);
   }
 
   .seat-small {
     min-width: 0;
-  }
-
-  .seat-cards {
-    gap: 0.35rem;
   }
 }
 </style>

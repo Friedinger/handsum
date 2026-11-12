@@ -96,7 +96,7 @@ const emit = defineEmits<{ draw: []; discard: []; held: [] }>();
   flex-direction: column;
   align-items: center;
   width: var(--card-width-large);
-  gap: 0.35rem;
+  gap: var(--space-1);
 }
 
 .pile-held {

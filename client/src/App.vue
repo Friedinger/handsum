@@ -85,7 +85,7 @@ const DevView = import.meta.env.DEV
 
 /* The big title with the card fan frames every page except the game itself, which needs the room. */
 .app:not(:has(.game-table)) > header h1 {
-  margin-top: 2.5rem;
+  margin-top: var(--space-6);
   font-size: 2.4rem;
 }
 

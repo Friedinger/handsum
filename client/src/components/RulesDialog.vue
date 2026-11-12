@@ -95,7 +95,7 @@ function close(): void {
 }
 
 .rules-section ul {
-  padding-left: 1.2rem;
+  padding-left: var(--space-5);
 }
 
 .rules-section li + li {

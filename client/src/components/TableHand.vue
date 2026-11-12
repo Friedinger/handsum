@@ -56,7 +56,7 @@ const emit = defineEmits<{ select: [slotIndex: number]; callEnd: [] }>();
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.6rem;
+  gap: var(--space-2);
 }
 
 .hint {
