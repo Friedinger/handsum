@@ -77,10 +77,10 @@ const emit = defineEmits<{ select: [slotIndex: number] }>();
   white-space: nowrap;
 }
 
-/* Opponent seats always take the width of four spread-out cards, so expanding them for an
-   action or adding a badge never pushes the rest of the table around. */
+/* Opponent seats always take at least the width of four spread-out cards, so expanding them for
+   an action never pushes the rest of the table around. Only a long label may widen them. */
 .seat-small {
-  width: calc(var(--card-width-small) * 4 + 0.5rem * 3 + 1.5rem + 4px);
+  min-width: calc(var(--card-width-small) * 4 + 0.5rem * 3 + 1.5rem + 4px);
 }
 
 .seat-name {
@@ -114,13 +114,23 @@ const emit = defineEmits<{ select: [slotIndex: number] }>();
   margin-left: calc(var(--card-width) * -0.55);
 }
 
+/* Overlapping cards only show their left edge, so a revealed one keeps its value in the corner. */
+.seat-compact :deep(.card-small .card-center) {
+  display: none;
+}
+
+.seat-compact :deep(.card-small .card-corner) {
+  display: block;
+  font-size: 1.5em;
+}
+
 @media (max-width: 40rem) {
   .player-seat {
     padding: var(--space-1) 0.35rem;
   }
 
   .seat-small {
-    width: auto;
+    min-width: 0;
   }
 
   .seat-small .seat-cards {

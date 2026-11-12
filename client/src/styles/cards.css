@@ -98,13 +98,14 @@
   text-align: center;
 }
 
-.card-small .card-center,
+.card-small .card-corner,
+.card-small .card-symbol,
 .card-small .card-action {
   display: none;
 }
 
-.card-small .card-corner {
-  font-size: 1.5em;
+.card-small .card-value {
+  font-size: 3em;
 }
 
 .card-clickable {
