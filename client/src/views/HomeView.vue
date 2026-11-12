@@ -2,10 +2,11 @@
 import { ref } from "vue";
 
 import { disclaimerUrl } from "@/data/buildInfo";
-import { strings } from "@/data/strings";
+import { devModeStrings, strings } from "@/data/strings";
 import { normalizeRoomCode, randomRoomCode } from "@/net/roomCode";
-import { openRoom, openTutorial } from "@/utils/roomNavigation";
+import { openDevMode, openRoom, openTutorial } from "@/utils/roomNavigation";
 
+const devModeLabel = import.meta.env.DEV ? devModeStrings().open : null;
 const codeInput = ref("");
 const showInvalidCode = ref(false);
 
@@ -42,9 +43,19 @@ function joinRoom(): void {
     <p v-if="showInvalidCode" class="error">
       {{ strings.home.invalidRoomCode }}
     </p>
-    <button type="button" class="button-secondary" @click="openTutorial">
-      {{ strings.tutorial.open }}
-    </button>
+    <div class="home-extras">
+      <button type="button" class="button-secondary" @click="openTutorial">
+        {{ strings.tutorial.open }}
+      </button>
+      <button
+        v-if="devModeLabel"
+        type="button"
+        class="button-secondary"
+        @click="openDevMode"
+      >
+        {{ devModeLabel }}
+      </button>
+    </div>
   </section>
   <p class="disclaimer">
     <a v-if="disclaimerUrl" :href="disclaimerUrl">{{
@@ -55,6 +66,15 @@ function joinRoom(): void {
 </template>
 
 <style scoped>
+.home-extras {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.home-extras > * {
+  flex: 1;
+}
+
 .disclaimer {
   margin-top: var(--space-6);
   color: var(--color-ink-muted);

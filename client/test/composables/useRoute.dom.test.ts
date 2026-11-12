@@ -10,9 +10,10 @@ function changeHash(hash: string): void {
 }
 
 describe("parseRoute", () => {
-  it("recognises the home page, the tutorial and rooms", () => {
+  it("recognises the home page, the tutorial, the test mode and rooms", () => {
     expect(parseRoute("")).toEqual({ kind: "home" });
     expect(parseRoute("#tutorial")).toEqual({ kind: "tutorial" });
+    expect(parseRoute("#dev")).toEqual({ kind: "dev" });
     expect(parseRoute("#abcdef")).toEqual({ kind: "room", roomCode: "ABCDEF" });
   });
 

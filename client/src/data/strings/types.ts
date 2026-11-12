@@ -1,4 +1,5 @@
 import type { en } from "@/data/strings/en";
+import type { devMode } from "@/data/strings/en/devMode";
 
 /** English is the reference: its texts are widened from literals to string, so other languages need the same keys, not the same words. */
 type Widen<T> = T extends string
@@ -10,3 +11,5 @@ type Widen<T> = T extends string
       : T;
 
 export type Strings = Widen<typeof en>;
+
+export type DevModeStrings = Widen<typeof devMode>;

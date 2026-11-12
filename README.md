@@ -37,9 +37,9 @@ npm install
 npm run dev   # PHP API on port 8080 and Vite together, Ctrl+C stops both
 ```
 
-`npm run server:dev` and `npm run client:dev` start them one by one in separate terminals.
+`npm run server:dev` and `npm run client:dev` start them one by one in separate terminals. `npm run dev:lan` also makes the dev server reachable from other devices in the network, for example a phone.
 
-To try it alone, open the room link in two browser windows.
+To try it alone, open the room link in two browser windows, or open the test mode (`#dev`, only on the dev server) to play against bots with 2 to 8 players.
 
 ### 🏗️ Build
 

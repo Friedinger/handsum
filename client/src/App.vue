@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { defineAsyncComponent } from "vue";
+
 import AppFooter from "@/components/AppFooter.vue";
 import CardFan from "@/components/CardFan.vue";
 import { useRoute } from "@/composables/useRoute";
@@ -8,6 +10,11 @@ import RoomView from "@/views/RoomView.vue";
 import TutorialView from "@/views/TutorialView.vue";
 
 const route = useRoute();
+
+/** Loaded on demand and only on the dev server, so the production build leaves the test mode out. */
+const DevView = import.meta.env.DEV
+  ? defineAsyncComponent(() => import("@/views/DevView.vue"))
+  : null;
 </script>
 
 <template>
@@ -23,6 +30,7 @@ const route = useRoute();
         :room-code="route.roomCode"
       />
       <TutorialView v-else-if="route.kind === 'tutorial'" />
+      <component :is="DevView" v-else-if="route.kind === 'dev' && DevView" />
       <HomeView v-else />
     </main>
     <AppFooter />

@@ -1,7 +1,7 @@
 import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { strings } from "@/data/strings";
+import { devModeStrings, strings } from "@/data/strings";
 import HomeView from "@/views/HomeView.vue";
 
 import { buttonLabelled } from "@test/support/domQueries";
@@ -25,6 +25,14 @@ describe("HomeView", () => {
     await buttonLabelled(wrapper, strings.tutorial.open)?.trigger("click");
 
     expect(location.hash).toBe("#tutorial");
+  });
+
+  it("opens the test mode on the dev server", async () => {
+    const wrapper = mount(HomeView);
+
+    await buttonLabelled(wrapper, devModeStrings().open)?.trigger("click");
+
+    expect(location.hash).toBe("#dev");
   });
 
   it("joins an existing room, ignoring case and spaces", async () => {

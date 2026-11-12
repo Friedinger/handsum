@@ -1,6 +1,8 @@
 import { de } from "@/data/strings/de";
+import { devMode as deDevMode } from "@/data/strings/de/devMode";
 import { en } from "@/data/strings/en";
-import type { Strings } from "@/data/strings/types";
+import { devMode as enDevMode } from "@/data/strings/en/devMode";
+import type { DevModeStrings, Strings } from "@/data/strings/types";
 
 export const LANGUAGES = ["en", "de"] as const;
 
@@ -18,4 +20,12 @@ export let strings: Strings = en;
 export function selectLanguage(language: Language): void {
   activeLanguage = language;
   strings = stringsByLanguage[language];
+}
+
+/**
+ * Kept apart from `strings` so the production build, which never shows the test mode, can drop
+ * these texts.
+ */
+export function devModeStrings(): DevModeStrings {
+  return activeLanguage === "de" ? deDevMode : enDevMode;
 }

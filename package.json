@@ -15,10 +15,12 @@
   "author": "Friedinger",
   "scripts": {
     "dev": "run-p --race --print-label server:dev client:dev",
+    "dev:lan": "run-p --race --print-label server:dev client:dev:lan",
     "lint": "npm run client:lint && npm run format:check && npm run server:lint",
     "fix": "npm run client:fix && npm run format:fix && npm run server:fix",
     "test": "npm run client:test && npm run server:test",
     "client:dev": "npm -w client run dev",
+    "client:dev:lan": "npm -w client run dev:lan",
     "client:build": "npm -w client run build",
     "client:lint": "npm -w client run lint",
     "client:fix": "npm -w client run fix",

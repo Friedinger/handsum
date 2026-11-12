@@ -40,9 +40,15 @@ The API has a single entry point, `api/index.php`. The room is identified by the
 
 ## Tutorial
 
-`#tutorial` opens a guided practice round that runs completely in the browser and never contacts the server. It uses the real game: the same session and table view, connected to an in-memory room (`net/localTransport.ts`) instead of the PHP server. A scripted opponent (`utils/tutorialScript.ts`) joins that room, looks at two of its cards, then keeps drawn cards of up to 4 on a card it has never seen and throws away higher ones, with a short delay so the player can follow. The `startGame` move of the tutorial carries a fixed deck (`TUTORIAL_DECK`), so the drawn cards fit the lessons.
+`#tutorial` opens a guided practice round that runs completely in the browser and never contacts the server. It uses the real game: the same session and table view, connected to an in-memory room (`net/localTransport.ts`) instead of the PHP server. A scripted opponent joins that room and plays like the bots of the test mode (`utils/bot.ts`): it looks at two of its cards, then keeps drawn cards of up to 4 on a card it has never seen and throws away higher ones, with a short delay so the player can follow (`composables/botPlanner.ts`). Unlike them it never announces the end. The `startGame` move of the tutorial carries a fixed deck (`TUTORIAL_DECK`), so the drawn cards fit the lessons.
 
 `utils/tutorialScript.ts` holds the lesson plan: the fixed list of moves the player makes, each with its coach step and a hint. `utils/tutorialGuide.ts` only looks up how many moves the player has made to find the current step, and holds back every move that is not the planned one (the table then shows a hint instead of submitting it). The lessons are: look at the two cards on the left, draw and keep a low card, the three card powers (look at an own card, look at an opponent's card, blind exchange), replacing a group of equal cards, taking the top card of the discard pile, announcing the end once all own cards are known, and the results. `composables/useTutorial.ts` wires session, opponent and guide together, `views/TutorialView.vue` shows the coach (`components/TutorialCoach.vue`) inside the table, `utils/tutorialHighlight.ts` turns the expected move and the current selection into the single next click (`Highlight`: click targets plus the call-end button), which `GameTable` shows as a gently pulsing marker through its optional `highlight` prop (the same `card-ready` look as the confirming discard pile; the real game passes none). The tests play every allowed path through the round against the engine.
+
+## Test mode
+
+On the dev server only, `#dev` (also linked from the home page) opens a test mode for trying the table with any number of players. `views/DevView.vue` sets the player count, the names (prefilled per language with short, long and maximum-length names) and how fast the bots move; the settings are kept in `localStorage` (`composables/useDevSettings.ts`, `utils/devGame.ts`). `composables/useBotGame.ts` then connects the player and one bot per further seat to an in-memory room, like the tutorial does, and starts the game. The bots (`utils/bot.ts`) announce the end once they know all their cards; "End round" makes the next bot announce it at once.
+
+Every entry point checks `import.meta.env.DEV`: the route, the home page button and the lazily loaded view. Vite replaces it with `false` in the production build and drops the test mode with its texts (`devModeStrings`), so the deployed site does not contain it. To try it on a phone, `npm run dev:lan` makes the dev server reachable in the local network; Vite prints the address to open.
 
 ## Languages
 
@@ -67,10 +73,12 @@ Whoever knows a room link can read and write that room: the server does not auth
 | Command                  | Purpose                                                     |
 | ------------------------ | ----------------------------------------------------------- |
 | `npm run dev`            | Start the PHP API and the Vite dev server together          |
+| `npm run dev:lan`        | Like `dev`, but reachable from other devices in the network |
 | `npm run lint`           | Run all lint checks (client, formatting, server)            |
 | `npm run fix`            | Run all fixes (client, formatting, server)                  |
 | `npm test`               | Run client and server tests                                 |
 | `npm run client:dev`     | Start the Vite dev server                                   |
+| `npm run client:dev:lan` | Start the Vite dev server, reachable in the local network   |
 | `npm run client:build`   | Type-check and build the deployable site to `client/dist/`  |
 | `npm run client:test`    | Run the client unit tests                                   |
 | `npm run client:lint`    | Type-check and lint                                         |
