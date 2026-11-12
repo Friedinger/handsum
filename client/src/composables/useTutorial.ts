@@ -1,5 +1,6 @@
 import { computed, onUnmounted, ref, shallowRef, watch } from "vue";
 
+import { createBotPlanner } from "@/composables/botPlanner";
 import type { Move, MoveRejection, Player } from "@/engine";
 import {
   createGameSession,
@@ -25,44 +26,6 @@ function helloOf({ id, name }: Player) {
   return { playerId: id, name };
 }
 
-interface OpponentPlanner {
-  readonly plan: (snapshot: SessionSnapshot) => void;
-  readonly cancel: () => void;
-}
-
-function createOpponentPlanner(submit: (move: Move) => void): OpponentPlanner {
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  let plannedAtMoveCount: number | null = null;
-
-  const cancel = () => {
-    clearTimeout(timer);
-    plannedAtMoveCount = null;
-  };
-
-  const plan = ({ log }: SessionSnapshot) => {
-    const { state, moves } = log;
-    if (state.status !== "started") {
-      cancel();
-      return;
-    }
-    const move = nextOpponentMove(state, moves);
-    if (!move) {
-      cancel();
-      return;
-    }
-    if (plannedAtMoveCount === state.moveCount) {
-      return;
-    }
-    clearTimeout(timer);
-    plannedAtMoveCount = state.moveCount;
-    timer = setTimeout(() => {
-      submit(move);
-    }, OPPONENT_MOVE_DELAY_MS);
-  };
-
-  return { plan, cancel };
-}
-
 interface RunningTutorial {
   readonly player: GameSession;
   readonly stop: () => void;
@@ -73,8 +36,15 @@ function startRunning(
 ): RunningTutorial {
   const connect = createLocalRoom();
   let stopped = false;
-  const planner = createOpponentPlanner((move) => {
-    opponent.submitMove(move);
+  const planner = createBotPlanner({
+    nextMove: ({ log }) =>
+      log.state.status === "started"
+        ? nextOpponentMove(log.state, log.moves)
+        : null,
+    submit: (move) => {
+      opponent.submitMove(move);
+    },
+    delayMs: OPPONENT_MOVE_DELAY_MS,
   });
 
   const player = createGameSession({

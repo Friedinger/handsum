@@ -6,6 +6,7 @@ import {
   type StartedGame,
   STARTING_VIEW_CARD_COUNT,
 } from "@/engine";
+import { nextBotMove } from "@/utils/bot";
 
 export type TutorialStepId = keyof typeof strings.tutorial.steps;
 
@@ -181,44 +182,10 @@ export const TUTORIAL_PLAN: readonly Lesson[] = [
   { step: "callEnd", move: { type: "callEnd" }, hint: hints.callEndNow },
 ];
 
-const OPPONENT_UNSEEN_SLOTS: readonly number[] = [2, 3];
-export const OPPONENT_KEEP_MAX = 4;
-
-/**
- * Robin keeps a drawn card of up to 4 by swapping it onto the next card he has never seen and
- * throws away everything higher. He never uses card powers.
- */
-function opponentTurnMove(moves: readonly Move[], heldValue: number): Move {
-  const playerId = TUTORIAL_OPPONENT.id;
-  const keptCount = moves.filter(
-    (move) => move.playerId === playerId && move.type === "swapDrawnCard",
-  ).length;
-  const unseenSlot = OPPONENT_UNSEEN_SLOTS[keptCount];
-  return heldValue <= OPPONENT_KEEP_MAX && unseenSlot !== undefined
-    ? { type: "swapDrawnCard", playerId, slotIndices: [unseenSlot] }
-    : { type: "discardDrawnCard", playerId };
-}
-
+/** Robin plays like any bot but never announces the end, so the player always gets to do it. */
 export function nextOpponentMove(
   state: StartedGame,
   moves: readonly Move[],
 ): Move | null {
-  const playerId = TUTORIAL_OPPONENT.id;
-  const { phase } = state;
-  if (phase.kind === "startingView") {
-    return phase.viewedPlayerIds.includes(playerId)
-      ? null
-      : {
-          type: "viewStartingCards",
-          playerId,
-          slotIndices: STARTING_VIEW_SLOTS,
-        };
-  }
-  if (phase.kind !== "playing" || phase.currentPlayerId !== playerId) {
-    return null;
-  }
-  if (phase.step.kind === "awaitingChoice") {
-    return { type: "drawFromDeck", playerId };
-  }
-  return opponentTurnMove(moves, phase.step.card.value);
+  return nextBotMove(state, moves, TUTORIAL_OPPONENT.id, "never");
 }

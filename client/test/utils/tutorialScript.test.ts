@@ -7,9 +7,9 @@ import {
   type Move,
   type StartedGame,
 } from "@/engine";
+import { BOT_KEEP_MAX } from "@/utils/bot";
 import {
   nextOpponentMove,
-  OPPONENT_KEEP_MAX,
   TUTORIAL_DECK,
   TUTORIAL_OPPONENT,
   TUTORIAL_PLAYER,
@@ -198,7 +198,7 @@ describe("tutorial script", () => {
       );
       expect(discards.length).toBeGreaterThan(0);
       for (const { stateBefore } of discards) {
-        expect(heldCard(stateBefore)?.value).toBeGreaterThan(OPPONENT_KEEP_MAX);
+        expect(heldCard(stateBefore)?.value).toBeGreaterThan(BOT_KEEP_MAX);
       }
     }
   });
@@ -302,9 +302,7 @@ describe("tutorial opponent", () => {
 
     expect(kept.length).toBeGreaterThan(0);
     for (const { move, stateBefore } of kept) {
-      expect(heldCard(stateBefore)?.value).toBeLessThanOrEqual(
-        OPPONENT_KEEP_MAX,
-      );
+      expect(heldCard(stateBefore)?.value).toBeLessThanOrEqual(BOT_KEEP_MAX);
       expect(move).toMatchObject({ slotIndices: [expect.any(Number)] });
     }
   });
