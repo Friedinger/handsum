@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { Move, StartGameMove } from "@/engine";
 import { appendMove, emptyLog, extendLog } from "@/net/moveLog";
 
-import { replayLog } from "@test/support/logFixtures";
+import { logOf, replayLog } from "@test/support/logFixtures";
 
 const players = [
   { id: "alice", name: "Alice" },
@@ -25,6 +25,24 @@ const bobViews: Move = {
   playerId: "bob",
   slotIndices: [2, 3],
 };
+
+/** The quickest legal round: the first player calls the end, the other discards a drawn card. */
+function shortRound(roundStart: StartGameMove): Move[] {
+  const state = logOf([roundStart, aliceViews, bobViews]).state;
+  if (state.status !== "started" || state.phase.kind !== "playing") {
+    throw new Error("Expected a running game");
+  }
+  const first = state.phase.currentPlayerId;
+  const second = first === "alice" ? "bob" : "alice";
+  return [
+    roundStart,
+    aliceViews,
+    bobViews,
+    { type: "callEnd", playerId: first },
+    { type: "drawFromDeck", playerId: second },
+    { type: "discardDrawnCard", playerId: second },
+  ];
+}
 
 describe("appendMove", () => {
   it("applies a legal move to the log", () => {
@@ -75,22 +93,26 @@ describe("extendLog", () => {
   });
 
   it("accepts a new start after the game has finished", () => {
-    const finished = replayLog([start, aliceViews, bobViews]);
-    const state = finished?.state;
-    if (state?.status !== "started" || state.phase.kind !== "playing") {
-      throw new Error("Expected a running game");
-    }
-    const first = state.phase.currentPlayerId;
-    const second = first === "alice" ? "bob" : "alice";
-    const moves: Move[] = [
-      start,
-      aliceViews,
-      bobViews,
-      { type: "callEnd", playerId: first },
-      { type: "drawFromDeck", playerId: second },
-      { type: "discardDrawnCard", playerId: second },
-      { ...start, seed: 7 },
-    ];
+    const moves = [...shortRound(start), { ...start, seed: 7 }];
     expect(replayLog(moves)?.moves).toHaveLength(moves.length);
+  });
+});
+
+describe("finishedRounds", () => {
+  it("is empty while the first round is running", () => {
+    expect(logOf([start, aliceViews, bobViews]).finishedRounds).toEqual([]);
+  });
+
+  it("keeps the results of every finished round of the room", () => {
+    const rematch = { ...start, seed: 7 };
+    const log = logOf([...shortRound(start), ...shortRound(rematch)]);
+    const { state } = log;
+
+    expect(log.finishedRounds).toHaveLength(2);
+    expect(
+      state.status === "started" && state.phase.kind === "finished"
+        ? state.phase.results
+        : null,
+    ).toBe(log.finishedRounds[1]);
   });
 });
