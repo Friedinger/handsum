@@ -271,6 +271,8 @@ const results = computed(() =>
   flex-direction: column;
   align-items: center;
   min-height: 0;
+  /* It spans the whole upper table, so only the panel itself may catch clicks. */
+  pointer-events: none;
 }
 
 /* The spacers center the results between the opponents and the own cards while they fit there.
@@ -287,6 +289,7 @@ const results = computed(() =>
 
 .table-results > .results-panel {
   flex-shrink: 0;
+  pointer-events: auto;
 }
 
 .table-coach {
@@ -330,7 +333,9 @@ const results = computed(() =>
   grid-area: hand;
 }
 
+/* Above the results and lifted cards, which may reach into the corner. */
 .table-leave {
+  z-index: 2;
   position: absolute;
   top: var(--space-2);
   right: var(--space-3);
