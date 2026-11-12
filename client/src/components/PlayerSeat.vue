@@ -55,7 +55,6 @@ const emit = defineEmits<{ select: [slotIndex: number] }>();
   flex-direction: column;
   align-items: center;
   padding: var(--space-2) var(--space-3);
-  gap: 0.35rem;
   border: 2px solid transparent;
   border-radius: var(--radius);
   transition:
@@ -93,11 +92,16 @@ const emit = defineEmits<{ select: [slotIndex: number] }>();
   flex: none;
 }
 
-/* Room for the lifted (hovered or selected) cards, so they never reach into the name. */
+/* Room for a selected card, which rises 0.6rem and has an outline 5px around it, so it stays clear
+   of the name. Opponents' cards are only selected briefly, so they sit closer to their name. */
 .seat-cards {
   display: flex;
-  padding-top: 1.1rem;
+  padding-top: var(--space-4);
   gap: var(--space-2);
+}
+
+.seat-small .seat-cards {
+  padding-top: var(--space-3);
 }
 
 /* Opponents only need to show how many cards they hold, so their cards overlap. */
@@ -126,10 +130,6 @@ const emit = defineEmits<{ select: [slotIndex: number] }>();
 
   .seat-small {
     min-width: 0;
-  }
-
-  .seat-small .seat-cards {
-    padding-top: 0.4rem;
   }
 
   .seat-cards {
