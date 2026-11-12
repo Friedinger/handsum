@@ -249,10 +249,11 @@ const results = computed(() =>
   box-shadow: inset 0 0 3rem var(--color-shadow);
 }
 
-/* The tutorial coach is a row of the table itself, so the cards below it never get pushed out of view. */
+/* The tutorial coach is a row of the table itself, so the cards below it never get pushed out of view.
+   The leave button gets a row of its own above it, because its confirmation is too wide to fit beside it. */
 .table-with-coach {
-  --coach-rows: auto;
-  --coach-areas: "coach coach coach";
+  --coach-rows: auto auto;
+  --coach-areas: "leave leave leave" "coach coach coach";
   overflow-y: auto;
   gap: var(--space-2);
 }
@@ -294,8 +295,7 @@ const results = computed(() =>
 
 .table-coach {
   grid-area: coach;
-  /* Leaves room on both sides for the leave button, so the coach needs no row of its own above. */
-  max-width: min(44rem, 100% - 10rem);
+  max-width: 44rem;
   margin: 0 auto;
 }
 
@@ -344,7 +344,9 @@ const results = computed(() =>
 }
 
 .table-with-coach .table-leave {
-  top: var(--space-4);
+  position: static;
+  grid-area: leave;
+  justify-self: end;
 }
 
 /* Phones: one column, opponents above the table. */
