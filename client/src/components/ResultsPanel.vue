@@ -66,7 +66,11 @@ const showsTotals = computed(() => props.finishedRounds.length > 1);
           >
             <td>
               <span class="result-name">
-                {{ displayName(state, result.playerId) }}
+                <span
+                  class="result-name-text"
+                  :title="displayName(state, result.playerId)"
+                  >{{ displayName(state, result.playerId) }}</span
+                >
                 <span
                   v-if="result.playerId === state.endCallerId"
                   class="badge"
@@ -174,7 +178,6 @@ const showsTotals = computed(() => props.finishedRounds.length > 1);
     max-height: 40dvh;
   }
 
-  /* Five columns only fit a phone when very long names may break. */
   .results {
     font-size: 0.875rem;
   }
@@ -184,8 +187,24 @@ const showsTotals = computed(() => props.finishedRounds.length > 1);
     padding: var(--space-2) var(--space-1);
   }
 
+  /* Five columns only fit a phone when long names are cut short; the full name shows as a tooltip.
+     Without a width of its own, the name column takes exactly the room the numbers leave. */
   .results td:first-child {
-    overflow-wrap: anywhere;
+    max-width: 0;
+  }
+
+  /* The badge goes below the name, so the name keeps the whole column. */
+  .result-name {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .result-name-text {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 </style>
