@@ -131,6 +131,7 @@ const showsTotals = computed(() => props.finishedRounds.length > 1);
 .results th:not(:first-child),
 .results td:not(:first-child) {
   width: 1%;
+  text-align: center;
   white-space: nowrap;
 }
 
