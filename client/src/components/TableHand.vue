@@ -12,15 +12,17 @@ defineProps<{
   messageIsError: boolean;
   canCallEnd: boolean;
   callEndHighlighted: boolean;
+  finished: boolean;
 }>();
 const emit = defineEmits<{ select: [slotIndex: number]; callEnd: [] }>();
 </script>
 
 <template>
   <div class="table-hand">
-    <!-- One line for errors, reminders and hints, so the hand below never moves when the text changes. -->
+    <!-- One line for errors, reminders and hints, so the hand below never moves when the text changes.
+         Once the round is finished, the results take over both this line and the actions row. -->
     <p
-      v-if="showMessage"
+      v-if="showMessage && !finished"
       class="hint"
       :class="{ 'hint-active': messageActive, 'hint-error': messageIsError }"
     >
@@ -35,7 +37,7 @@ const emit = defineEmits<{ select: [slotIndex: number]; callEnd: [] }>();
       size="large"
       @select="(slotIndex) => emit('select', slotIndex)"
     />
-    <div class="hand-actions">
+    <div v-if="!finished" class="hand-actions">
       <ConfirmButton
         v-if="canCallEnd"
         class="button-call"

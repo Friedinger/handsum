@@ -115,9 +115,8 @@ export const en = {
     playerWins: (player: string) => `${player} wins!`,
     winnerSeparator: " & ",
     playAgain: "Play again",
-    standings: (rounds: number) => `Standings after ${String(rounds)} rounds`,
-    totalScore: "Points",
-    roundsWon: "Rounds won",
+    totalScore: "Total",
+    roundsWon: "Wins",
   },
   roomFull: {
     notice:

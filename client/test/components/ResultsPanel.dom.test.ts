@@ -23,10 +23,10 @@ function mountPanel(
   });
 }
 
-function tableRows(wrapper: ReturnType<typeof mountPanel>, tableIndex = 0) {
-  return (wrapper.findAll("table")[tableIndex]?.findAll("tbody tr") ?? []).map(
-    (row) => row.findAll("td").map((cell) => cell.text()),
-  );
+function tableRows(wrapper: ReturnType<typeof mountPanel>) {
+  return wrapper
+    .findAll("tbody tr")
+    .map((row) => row.findAll("td").map((cell) => cell.text()));
 }
 
 describe("ResultsPanel", () => {
@@ -65,24 +65,24 @@ describe("ResultsPanel", () => {
     ]);
   });
 
-  it("shows no room standings after the first round", () => {
-    expect(mountPanel("player-1").find("h3").exists()).toBe(false);
+  it("shows no room totals after the first round", () => {
+    expect(mountPanel("player-1").findAll("thead th")).toHaveLength(3);
   });
 
-  it("shows the room standings once several rounds have finished", () => {
+  it("adds the room totals from the second round on and ranks by them", () => {
     const earlier: PlayerResult[] = [
       { playerId: "player-1", cardSum: 3, score: 0, isWinner: true },
-      { playerId: "player-2", cardSum: 8, score: 8, isWinner: false },
+      { playerId: "player-2", cardSum: 30, score: 30, isWinner: false },
       { playerId: "player-3", cardSum: 4, score: 4, isWinner: false },
     ];
 
     const wrapper = mountPanel("player-1", [earlier, results]);
 
-    expect(wrapper.find("h3").text()).toBe(strings.table.standings(2));
-    expect(tableRows(wrapper, 1)).toEqual([
-      ["Player 2", "8", "1"],
-      ["Player 3", "13", "0"],
-      ["Player 1", "20", "1"],
+    expect(wrapper.findAll("table")).toHaveLength(1);
+    expect(tableRows(wrapper)).toEqual([
+      ["Player 3", "9", "9", "13", "0"],
+      ["Player 1", "20", "20", "20", "1"],
+      ["Player 2", "5", "0", "30", "1"],
     ]);
   });
 

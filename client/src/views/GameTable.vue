@@ -10,6 +10,7 @@ import ResultsPanel from "@/components/ResultsPanel.vue";
 import TableCenter from "@/components/TableCenter.vue";
 import TableHand from "@/components/TableHand.vue";
 import { useCardFlights } from "@/composables/useCardFlights";
+import { useElementHeight } from "@/composables/useElementHeight";
 import { useReveals } from "@/composables/useReveals";
 import { useTableIntent } from "@/composables/useTableIntent";
 import { useTurnAlert } from "@/composables/useTurnAlert";
@@ -47,6 +48,8 @@ const reveals = useReveals(
   props.snapshot.self.playerId,
 );
 const tableElement = ref<HTMLElement | null>(null);
+const centerElement = ref<HTMLElement | null>(null);
+const centerHeight = useElementHeight(centerElement);
 const cardFlights = useCardFlights(
   tableElement,
   () => props.snapshot.log,
@@ -141,7 +144,7 @@ const results = computed(() =>
   <div
     ref="tableElement"
     class="game-table"
-    :class="{ 'table-with-coach': $slots.coach }"
+    :class="{ 'table-with-coach': $slots.coach, 'table-finished': isFinished }"
     @click="cancelOnEmptyClick"
   >
     <div v-if="$slots.coach" class="table-coach">
@@ -170,14 +173,12 @@ const results = computed(() =>
       />
     </div>
 
-    <div class="table-area area-center">
-      <LastRoundBanner
-        v-if="!$slots.coach"
-        :text="bannerText"
-        :visible="state.endCallerId !== null && !isFinished"
-      />
+    <div
+      v-if="isFinished"
+      class="table-results"
+      :style="{ '--center-height': `${String(centerHeight)}px` }"
+    >
       <ResultsPanel
-        v-if="isFinished"
         :state="state"
         :results="results"
         :finished-rounds="snapshot.log.finishedRounds"
@@ -185,8 +186,16 @@ const results = computed(() =>
         @play-again="emit('playAgain')"
         @leave="leaveRoom"
       />
+    </div>
+
+    <div ref="centerElement" class="table-area area-center">
+      <LastRoundBanner
+        v-if="!$slots.coach"
+        :text="bannerText"
+        :visible="state.endCallerId !== null && !isFinished"
+      />
       <TableCenter
-        v-else
+        v-if="!isFinished"
         v-bind="center"
         @draw="click({ kind: 'drawPile' })"
         @discard="click({ kind: 'discardPile' })"
@@ -203,6 +212,7 @@ const results = computed(() =>
       class="area-hand"
       v-bind="hand"
       :show-message="!$slots.coach"
+      :finished="isFinished"
       :call-end-highlighted="highlighted.callEnd"
       @select="(slotIndex) => selectSlot(selfId, slotIndex)"
       @call-end="callEnd"
@@ -245,6 +255,38 @@ const results = computed(() =>
   --coach-areas: "coach coach coach";
   overflow-y: auto;
   gap: var(--space-2);
+}
+
+/* The results may not push the own cards out of view: their list scrolls instead. */
+.table-finished {
+  grid-template-rows: var(--coach-rows,) auto minmax(0, 1fr) auto;
+}
+
+/* With many players the center alone is too small, so the results may cover the opponents around it. */
+.table-results {
+  display: flex;
+  z-index: 1;
+  grid-row: top-start / center-end;
+  grid-column: 1 / -1;
+  flex-direction: column;
+  align-items: center;
+  min-height: 0;
+}
+
+/* The spacers center the results between the opponents and the own cards while they fit there.
+   Otherwise only the upper one shrinks, so the results grow upwards over the opponents. */
+.table-results::before,
+.table-results::after {
+  flex: 1 1 0;
+  content: "";
+}
+
+.table-results::before {
+  flex-basis: calc(100% - var(--center-height));
+}
+
+.table-results > .results-panel {
+  flex-shrink: 0;
 }
 
 .table-coach {
@@ -343,6 +385,18 @@ const results = computed(() =>
 
   .area-left:empty,
   .area-right:empty {
+    display: none;
+  }
+
+  /* The whole table scrolls here, so the results keep their full height. */
+  .table-results {
+    display: block;
+    grid-area: center;
+    min-height: auto;
+  }
+
+  .table-results::before,
+  .table-results::after {
     display: none;
   }
 }

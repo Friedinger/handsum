@@ -26,57 +26,57 @@ const headline = computed(() => {
   );
 });
 
+/** The room standings decide the order; in the first round they are just the round results. */
+const standings = computed(() => roomStandings(props.finishedRounds));
 const ranked = computed(() =>
-  [...props.results].sort((a, b) => a.score - b.score),
+  standings.value.flatMap((standing) =>
+    props.results.filter((result) => result.playerId === standing.playerId),
+  ),
+);
+const standingOf = computed(
+  () =>
+    new Map(standings.value.map((standing) => [standing.playerId, standing])),
 );
 
-/** After the first round the standings would only repeat the round results. */
-const showsStandings = computed(() => props.finishedRounds.length > 1);
-const standings = computed(() => roomStandings(props.finishedRounds));
+/** After the first round the room totals would only repeat the round results. */
+const showsTotals = computed(() => props.finishedRounds.length > 1);
 </script>
 
 <template>
   <div class="results-panel surface">
     <h2>{{ headline }}</h2>
-    <table class="results">
-      <thead>
-        <tr>
-          <th></th>
-          <th>{{ strings.table.cardSum }}</th>
-          <th>{{ strings.table.score }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="result in ranked"
-          :key="result.playerId"
-          :class="{ 'result-winner': result.isWinner }"
-        >
-          <td>{{ displayName(state, result.playerId) }}</td>
-          <td>{{ result.cardSum }}</td>
-          <td>{{ result.score }}</td>
-        </tr>
-      </tbody>
-    </table>
-    <template v-if="showsStandings">
-      <h3>{{ strings.table.standings(finishedRounds.length) }}</h3>
+    <div class="results-scroll">
       <table class="results">
         <thead>
           <tr>
             <th></th>
-            <th>{{ strings.table.totalScore }}</th>
-            <th>{{ strings.table.roundsWon }}</th>
+            <th>{{ strings.table.cardSum }}</th>
+            <th>{{ strings.table.score }}</th>
+            <template v-if="showsTotals">
+              <th>{{ strings.table.totalScore }}</th>
+              <th>{{ strings.table.roundsWon }}</th>
+            </template>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="standing in standings" :key="standing.playerId">
-            <td>{{ displayName(state, standing.playerId) }}</td>
-            <td>{{ standing.totalScore }}</td>
-            <td>{{ standing.roundsWon }}</td>
+          <tr
+            v-for="result in ranked"
+            :key="result.playerId"
+            :class="{ 'result-winner': result.isWinner }"
+          >
+            <td>{{ displayName(state, result.playerId) }}</td>
+            <td>{{ result.cardSum }}</td>
+            <td>{{ result.score }}</td>
+            <template v-if="showsTotals">
+              <td>
+                {{ standingOf.get(result.playerId)?.totalScore }}
+              </td>
+              <td>{{ standingOf.get(result.playerId)?.roundsWon }}</td>
+            </template>
           </tr>
         </tbody>
       </table>
-    </template>
+    </div>
     <div class="results-actions">
       <button type="button" class="button-primary" @click="emit('playAgain')">
         {{ strings.table.playAgain }}
@@ -93,8 +93,21 @@ const standings = computed(() => roomStandings(props.finishedRounds));
   display: flex;
   flex-direction: column;
   min-width: min(22rem, 100%);
+  max-width: 100%;
+  min-height: 0;
+  max-height: 100%;
   gap: var(--space-4);
   text-align: center;
+}
+
+/* Only the list scrolls, so the headline, the buttons and the own cards below stay in view. */
+.results-scroll {
+  flex: 0 1 auto;
+  min-height: 6rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* Counts the scrollbar into the panel's width, so it never covers the last column. */
+  scrollbar-gutter: stable;
 }
 
 .results-actions {
@@ -110,16 +123,50 @@ const standings = computed(() => roomStandings(props.finishedRounds));
 
 .results th,
 .results td {
-  padding: 0.4rem 0.6rem;
+  padding: 0.4rem;
   text-align: left;
 }
 
-.results tbody tr + tr td {
-  border-top: 1px solid var(--color-panel-edge);
+/* The numbers take only the width they need, which leaves the rest to the names. */
+.results th:not(:first-child),
+.results td:not(:first-child) {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.results thead th {
+  position: sticky;
+  top: 0;
+  background: var(--color-panel);
 }
 
 .result-winner td {
   color: var(--color-accent);
   font-weight: 700;
+}
+
+/* On phones the whole table scrolls, so the list gets a fixed share of the screen instead. */
+@media (max-width: 40rem) {
+  .results-panel {
+    padding: var(--space-3);
+  }
+
+  .results-scroll {
+    max-height: 40dvh;
+  }
+
+  /* Five columns only fit a phone when very long names may break. */
+  .results {
+    font-size: 0.875rem;
+  }
+
+  .results th,
+  .results td {
+    padding: 0.4rem 0.25rem;
+  }
+
+  .results td:first-child {
+    overflow-wrap: anywhere;
+  }
 }
 </style>

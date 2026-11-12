@@ -34,6 +34,7 @@ const baseProps = {
   messageIsError: false,
   canCallEnd: false,
   callEndHighlighted: false,
+  finished: false,
 };
 
 describe("TableHand", () => {
@@ -51,6 +52,16 @@ describe("TableHand", () => {
     });
 
     expect(wrapper.find(".hint").exists()).toBe(false);
+  });
+
+  it("leaves the message and the actions to the results once finished", () => {
+    const wrapper = mount(TableHand, {
+      props: { ...baseProps, canCallEnd: true, finished: true },
+    });
+
+    expect(wrapper.find(".hint").exists()).toBe(false);
+    expect(wrapper.find(".hand-actions").exists()).toBe(false);
+    expect(wrapper.text()).toContain("Robin");
   });
 
   it("passes a click on an own card on as its slot index", async () => {
