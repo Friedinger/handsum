@@ -86,6 +86,24 @@ describe("ResultsPanel", () => {
     ]);
   });
 
+  it("marks who announced the end", () => {
+    const wrapper = mount(ResultsPanel, {
+      props: {
+        state: { ...state, endCallerId: "player-3" },
+        results,
+        finishedRounds: [results],
+        selfId: "player-1",
+      },
+    });
+
+    const badges = wrapper.findAll("tbody .badge");
+    expect(badges.map((badge) => badge.text())).toEqual([
+      strings.table.calledEndShort,
+    ]);
+    expect(badges[0]?.attributes("title")).toBe(strings.table.calledEnd);
+    expect(badges[0]?.element.closest("tr")?.textContent).toContain("Player 3");
+  });
+
   it("offers a rematch and leaving", async () => {
     const wrapper = mountPanel("player-1");
     const [playAgain, leave] = wrapper.findAll("button");

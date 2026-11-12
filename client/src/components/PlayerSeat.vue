@@ -26,7 +26,7 @@ const emit = defineEmits<{ select: [slotIndex: number] }>();
   >
     <div class="seat-label">
       <span class="seat-name">{{ name }}</span>
-      <span v-for="badge in badges" :key="badge" class="seat-badge">{{
+      <span v-for="badge in badges" :key="badge" class="badge seat-badge">{{
         badge
       }}</span>
     </div>
@@ -91,11 +91,6 @@ const emit = defineEmits<{ select: [slotIndex: number] }>();
 
 .seat-badge {
   flex: none;
-  padding: 0.05rem 0.45rem;
-  border-radius: var(--radius-pill);
-  background: var(--color-surface-dim);
-  color: var(--color-ink-muted);
-  font-size: 0.75rem;
 }
 
 /* Room for the lifted (hovered or selected) cards, so they never reach into the name. */

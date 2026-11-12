@@ -64,7 +64,17 @@ const showsTotals = computed(() => props.finishedRounds.length > 1);
             :key="result.playerId"
             :class="{ 'result-winner': result.isWinner }"
           >
-            <td>{{ displayName(state, result.playerId) }}</td>
+            <td>
+              <span class="result-name">
+                {{ displayName(state, result.playerId) }}
+                <span
+                  v-if="result.playerId === state.endCallerId"
+                  class="badge"
+                  :title="strings.table.calledEnd"
+                  >{{ strings.table.calledEndShort }}</span
+                >
+              </span>
+            </td>
             <td>{{ result.cardSum }}</td>
             <td>{{ result.score }}</td>
             <template v-if="showsTotals">
@@ -139,6 +149,14 @@ const showsTotals = computed(() => props.finishedRounds.length > 1);
   position: sticky;
   top: 0;
   background: var(--color-panel);
+}
+
+/* The badge explains the caller's extra points and moves below the name where the column is narrow. */
+.result-name {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.4rem;
 }
 
 .result-winner td {

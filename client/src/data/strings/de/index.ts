@@ -105,6 +105,7 @@ export const de: Strings = {
     yourCard: "Deine Karte",
     takenCard: "Vom Ablagestapel genommen",
     calledEnd: "hat Ende angesagt",
+    calledEndShort: "Ende",
     offline: "offline",
     you: "du",
     leave: "Verlassen",

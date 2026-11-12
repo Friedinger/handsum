@@ -103,6 +103,7 @@ export const en = {
     yourCard: "Your card",
     takenCard: "Taken from the discard pile",
     calledEnd: "called the end",
+    calledEndShort: "End",
     offline: "offline",
     you: "you",
     leave: "Leave",
