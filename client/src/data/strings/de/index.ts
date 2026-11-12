@@ -127,6 +127,6 @@ export const de: Strings = {
   },
   spectator: {
     notice:
-      "Dieses Spiel hat schon begonnen. Nur seine Spieler können wieder beitreten.",
+      "Gerade läuft eine Runde. Lass diese Seite offen, dann spielst du ab der nächsten Runde mit.",
   },
 };

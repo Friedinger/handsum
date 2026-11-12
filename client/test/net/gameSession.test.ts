@@ -20,6 +20,7 @@ const SEED = 7;
 const alice: HelloMessage = { playerId: "alice", name: "Alice" };
 const bob: HelloMessage = { playerId: "bob", name: "Bob" };
 const carol: HelloMessage = { playerId: "carol", name: "Carol" };
+const dave: HelloMessage = { playerId: "dave", name: "Dave" };
 
 interface Client {
   readonly session: GameSession;
@@ -79,17 +80,20 @@ async function playUntilFinished(
 ): Promise<void> {
   const turnOf = (playerId: string) =>
     clients.find((client) => client.latest().self.playerId === playerId);
-  const caller = currentPlayer(clients[0] ?? fail());
+  const first = clients[0] ?? fail();
+  const caller = currentPlayer(first);
   turnOf(caller)?.session.submitMove({ type: "callEnd", playerId: caller });
   await settle(network);
-  const last = currentPlayer(clients[0] ?? fail());
-  turnOf(last)?.session.submitMove({ type: "drawFromDeck", playerId: last });
-  await settle(network);
-  turnOf(last)?.session.submitMove({
-    type: "discardDrawnCard",
-    playerId: last,
-  });
-  await settle(network);
+  while (expectStarted(first.latest().log.state).phase.kind === "playing") {
+    const last = currentPlayer(first);
+    turnOf(last)?.session.submitMove({ type: "drawFromDeck", playerId: last });
+    await settle(network);
+    turnOf(last)?.session.submitMove({
+      type: "discardDrawnCard",
+      playerId: last,
+    });
+    await settle(network);
+  }
 }
 
 function fail(): never {
@@ -198,5 +202,33 @@ describe("game session", () => {
       "bob",
     ]);
     expect(rematch).toEqual(guest.latest().log.state);
+  });
+
+  it("seats everyone online in a rematch, newcomers last", async () => {
+    const network = createMemoryNetwork();
+    const host = join(network, alice);
+    const guest = join(network, bob);
+    const other = join(network, dave);
+    await network.deliverAll();
+    host.session.startGame(SEED);
+    await settle(network);
+    for (const client of [host, guest, other]) {
+      client.session.submitMove(ready(client.latest().self.playerId));
+      await settle(network);
+    }
+    await playUntilFinished(network, [host, guest, other]);
+
+    join(network, carol);
+    guest.session.leave();
+    await network.deliverAll();
+    host.session.startGame(SEED + 2);
+    await settle(network);
+
+    const rematch = expectStarted(host.latest().log.state);
+    expect(rematch.seats.map((seat) => seat.player.id)).toEqual([
+      "alice",
+      "dave",
+      "carol",
+    ]);
   });
 });

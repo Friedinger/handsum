@@ -124,6 +124,7 @@ export const en = {
       "This room is full. Please wait for a free seat or try again later.",
   },
   spectator: {
-    notice: "This game has already started. Only its players can rejoin.",
+    notice:
+      "A round is in progress. Keep this page open and you play along from the next round.",
   },
 } as const;

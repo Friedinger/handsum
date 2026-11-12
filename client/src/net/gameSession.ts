@@ -59,13 +59,22 @@ export function lobbyPlayers(snapshot: SessionSnapshot): Player[] {
 }
 
 /**
- * A rematch keeps the players of the finished game; a first start takes everyone in the lobby.
+ * Everyone online plays: a rematch keeps the order of those who played before and seats newcomers
+ * after them, while players who went offline sit it out.
  */
 function playersForStart(snapshot: SessionSnapshot): Player[] {
+  const online = lobbyPlayers(snapshot);
   const { state } = snapshot.log;
-  return state.status === "started"
-    ? state.seats.map((seat) => seat.player)
-    : lobbyPlayers(snapshot);
+  if (state.status !== "started") {
+    return online;
+  }
+  const onlineIds = new Set(online.map((player) => player.id));
+  const returning = state.seats
+    .map((seat) => seat.player)
+    .filter((player) => onlineIds.has(player.id));
+  const returningIds = new Set(returning.map((player) => player.id));
+  const newcomers = online.filter((player) => !returningIds.has(player.id));
+  return [...returning, ...newcomers];
 }
 
 export function onlinePlayerIds(
