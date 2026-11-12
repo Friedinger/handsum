@@ -4,6 +4,7 @@ import { computed } from "vue";
 import { useBotGame } from "@/composables/useBotGame";
 import { devModeStrings } from "@/data/strings";
 import type { Player } from "@/engine";
+import { HEADER_ACTIONS_ID } from "@/utils/headerActions";
 import GameTable from "@/views/GameTable.vue";
 
 const props = defineProps<{
@@ -29,20 +30,19 @@ const endAlreadyCalled = computed(
 </script>
 
 <template>
-  <div class="dev-toolbar">
+  <Teleport defer :to="`#${HEADER_ACTIONS_ID}`">
     <button
       type="button"
-      class="button-secondary"
+      class="link-quiet end-round"
       :disabled="endRequested || endAlreadyCalled"
       @click="requestEnd"
     >
       {{ texts.endRound }}
     </button>
-    <span v-if="endRequested" class="muted">{{ texts.endRequested }}</span>
-    <button type="button" class="button-quiet" @click="emit('settings')">
+    <button type="button" class="link-quiet settings" @click="emit('settings')">
       {{ texts.settings }}
     </button>
-  </div>
+  </Teleport>
   <GameTable
     v-if="game.status === 'started'"
     :snapshot="snapshot"
@@ -54,12 +54,18 @@ const endAlreadyCalled = computed(
 </template>
 
 <style scoped>
-.dev-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: var(--space-2);
-  gap: var(--space-3);
+/* They sit in the free columns beside the title, one on each side, and stay lower than it, so the
+   header keeps its height. */
+.end-round,
+.settings {
+  padding-block: var(--space-1);
+}
+
+.end-round {
+  justify-self: start;
+}
+
+.settings {
+  justify-self: end;
 }
 </style>

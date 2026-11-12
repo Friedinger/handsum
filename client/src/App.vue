@@ -5,6 +5,7 @@ import AppFooter from "@/components/AppFooter.vue";
 import CardFan from "@/components/CardFan.vue";
 import { useRoute } from "@/composables/useRoute";
 import { strings } from "@/data/strings";
+import { HEADER_ACTIONS_ID } from "@/utils/headerActions";
 import HomeView from "@/views/HomeView.vue";
 import RoomView from "@/views/RoomView.vue";
 import TutorialView from "@/views/TutorialView.vue";
@@ -20,7 +21,10 @@ const DevView = import.meta.env.DEV
 <template>
   <div class="app">
     <header>
-      <h1>{{ strings.appTitle }}</h1>
+      <div class="title-row">
+        <h1>{{ strings.appTitle }}</h1>
+        <div :id="HEADER_ACTIONS_ID" class="header-actions" />
+      </div>
       <CardFan />
     </header>
     <main>
@@ -53,8 +57,25 @@ const DevView = import.meta.env.DEV
   min-height: 0;
 }
 
+/* Actions a page places in the header fill the free columns beside the title, so they take no
+   extra height. */
+.title-row {
+  display: grid;
+  grid-template-columns: minmax(max-content, 1fr) auto minmax(max-content, 1fr);
+  grid-auto-flow: dense;
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.header-actions {
+  display: contents;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
 .app > header h1 {
-  margin: 0 0 var(--space-3);
+  grid-column: 2;
+  margin: 0;
   color: var(--color-accent);
   font-weight: 800;
   font-size: 1.4rem;

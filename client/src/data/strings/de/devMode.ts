@@ -23,6 +23,5 @@ export const devMode: DevModeStrings = {
   start: "Spiel starten",
   invalidNames: "Jeder Spieler braucht einen gültigen Namen.",
   endRound: "Runde beenden",
-  endRequested: "Der nächste Bot sagt das Ende an.",
   settings: "Einstellungen",
 };

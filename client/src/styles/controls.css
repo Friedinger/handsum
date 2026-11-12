@@ -169,6 +169,11 @@
   text-decoration: underline;
 }
 
+.link-quiet:disabled {
+  text-decoration: none;
+  opacity: 0.5;
+}
+
 .muted {
   color: var(--color-ink-muted);
   font-size: 0.9rem;

@@ -22,6 +22,5 @@ export const devMode = {
   start: "Start game",
   invalidNames: "Every player needs a valid name.",
   endRound: "End round",
-  endRequested: "The next bot calls the end.",
   settings: "Settings",
 } as const;
