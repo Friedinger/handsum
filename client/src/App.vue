@@ -42,7 +42,8 @@ const DevView = import.meta.env.DEV
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: var(--space-3) var(--space-4) var(--space-4);
+  /* No room at the bottom: the padded footer links bring the same space above and below. */
+  padding: var(--space-3) var(--space-4) 0;
 }
 
 .app > main {
