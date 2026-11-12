@@ -180,6 +180,7 @@ const results = computed(() =>
         v-if="isFinished"
         :state="state"
         :results="results"
+        :finished-rounds="snapshot.log.finishedRounds"
         :self-id="selfId"
         @play-again="emit('playAgain')"
         @leave="leaveRoom"

@@ -34,6 +34,8 @@ The game logic runs entirely in the browser. The PHP server in `server/` is a du
 
 Everyone who opens a room link enters a name and joins the lobby; anyone in the lobby can start the game. The `startGame` move carries the seed that shuffles the deck. It may instead carry an explicit card order (`deck`, the card values), which must be exactly the standard deck; only the tutorial uses it.
 
+A rematch is another `startGame` move in the same log. While replaying, the client keeps the results of every finished round (`finishedRounds` in `net/moveLog.ts`); `utils/standings.ts` adds them up into the room standings (total points and rounds won) that the results panel shows from the second round on. Nothing about it is stored beyond the room's log, so the standings disappear with the room.
+
 The API has a single entry point, `api/index.php`. The room is identified by the SHA-256 hash of the room code in the `X-Room` header, so the code itself never reaches the server.
 
 ## Tutorial

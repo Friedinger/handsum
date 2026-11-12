@@ -4,10 +4,12 @@ import { computed } from "vue";
 import { strings } from "@/data/strings";
 import type { PlayerId, PlayerResult, StartedGame } from "@/engine";
 import { displayName } from "@/utils/displayName";
+import { roomStandings } from "@/utils/standings";
 
 const props = defineProps<{
   state: StartedGame;
   results: readonly PlayerResult[];
+  finishedRounds: readonly (readonly PlayerResult[])[];
   selfId: PlayerId;
 }>();
 const emit = defineEmits<{ playAgain: []; leave: [] }>();
@@ -27,6 +29,10 @@ const headline = computed(() => {
 const ranked = computed(() =>
   [...props.results].sort((a, b) => a.score - b.score),
 );
+
+/** After the first round the standings would only repeat the round results. */
+const showsStandings = computed(() => props.finishedRounds.length > 1);
+const standings = computed(() => roomStandings(props.finishedRounds));
 </script>
 
 <template>
@@ -52,6 +58,25 @@ const ranked = computed(() =>
         </tr>
       </tbody>
     </table>
+    <template v-if="showsStandings">
+      <h3>{{ strings.table.standings(finishedRounds.length) }}</h3>
+      <table class="results">
+        <thead>
+          <tr>
+            <th></th>
+            <th>{{ strings.table.totalScore }}</th>
+            <th>{{ strings.table.roundsWon }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="standing in standings" :key="standing.playerId">
+            <td>{{ displayName(state, standing.playerId) }}</td>
+            <td>{{ standing.totalScore }}</td>
+            <td>{{ standing.roundsWon }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </template>
     <div class="results-actions">
       <button type="button" class="button-primary" @click="emit('playAgain')">
         {{ strings.table.playAgain }}
