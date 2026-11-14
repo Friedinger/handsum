@@ -38,7 +38,7 @@
   ],
   "devDependencies": {
     "npm-run-all2": "9.0.4",
-    "prettier": "3.9.10",
+    "prettier": "3.10.0",
     "prettier-plugin-css-order": "2.2.0"
   }
 }
