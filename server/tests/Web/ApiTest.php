@@ -175,16 +175,13 @@ final class ApiTest extends TestCase
     public function testAMoveThatDoesNotFitIntoAFullRoomIsRefused(): void
     {
         $pad = str_repeat('x', Config::MAX_BYTES_PER_MOVE - 100);
-        $response = null;
-        for ($sequence = 0; $sequence <= Config::MAX_BYTES_PER_ROOM / strlen($pad); $sequence++) {
+        $sequence = 0;
+        do {
             $body = json_encode(['sequence' => $sequence, 'move' => ['type' => 'a', 'pad' => $pad]], JSON_THROW_ON_ERROR);
             $response = $this->call('POST', self::roomHeader(), ['action' => 'move'], $body);
-            if ($response->status !== 200) {
-                break;
-            }
-        }
+            $sequence++;
+        } while ($response->status === 200 && $sequence <= Config::MAX_BYTES_PER_ROOM / strlen($pad));
 
-        self::assertNotNull($response);
         self::assertSame(413, $response->status);
         self::assertSame(ErrorCode::RoomFull->value, self::wire($response)['error']);
     }
